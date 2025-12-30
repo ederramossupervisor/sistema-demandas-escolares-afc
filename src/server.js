@@ -22,14 +22,18 @@ app.use(express.urlencoded({ extended: true }));
 app.use(cookieParser());
 app.use(express.static(path.join(__dirname, '../public')));
 
-// EJS - IMPORTANTE: Esta ordem deve ser exatamente assim
-app.use(expressLayouts);  // 1. Primeiro usar expressLayouts
-//app.set('view engine', 'ejs');  // 2. Depois configurar view engine
-//app.set('views', path.join(__dirname, '../views'));  // 3. Depois views
-app.set('layout', 'layout');  // 4. Por último o layout
-// EJS - Configuração simples
-app.set('view engine', 'ejs');
-app.set('views', path.join(__dirname, '../views'));
+// EJS COM EXPRESS-LAYOUTS - CONFIGURAÇÃO CORRETA E COMPLETA
+app.use(expressLayouts);                     // 1. Middleware de layouts
+app.set('view engine', 'ejs');               // 2. Motor de templates
+app.set('views', path.join(__dirname, '../views'));  // 3. Pasta das views
+app.set('layout', 'layout');                 // 4. Layout padrão (layout.ejs)
+app.set('layout extractScripts', true);      // 5. Extrair scripts para layout
+app.set('layout extractStyles', true);       // 6. Extrair styles para layout
+
+// LOG PARA DEBUG (opcional, remove depois)
+console.log('✅ Express-EJS-Layouts configurado corretamente');
+console.log(`📁 Layout: ${app.get('layout')}`);
+console.log(`📁 Views: ${app.get('views')}`);
 // ============================================
 // 3. CONEXÃO COM MONGODB
 // ============================================
