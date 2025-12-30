@@ -1,5 +1,4 @@
-<% layout('layout', { title: 'Dashboard - Sistema de Demandas' }) -%>
-<% block('content', function() { %>
+<%- content %>
 <div class="row mb-4">
     <div class="col-12">
         <div class="card shadow border-0">
@@ -204,9 +203,6 @@
 
 <script>
     function criarDemandaRapida() {
-        // Em breve: Modal para criar demanda rápida
-        // Por enquanto, redireciona para página de demandas
         window.location.href = '/demandas';
     }
 </script>
-<% }) %>
