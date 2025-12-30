@@ -8,7 +8,7 @@ const mongoose = require('mongoose');
 // 1. CARREGAR .env
 // ============================================
 require('dotenv').config();
-//const expressLayouts = require('express-ejs-layouts');
+const expressLayouts = require('express-ejs-layouts');
 
 // ============================================
 // 2. CONFIGURAÇÃO DO EXPRESS
@@ -23,10 +23,10 @@ app.use(cookieParser());
 app.use(express.static(path.join(__dirname, '../public')));
 
 // EJS - IMPORTANTE: Esta ordem deve ser exatamente assim
-//app.use(expressLayouts);  // 1. Primeiro usar expressLayouts
+app.use(expressLayouts);  // 1. Primeiro usar expressLayouts
 //app.set('view engine', 'ejs');  // 2. Depois configurar view engine
 //app.set('views', path.join(__dirname, '../views'));  // 3. Depois views
-//app.set('layout', 'layout');  // 4. Por último o layout
+app.set('layout', 'layout');  // 4. Por último o layout
 // EJS - Configuração simples
 app.set('view engine', 'ejs');
 app.set('views', path.join(__dirname, '../views'));
