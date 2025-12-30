@@ -1,0 +1,305 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <%- include('partials/head', {title: 'Login - Sistema de Demandas'}) %>
+    
+    <!-- CSS adicional específico para login -->
+    <style>
+        body {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+        
+        .login-container {
+            animation: fadeIn 0.8s ease-out;
+        }
+        
+        .login-card {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.2);
+            padding: 40px;
+            width: 100%;
+            max-width: 450px;
+            border: 1px solid rgba(255, 255, 255, 0.3);
+        }
+        
+        .login-header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        
+        .login-logo {
+            width: 80px;
+            height: 80px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 20px;
+            color: white;
+            font-size: 32px;
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+        }
+        
+        .login-title {
+            color: #333;
+            font-weight: 700;
+            margin-bottom: 5px;
+        }
+        
+        .login-subtitle {
+            color: #666;
+            font-size: 14px;
+        }
+        
+        .form-group {
+            margin-bottom: 25px;
+        }
+        
+        .form-label {
+            color: #555;
+            font-weight: 600;
+            margin-bottom: 8px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .form-control {
+            border: 2px solid #e1e5e9;
+            border-radius: 10px;
+            padding: 12px 15px;
+            font-size: 16px;
+            transition: all 0.3s ease;
+        }
+        
+        .form-control:focus {
+            border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        }
+        
+        .input-group-text {
+            background-color: #f8f9fa;
+            border: 2px solid #e1e5e9;
+            border-right: none;
+            border-radius: 10px 0 0 10px;
+        }
+        
+        .btn-login {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            border-radius: 10px;
+            padding: 14px;
+            font-size: 16px;
+            font-weight: 600;
+            width: 100%;
+            transition: all 0.3s ease;
+            margin-top: 10px;
+        }
+        
+        .btn-login:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(102, 126, 234, 0.3);
+        }
+        
+        .login-footer {
+            text-align: center;
+            margin-top: 30px;
+            color: #666;
+            font-size: 14px;
+        }
+        
+        .login-footer a {
+            color: #667eea;
+            text-decoration: none;
+            font-weight: 600;
+        }
+        
+        .login-footer a:hover {
+            text-decoration: underline;
+        }
+        
+        .alert {
+            border-radius: 10px;
+            border: none;
+            padding: 15px;
+            margin-bottom: 20px;
+        }
+        
+        /* Animação de fade-in */
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        
+        /* Responsividade */
+        @media (max-width: 576px) {
+            .login-card {
+                padding: 30px 20px;
+            }
+            
+            .login-logo {
+                width: 60px;
+                height: 60px;
+                font-size: 24px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="login-container">
+        <div class="login-card">
+            <!-- Cabeçalho do Login -->
+            <div class="login-header">
+                <div class="login-logo">
+                    <i class="bi bi-shield-lock"></i>
+                </div>
+                <h1 class="login-title">Sistema de Demandas Escolares</h1>
+                <p class="login-subtitle">Acesso restrito à equipe autorizada</p>
+            </div>
+            
+            <!-- Mensagem de erro (se houver) -->
+            <% if (error) { %>
+                <div class="alert alert-danger" role="alert">
+                    <i class="bi bi-exclamation-triangle-fill me-2"></i>
+                    <%= error %>
+                </div>
+            <% } %>
+            
+            <!-- Mensagem de sucesso (se houver) -->
+            <% if (success) { %>
+                <div class="alert alert-success" role="alert">
+                    <i class="bi bi-check-circle-fill me-2"></i>
+                    <%= success %>
+                </div>
+            <% } %>
+            
+            <!-- Formulário de Login -->
+            <form action="/login" method="POST">
+                <div class="form-group">
+                    <label class="form-label" for="email">
+                        <i class="bi bi-envelope"></i> E-mail Institucional
+                    </label>
+                    <div class="input-group">
+                        <span class="input-group-text">
+                            <i class="bi bi-person-badge"></i>
+                        </span>
+                        <input 
+                            type="email" 
+                            class="form-control" 
+                            id="email" 
+                            name="email" 
+                            placeholder="seu.email@escola.gov.br" 
+                            required
+                            value="<%= email || 'supervisor@escola.gov.br' %>"
+                        >
+                    </div>
+                    <small class="text-muted">Use seu e-mail institucional</small>
+                </div>
+                
+                <div class="form-group">
+                    <label class="form-label" for="password">
+                        <i class="bi bi-key"></i> Senha de Acesso
+                    </label>
+                    <div class="input-group">
+                        <span class="input-group-text">
+                            <i class="bi bi-lock"></i>
+                        </span>
+                        <input 
+                            type="password" 
+                            class="form-control" 
+                            id="password" 
+                            name="password" 
+                            placeholder="Digite sua senha" 
+                            required
+                            value="<%= password || 'SenhaAdmin123' %>"
+                        >
+                    </div>
+                    <small class="text-muted">A senha é fornecida pela administração</small>
+                </div>
+                
+                <div class="form-group form-check">
+                    <input type="checkbox" class="form-check-input" id="remember" name="remember">
+                    <label class="form-check-label" for="remember">
+                        Manter-me conectado
+                    </label>
+                </div>
+                
+                <button type="submit" class="btn btn-login">
+                    <i class="bi bi-box-arrow-in-right me-2"></i>
+                    Entrar no Sistema
+                </button>
+            </form>
+            
+            <!-- Rodapé do Login -->
+            <div class="login-footer">
+                <p>
+                    <strong>Credenciais de teste:</strong><br>
+                    E-mail: supervisor@escola.gov.br<br>
+                    Senha: SenhaAdmin123
+                </p>
+                <p class="mt-3">
+                    Problemas para acessar? 
+                    <a href="mailto:suporte@escola.gov.br">Contate o suporte</a>
+                </p>
+                <p class="text-muted small mt-3">
+                    <i class="bi bi-shield-check"></i>
+                    Sistema seguro · Versão 1.0.0
+                </p>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Incluir scripts -->
+    <%- include('partials/scripts') %>
+    
+    <!-- Script adicional para login -->
+    <script>
+        // Efeito de foco no primeiro campo
+        document.addEventListener('DOMContentLoaded', function() {
+            const emailInput = document.getElementById('email');
+            if (emailInput) {
+                emailInput.focus();
+                
+                // Efeito visual ao focar
+                emailInput.addEventListener('focus', function() {
+                    this.parentElement.style.transform = 'scale(1.02)';
+                });
+                
+                emailInput.addEventListener('blur', function() {
+                    this.parentElement.style.transform = 'scale(1)';
+                });
+            }
+            
+            // Mostrar/ocultar senha (opcional - podemos adicionar ícone)
+            console.log('Login carregado com sucesso!');
+            
+            // Animação de entrada
+            const card = document.querySelector('.login-card');
+            card.style.animation = 'fadeIn 0.8s ease-out';
+            
+            // Verificar se há parâmetros de erro na URL
+            const urlParams = new URLSearchParams(window.location.search);
+            if (urlParams.has('error')) {
+                const errorMsg = urlParams.get('error');
+                // Poderíamos mostrar uma notificação aqui
+                console.log('Erro detectado:', errorMsg);
+            }
+        });
+    </script>
+</body>
+</html>

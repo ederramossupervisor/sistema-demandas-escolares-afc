@@ -395,11 +395,15 @@ app.get('/api/auth/perfil', authMiddleware, (req, res) => {
 // ============================================
 
 app.get('/', (req, res) => {
-    res.render('login', {
+    res.render('login-bonito', {
         title: 'Sistema de Demandas Escolares',
         message: 'Bem-vindo! Faça login para continuar.',
         escolas: escolasLista,
-        user: null  // ⭐ ADICIONE ESTA LINHA ⭐
+        user: null,
+        error: null,
+        success: null,
+        email: '',
+        password: ''
     });
 });
 
