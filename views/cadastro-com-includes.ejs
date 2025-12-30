@@ -1,0 +1,647 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <!-- INCLUI o cabeçalho completo -->
+    <%- include('partials/head') %>
+    
+    <!-- CSS adicional para cadastro -->
+    <style>
+        .step-indicator {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 2rem;
+            position: relative;
+        }
+        
+        .step-indicator::before {
+            content: '';
+            position: absolute;
+            top: 15px;
+            left: 0;
+            right: 0;
+            height: 2px;
+            background: #e0e0e0;
+            z-index: 1;
+        }
+        
+        .step {
+            position: relative;
+            z-index: 2;
+            text-align: center;
+            width: 100px;
+        }
+        
+        .step-circle {
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            background: #e0e0e0;
+            color: #666;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 10px;
+            font-weight: bold;
+        }
+        
+        .step.active .step-circle {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+        
+        .step.completed .step-circle {
+            background: #28a745;
+            color: white;
+        }
+        
+        .password-strength {
+            height: 5px;
+            border-radius: 3px;
+            margin-top: 5px;
+            transition: all 0.3s;
+        }
+        
+        .strength-0 { width: 20%; background: #dc3545; }
+        .strength-1 { width: 40%; background: #ffc107; }
+        .strength-2 { width: 60%; background: #ffc107; }
+        .strength-3 { width: 80%; background: #28a745; }
+        .strength-4 { width: 100%; background: #28a745; }
+        
+        .form-section {
+            display: none;
+        }
+        
+        .form-section.active {
+            display: block;
+            animation: fadeIn 0.5s;
+        }
+    </style>
+</head>
+<body>
+    <!-- INCLUI a navbar -->
+    <%- include('partials/navbar') %>
+
+    <div class="container-fluid mt-4">
+        <div class="row">
+            <!-- INCLUI a sidebar -->
+            <%- include('partials/sidebar', {
+                currentPage: 'cadastro',
+                escolas: escolas,
+                user: user
+            }) %>
+
+            <!-- Conteúdo Principal -->
+            <div class="col-md-9">
+                <!-- Cabeçalho da Página -->
+                <div class="row mb-4">
+                    <div class="col-12">
+                        <h1 class="text-gradient">
+                            <i class="fas fa-user-plus me-2"></i> Cadastrar Usuário
+                        </h1>
+                        <p class="text-muted lead">
+                            <i class="fas fa-info-circle me-1"></i>
+                            Cadastre novos usuários no sistema de demandas escolares
+                        </p>
+                    </div>
+                </div>
+
+                <!-- Conteúdo da Página -->
+                <div class="card border-0 shadow-lg">
+                    <div class="card-header">
+                        <h5 class="mb-0 text-white">
+                            <i class="fas fa-id-card me-2"></i> Formulário de Cadastro
+                        </h5>
+                        <small class="text-white opacity-75">Preencha todos os campos obrigatórios (*)</small>
+                    </div>
+                    
+                    <div class="card-body">
+                        <!-- Indicador de Passos -->
+                        <div class="step-indicator">
+                            <div class="step active" id="step1">
+                                <div class="step-circle">1</div>
+                                <small>Dados Pessoais</small>
+                            </div>
+                            <div class="step" id="step2">
+                                <div class="step-circle">2</div>
+                                <small>Credenciais</small>
+                            </div>
+                            <div class="step" id="step3">
+                                <div class="step-circle">3</div>
+                                <small>Permissões</small>
+                            </div>
+                            <div class="step" id="step4">
+                                <div class="step-circle">4</div>
+                                <small>Confirmação</small>
+                            </div>
+                        </div>
+
+                        <!-- Formulário -->
+                        <form id="formCadastroUsuario">
+                            <!-- PASSO 1: Dados Pessoais -->
+                            <div class="form-section active" id="section1">
+                                <h5 class="mb-4 border-bottom pb-2">
+                                    <i class="fas fa-user me-2"></i> Dados Pessoais
+                                </h5>
+                                
+                                <div class="row g-3">
+                                    <div class="col-md-6">
+                                        <label class="form-label fw-bold">
+                                            <i class="fas fa-signature me-1"></i> Nome Completo *
+                                        </label>
+                                        <input type="text" class="form-control" name="nome" required 
+                                               placeholder="Ex: Maria da Silva Santos">
+                                    </div>
+                                    
+                                    <div class="col-md-6">
+                                        <label class="form-label fw-bold">
+                                            <i class="fas fa-envelope me-1"></i> Email Institucional *
+                                        </label>
+                                        <input type="email" class="form-control" name="email" required 
+                                               placeholder="Ex: maria.silva@escola.gov.br">
+                                        <small class="form-text text-muted">Use email institucional da secretaria</small>
+                                    </div>
+                                    
+                                    <div class="col-md-6">
+                                        <label class="form-label fw-bold">
+                                            <i class="fas fa-phone me-1"></i> Telefone
+                                        </label>
+                                        <input type="tel" class="form-control" name="telefone" 
+                                               placeholder="(27) 99999-9999">
+                                    </div>
+                                    
+                                    <div class="col-md-6">
+                                        <label class="form-label fw-bold">
+                                            <i class="fas fa-id-badge me-1"></i> CPF *
+                                        </label>
+                                        <input type="text" class="form-control" name="cpf" required 
+                                               placeholder="000.000.000-00">
+                                    </div>
+                                    
+                                    <div class="col-md-6">
+                                        <label class="form-label fw-bold">
+                                            <i class="fas fa-briefcase me-1"></i> Cargo/Função *
+                                        </label>
+                                        <input type="text" class="form-control" name="cargo" required 
+                                               placeholder="Ex: Professor, Coordenador, Secretário">
+                                    </div>
+                                    
+                                    <div class="col-md-6">
+                                        <label class="form-label fw-bold">
+                                            <i class="fas fa-map-marker-alt me-1"></i> Escola/Lotação *
+                                        </label>
+                                        <select class="form-select" name="lotacao" required>
+                                            <option value="" selected disabled>Selecione a escola de lotação</option>
+                                            <% escolas.forEach(function(escola) { %>
+                                                <option value="<%= escola %>"><%= escola %></option>
+                                            <% }); %>
+                                        </select>
+                                    </div>
+                                </div>
+                                
+                                <div class="mt-4 d-flex justify-content-between">
+                                    <div></div> <!-- Espaço vazio -->
+                                    <button type="button" class="btn btn-primary" onclick="avancarParaPasso(2)">
+                                        Próximo <i class="fas fa-arrow-right ms-1"></i>
+                                    </button>
+                                </div>
+                            </div>
+
+                            <!-- PASSO 2: Credenciais -->
+                            <div class="form-section" id="section2">
+                                <h5 class="mb-4 border-bottom pb-2">
+                                    <i class="fas fa-key me-2"></i> Credenciais de Acesso
+                                </h5>
+                                
+                                <div class="row g-3">
+                                    <div class="col-md-6">
+                                        <label class="form-label fw-bold">
+                                            <i class="fas fa-user-tag me-1"></i> Nome de Usuário *
+                                        </label>
+                                        <input type="text" class="form-control" name="username" required 
+                                               placeholder="Ex: maria.silva">
+                                        <small class="form-text text-muted">Será usado para login</small>
+                                    </div>
+                                    
+                                    <div class="col-md-6">
+                                        <label class="form-label fw-bold">
+                                            <i class="fas fa-shield-alt me-1"></i> Tipo de Usuário *
+                                        </label>
+                                        <select class="form-select" name="tipo" required>
+                                            <option value="" selected disabled>Selecione o tipo de acesso</option>
+                                            <% if (tiposUsuario) { %>
+                                                <% tiposUsuario.forEach(function(tipo) { %>
+                                                    <option value="<%= tipo.valor %>">
+                                                        <%= tipo.label %>
+                                                    </option>
+                                                <% }); %>
+                                            <% } else { %>
+                                                <option value="comum">Usuário Comum</option>
+                                                <option value="supervisor">Supervisor</option>
+                                                <option value="administrador">Administrador</option>
+                                            <% } %>
+                                        </select>
+                                    </div>
+                                    
+                                    <div class="col-md-6">
+                                        <label class="form-label fw-bold">
+                                            <i class="fas fa-lock me-1"></i> Senha *
+                                        </label>
+                                        <input type="password" class="form-control" id="senha" name="senha" required 
+                                               onkeyup="verificarForcaSenha()">
+                                        <div class="password-strength" id="passwordStrength"></div>
+                                        <small class="form-text text-muted">Mínimo 8 caracteres</small>
+                                    </div>
+                                    
+                                    <div class="col-md-6">
+                                        <label class="form-label fw-bold">
+                                            <i class="fas fa-lock me-1"></i> Confirmar Senha *
+                                        </label>
+                                        <input type="password" class="form-control" id="confirmarSenha" required 
+                                               onkeyup="verificarSenhas()">
+                                        <small class="form-text" id="senhaMatchText"></small>
+                                    </div>
+                                    
+                                    <div class="col-12">
+                                        <div class="form-check">
+                                            <input class="form-check-input" type="checkbox" id="enviarCredenciais">
+                                            <label class="form-check-label" for="enviarCredenciais">
+                                                Enviar credenciais por email ao usuário
+                                            </label>
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                <div class="mt-4 d-flex justify-content-between">
+                                    <button type="button" class="btn btn-secondary" onclick="voltarParaPasso(1)">
+                                        <i class="fas fa-arrow-left me-1"></i> Voltar
+                                    </button>
+                                    <button type="button" class="btn btn-primary" onclick="avancarParaPasso(3)">
+                                        Próximo <i class="fas fa-arrow-right ms-1"></i>
+                                    </button>
+                                </div>
+                            </div>
+
+                            <!-- PASSO 3: Permissões -->
+                            <div class="form-section" id="section3">
+                                <h5 class="mb-4 border-bottom pb-2">
+                                    <i class="fas fa-user-shield me-2"></i> Permissões e Acessos
+                                </h5>
+                                
+                                <div class="row g-3">
+                                    <div class="col-md-6">
+                                        <label class="form-label fw-bold">
+                                            <i class="fas fa-school me-1"></i> Escolas Vinculadas
+                                        </label>
+                                        <div style="max-height: 200px; overflow-y: auto;" class="border p-3 rounded">
+                                            <% escolas.forEach(function(escola, index) { %>
+                                                <div class="form-check">
+                                                    <input class="form-check-input" type="checkbox" 
+                                                           name="escolasVinculadas" 
+                                                           value="<%= escola %>" 
+                                                           id="escola<%= index %>"
+                                                           <%= index < 3 ? 'checked' : '' %>>
+                                                    <label class="form-check-label" for="escola<%= index %>">
+                                                        <%= escola.substring(0, 40) %>...
+                                                    </label>
+                                                </div>
+                                            <% }); %>
+                                        </div>
+                                        <small class="form-text text-muted">Selecione as escolas que o usuário poderá acessar</small>
+                                    </div>
+                                    
+                                    <div class="col-md-6">
+                                        <label class="form-label fw-bold">
+                                            <i class="fas fa-cogs me-1"></i> Permissões Específicas
+                                        </label>
+                                        <div class="border p-3 rounded">
+                                            <div class="form-check mb-2">
+                                                <input class="form-check-input" type="checkbox" name="permissoes" value="criar_demandas" checked>
+                                                <label class="form-check-label">Criar novas demandas</label>
+                                            </div>
+                                            <div class="form-check mb-2">
+                                                <input class="form-check-input" type="checkbox" name="permissoes" value="editar_demandas">
+                                                <label class="form-check-label">Editar demandas existentes</label>
+                                            </div>
+                                            <div class="form-check mb-2">
+                                                <input class="form-check-input" type="checkbox" name="permissoes" value="excluir_demandas">
+                                                <label class="form-check-label">Excluir demandas</label>
+                                            </div>
+                                            <div class="form-check mb-2">
+                                                <input class="form-check-input" type="checkbox" name="permissoes" value="gerar_relatorios">
+                                                <label class="form-check-label">Gerar relatórios</label>
+                                            </div>
+                                            <div class="form-check">
+                                                <input class="form-check-input" type="checkbox" name="permissoes" value="gerenciar_usuarios">
+                                                <label class="form-check-label">Gerenciar outros usuários</label>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    
+                                    <div class="col-md-6">
+                                        <label class="form-label fw-bold">
+                                            <i class="fas fa-building me-1"></i> Departamento *
+                                        </label>
+                                        <select class="form-select" name="departamento" required>
+                                            <option value="" selected disabled>Selecione o departamento</option>
+                                            <% if (departamentos) { %>
+                                                <% departamentos.forEach(function(dept) { %>
+                                                    <option value="<%= dept.valor %>">
+                                                        <%= dept.label %>
+                                                    </option>
+                                                <% }); %>
+                                            <% } else { %>
+                                                <option value="Pedagogico">Pedagógico</option>
+                                                <option value="Administrativo">Administrativo</option>
+                                                <option value="Manutencao">Manutenção</option>
+                                            <% } %>
+                                        </select>
+                                    </div>
+                                    
+                                    <div class="col-md-6">
+                                        <label class="form-label fw-bold">
+                                            <i class="fas fa-calendar-alt me-1"></i> Data de Admissão
+                                        </label>
+                                        <input type="date" class="form-control" name="dataAdmissao">
+                                    </div>
+                                </div>
+                                
+                                <div class="mt-4 d-flex justify-content-between">
+                                    <button type="button" class="btn btn-secondary" onclick="voltarParaPasso(2)">
+                                        <i class="fas fa-arrow-left me-1"></i> Voltar
+                                    </button>
+                                    <button type="button" class="btn btn-primary" onclick="avancarParaPasso(4)">
+                                        Próximo <i class="fas fa-arrow-right ms-1"></i>
+                                    </button>
+                                </div>
+                            </div>
+
+                            <!-- PASSO 4: Confirmação -->
+                            <div class="form-section" id="section4">
+                                <h5 class="mb-4 border-bottom pb-2">
+                                    <i class="fas fa-check-circle me-2"></i> Confirmação do Cadastro
+                                </h5>
+                                
+                                <div class="alert alert-success">
+                                    <i class="fas fa-info-circle me-2"></i>
+                                    <strong>Revise os dados abaixo antes de confirmar o cadastro:</strong>
+                                </div>
+                                
+                                <div class="row">
+                                    <div class="col-md-6">
+                                        <h6><i class="fas fa-user me-1"></i> Dados Pessoais</h6>
+                                        <table class="table table-sm">
+                                            <tr><td><strong>Nome:</strong></td><td id="resumoNome">-</td></tr>
+                                            <tr><td><strong>Email:</strong></td><td id="resumoEmail">-</td></tr>
+                                            <tr><td><strong>Cargo:</strong></td><td id="resumoCargo">-</td></tr>
+                                            <tr><td><strong>Lotacao:</strong></td><td id="resumoLotacao">-</td></tr>
+                                        </table>
+                                    </div>
+                                    
+                                    <div class="col-md-6">
+                                        <h6><i class="fas fa-key me-1"></i> Credenciais</h6>
+                                        <table class="table table-sm">
+                                            <tr><td><strong>Usuário:</strong></td><td id="resumoUsuario">-</td></tr>
+                                            <tr><td><strong>Tipo:</strong></td><td id="resumoTipo">-</td></tr>
+                                            <tr><td><strong>Departamento:</strong></td><td id="resumoDept">-</td></tr>
+                                        </table>
+                                    </div>
+                                </div>
+                                
+                                <div class="form-check mt-3">
+                                    <input class="form-check-input" type="checkbox" id="confirmacao" required>
+                                    <label class="form-check-label" for="confirmacao">
+                                        Confirmo que todas as informações estão corretas e autorizo o cadastro deste usuário no sistema.
+                                    </label>
+                                </div>
+                                
+                                <div class="mt-4 d-flex justify-content-between">
+                                    <button type="button" class="btn btn-secondary" onclick="voltarParaPasso(3)">
+                                        <i class="fas fa-arrow-left me-1"></i> Voltar
+                                    </button>
+                                    <button type="submit" class="btn btn-success">
+                                        <i class="fas fa-save me-1"></i> Confirmar Cadastro
+                                    </button>
+                                </div>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- INCLUI o rodapé -->
+    <%- include('partials/footer', {
+        user: user,
+        totalDemandas: totalDemandas
+    }) %>
+
+    <!-- INCLUI o botão PWA -->
+    <%- include('partials/pwa-button') %>
+
+    <!-- INCLUI os scripts -->
+    <%- include('partials/scripts') %>
+
+    <!-- Scripts específicos da página de cadastro -->
+    <script>
+    let passoAtual = 1;
+    
+    function avancarParaPasso(passo) {
+        // Validar passo atual antes de avançar
+        if (passoAtual === 1 && !validarPasso1()) return;
+        if (passoAtual === 2 && !validarPasso2()) return;
+        if (passoAtual === 3 && !validarPasso3()) return;
+        
+        // Esconder passo atual
+        document.getElementById(`section${passoAtual}`).classList.remove('active');
+        document.getElementById(`step${passoAtual}`).classList.remove('active');
+        
+        // Atualizar passo anterior para "completado"
+        document.getElementById(`step${passoAtual}`).classList.add('completed');
+        
+        // Mostrar novo passo
+        passoAtual = passo;
+        document.getElementById(`section${passo}`).classList.add('active');
+        document.getElementById(`step${passo}`).classList.add('active');
+        
+        // Atualizar resumo se for o passo 4
+        if (passo === 4) {
+            atualizarResumo();
+        }
+    }
+    
+    function voltarParaPasso(passo) {
+        // Esconder passo atual
+        document.getElementById(`section${passoAtual}`).classList.remove('active');
+        document.getElementById(`step${passoAtual}`).classList.remove('active');
+        
+        // Remover "completado" do passo atual
+        document.getElementById(`step${passoAtual}`).classList.remove('completed');
+        
+        // Mostrar passo anterior
+        passoAtual = passo;
+        document.getElementById(`section${passo}`).classList.add('active');
+        document.getElementById(`step${passo}`).classList.add('active');
+    }
+    
+    function validarPasso1() {
+        const nome = document.querySelector('input[name="nome"]').value;
+        const email = document.querySelector('input[name="email"]').value;
+        const cpf = document.querySelector('input[name="cpf"]').value;
+        const cargo = document.querySelector('input[name="cargo"]').value;
+        const lotacao = document.querySelector('select[name="lotacao"]').value;
+        
+        if (!nome || !email || !cpf || !cargo || !lotacao) {
+            alert('Preencha todos os campos obrigatórios do Passo 1!');
+            return false;
+        }
+        
+        // Validar email
+        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+        if (!emailRegex.test(email)) {
+            alert('Por favor, insira um email válido!');
+            return false;
+        }
+        
+        return true;
+    }
+    
+    function validarPasso2() {
+        const username = document.querySelector('input[name="username"]').value;
+        const tipo = document.querySelector('select[name="tipo"]').value;
+        const senha = document.querySelector('input[name="senha"]').value;
+        const confirmarSenha = document.querySelector('#confirmarSenha').value;
+        
+        if (!username || !tipo || !senha || !confirmarSenha) {
+            alert('Preencha todos os campos obrigatórios do Passo 2!');
+            return false;
+        }
+        
+        if (senha.length < 8) {
+            alert('A senha deve ter pelo menos 8 caracteres!');
+            return false;
+        }
+        
+        if (senha !== confirmarSenha) {
+            alert('As senhas não coincidem!');
+            return false;
+        }
+        
+        return true;
+    }
+    
+    function validarPasso3() {
+        const departamento = document.querySelector('select[name="departamento"]').value;
+        
+        if (!departamento) {
+            alert('Selecione um departamento!');
+            return false;
+        }
+        
+        return true;
+    }
+    
+    function verificarForcaSenha() {
+        const senha = document.querySelector('input[name="senha"]').value;
+        const strengthBar = document.getElementById('passwordStrength');
+        
+        let strength = 0;
+        
+        // Verificar comprimento
+        if (senha.length >= 8) strength++;
+        if (senha.length >= 12) strength++;
+        
+        // Verificar variedade de caracteres
+        if (/[a-z]/.test(senha)) strength++;
+        if (/[A-Z]/.test(senha)) strength++;
+        if (/[0-9]/.test(senha)) strength++;
+        if (/[^a-zA-Z0-9]/.test(senha)) strength++;
+        
+        // Limitar a 4 níveis
+        strength = Math.min(strength, 4);
+        
+        // Atualizar barra
+        strengthBar.className = `password-strength strength-${strength}`;
+    }
+    
+    function verificarSenhas() {
+        const senha = document.querySelector('input[name="senha"]').value;
+        const confirmarSenha = document.querySelector('#confirmarSenha').value;
+        const texto = document.getElementById('senhaMatchText');
+        
+        if (confirmarSenha === '') {
+            texto.textContent = '';
+            texto.className = 'form-text';
+        } else if (senha === confirmarSenha) {
+            texto.textContent = '✅ Senhas coincidem';
+            texto.className = 'form-text text-success';
+        } else {
+            texto.textContent = '❌ Senhas não coincidem';
+            texto.className = 'form-text text-danger';
+        }
+    }
+    
+    function atualizarResumo() {
+        // Dados pessoais
+        document.getElementById('resumoNome').textContent = 
+            document.querySelector('input[name="nome"]').value;
+        document.getElementById('resumoEmail').textContent = 
+            document.querySelector('input[name="email"]').value;
+        document.getElementById('resumoCargo').textContent = 
+            document.querySelector('input[name="cargo"]').value;
+        document.getElementById('resumoLotacao').textContent = 
+            document.querySelector('select[name="lotacao"]').value;
+        
+        // Credenciais
+        document.getElementById('resumoUsuario').textContent = 
+            document.querySelector('input[name="username"]').value;
+        document.getElementById('resumoTipo').textContent = 
+            document.querySelector('select[name="tipo"]').value;
+        document.getElementById('resumoDept').textContent = 
+            document.querySelector('select[name="departamento"]').value;
+    }
+    
+    // Submissão do formulário
+    document.getElementById('formCadastroUsuario').addEventListener('submit', function(e) {
+        e.preventDefault();
+        
+        if (!document.getElementById('confirmacao').checked) {
+            alert('Você precisa confirmar que as informações estão corretas!');
+            return;
+        }
+        
+        // Coletar dados do formulário
+        const formData = new FormData(this);
+        const data = Object.fromEntries(formData.entries());
+        
+        // Coletar checkboxes (escolas vinculadas e permissões)
+        data.escolasVinculadas = Array.from(document.querySelectorAll('input[name="escolasVinculadas"]:checked'))
+            .map(cb => cb.value);
+        data.permissoes = Array.from(document.querySelectorAll('input[name="permissoes"]:checked'))
+            .map(cb => cb.value);
+        
+        console.log('Dados para cadastro:', data);
+        
+        // Simular envio (substituir por fetch real depois)
+        alert('✅ Usuário cadastrado com sucesso!\n\nFuncionalidade completa será implementada na próxima fase.');
+        
+        // Resetar formulário
+        this.reset();
+        passoAtual = 1;
+        
+        // Resetar indicadores
+        document.querySelectorAll('.step').forEach(step => {
+            step.classList.remove('active', 'completed');
+        });
+        document.getElementById('step1').classList.add('active');
+        
+        document.querySelectorAll('.form-section').forEach(section => {
+            section.classList.remove('active');
+        });
+        document.getElementById('section1').classList.add('active');
+    });
+    
+    console.log('✅ Página de cadastro carregada com sucesso!');
+    </script>
+</body>
+</html>

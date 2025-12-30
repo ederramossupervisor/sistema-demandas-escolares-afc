@@ -427,43 +427,62 @@ app.get('/dashboard', authMiddleware, async (req, res) => {
         `);
     }
 });
-// ROTA: Página de gerenciamento de demandas
+// ROTA: Página de gerenciamento de demandas (COM INCLUDES)
 app.get('/demandas', authMiddleware, async (req, res) => {
     try {
-        res.render('demandas', {
-            title: 'Gerenciar Demandas - Sistema Escolar',
+        // Contar demandas para o footer
+        const totalDemandas = await Demanda.countDocuments();
+        
+        res.render('demandas-com-includes', {  // ← MUDE AQUI
+            title: 'Gerenciar Demandas',
             user: req.user,
-            escolas: escolasLista
+            escolas: escolasLista,
+            totalDemandas: totalDemandas
         });
     } catch (error) {
         console.error('❌ Erro na página de demandas:', error);
         res.status(500).render('error', {
             title: 'Erro',
-            message: 'Erro ao carregar página de demandas'
+            message: 'Erro ao carregar página de demandas',
+            user: req.user
         });
     }
 });
-// Página de cadastro
+// Página de cadastro (COM INCLUDES)
 app.get('/cadastro', authMiddleware, (req, res) => {
-    res.render('cadastro', {
-        title: 'Cadastro de Usuário',
-        user: req.user,
-        escolas: escolasLista,
-        tiposUsuario: [
-            { valor: 'administrador', label: 'Administrador (Acesso Total)' },
-            { valor: 'supervisor', label: 'Supervisor (Gerencia Escolas)' },
-            { valor: 'gestao', label: 'Gestão (Visualização e Relatórios)' },
-            { valor: 'comum', label: 'Usuário Comum (Cria Demandas)' }
-        ],
-        departamentos: [  // ⭐ ADICIONE ESTA VARIÁVEL ⭐
-            { valor: 'Pedagogico', label: 'Pedagógico' },
-            { valor: 'Administrativo', label: 'Administrativo' },
-            { valor: 'Manutencao', label: 'Manutenção' },
-            { valor: 'RecursosHumanos', label: 'Recursos Humanos' },
-            { valor: 'Alimentacao', label: 'Alimentação' },
-            { valor: 'Transporte', label: 'Transporte' },
-            { valor: 'Outros', label: 'Outros' }
-        ]
+    // Contar demandas para o footer
+    Demanda.countDocuments().then(totalDemandas => {
+        res.render('cadastro-com-includes', {
+            title: 'Cadastro de Usuário',
+            user: req.user,
+            escolas: escolasLista,
+            totalDemandas: totalDemandas,
+            tiposUsuario: [
+                { valor: 'administrador', label: 'Administrador (Acesso Total)' },
+                { valor: 'supervisor', label: 'Supervisor (Gerencia Escolas)' },
+                { valor: 'gestao', label: 'Gestão (Visualização e Relatórios)' },
+                { valor: 'comum', label: 'Usuário Comum (Cria Demandas)' }
+            ],
+            departamentos: [
+                { valor: 'Pedagogico', label: 'Pedagógico' },
+                { valor: 'Administrativo', label: 'Administrativo' },
+                { valor: 'Manutencao', label: 'Manutenção' },
+                { valor: 'RecursosHumanos', label: 'Recursos Humanos' },
+                { valor: 'Alimentacao', label: 'Alimentação' },
+                { valor: 'Transporte', label: 'Transporte' },
+                { valor: 'Outros', label: 'Outros' }
+            ]
+        });
+    }).catch(error => {
+        console.error('Erro ao contar demandas:', error);
+        res.render('cadastro-com-includes', {
+            title: 'Cadastro de Usuário',
+            user: req.user,
+            escolas: escolasLista,
+            totalDemandas: 0,
+            tiposUsuario: [],
+            departamentos: []
+        });
     });
 });
 

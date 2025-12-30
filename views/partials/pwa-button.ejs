@@ -1,0 +1,18 @@
+<!-- views/partials/pwa-button.ejs -->
+<!-- Botão PWA -->
+<div id="installPWA" class="position-fixed bottom-0 end-0 p-3" style="z-index: 1000; display: none;">
+    <div class="toast show">
+        <div class="toast-header bg-success text-white">
+            <strong class="me-auto">
+                <i class="fas fa-mobile-alt me-2"></i>Instalar App
+            </strong>
+            <button type="button" class="btn-close btn-close-white" onclick="hideInstallButton()"></button>
+        </div>
+        <div class="toast-body">
+            <p>Instale este app para acessar rapidamente!</p>
+            <button class="btn btn-success w-100" onclick="installApp()">
+                <i class="fas fa-download me-2"></i>Instalar Agora
+            </button>
+        </div>
+    </div>
+</div>

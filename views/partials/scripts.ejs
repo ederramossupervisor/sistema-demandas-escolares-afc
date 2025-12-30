@@ -1,0 +1,39 @@
+<!-- views/partials/scripts.ejs -->
+<!-- Scripts -->
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
+<script>
+    // PWA
+    if ('serviceWorker' in navigator) {
+        navigator.serviceWorker.register('/sw.js');
+    }
+    
+    let installPrompt = null;
+    window.addEventListener('beforeinstallprompt', (e) => {
+        e.preventDefault();
+        installPrompt = e;
+        setTimeout(() => {
+            if (installPrompt) {
+                document.getElementById('installPWA').style.display = 'block';
+            }
+        }, 3000);
+    });
+    
+    function installApp() {
+        if (installPrompt) {
+            installPrompt.prompt();
+            installPrompt.userChoice.then((choice) => {
+                if (choice.outcome === 'accepted') {
+                    console.log('✅ App instalado!');
+                }
+                installPrompt = null;
+                document.getElementById('installPWA').style.display = 'none';
+            });
+        }
+    }
+    
+    function hideInstallButton() {
+        document.getElementById('installPWA').style.display = 'none';
+    }
+    
+    console.log('✅ Página carregada com sucesso!');
+</script>

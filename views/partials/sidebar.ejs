@@ -1,0 +1,29 @@
+<!-- views/partials/sidebar.ejs -->
+<!-- Sidebar -->
+<div class="col-md-3 mb-4">
+    <div class="card">
+        <div class="card-body">
+            <h6 class="text-muted mb-3"><i class="fas fa-bars"></i> Menu Principal</h6>
+            <div class="list-group">
+                <a href="/dashboard" class="list-group-item list-group-item-action <%= currentPage === 'dashboard' ? 'active' : '' %>">
+                    <i class="fas fa-tachometer-alt me-2"></i> Dashboard
+                </a>
+                <a href="/demandas" class="list-group-item list-group-item-action <%= currentPage === 'demandas' ? 'active' : '' %>">
+                    <i class="fas fa-list me-2"></i> Gerenciar Demandas
+                </a>
+                <a href="/cadastro" class="list-group-item list-group-item-action <%= currentPage === 'cadastro' ? 'active' : '' %>">
+                    <i class="fas fa-user-plus me-2"></i> Cadastrar Usuário
+                </a>
+            </div>
+            
+            <h6 class="text-muted mt-4 mb-3"><i class="fas fa-school"></i> Escolas</h6>
+            <div style="max-height: 200px; overflow-y: auto;">
+                <% escolas.slice(0, 5).forEach(function(escola) { %>
+                    <small class="d-block text-muted mb-2">
+                        <i class="fas fa-building me-1"></i> <%= escola.substring(0, 25) %>...
+                    </small>
+                <% }); %>
+            </div>
+        </div>
+    </div>
+</div>
