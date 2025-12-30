@@ -8,7 +8,7 @@ const mongoose = require('mongoose');
 // 1. CARREGAR .env
 // ============================================
 require('dotenv').config();
-const expressLayouts = require('express-ejs-layouts');
+//const expressLayouts = require('express-ejs-layouts');
 
 // ============================================
 // 2. CONFIGURAÇÃO DO EXPRESS
@@ -23,17 +23,17 @@ app.use(cookieParser());
 app.use(express.static(path.join(__dirname, '../public')));
 
 // EJS COM EXPRESS-LAYOUTS - CONFIGURAÇÃO CORRETA E COMPLETA
-app.use(expressLayouts);                     // 1. Middleware de layouts
+//app.use(expressLayouts);                     // 1. Middleware de layouts
 app.set('view engine', 'ejs');               // 2. Motor de templates
 app.set('views', path.join(__dirname, '../views'));  // 3. Pasta das views
-app.set('layout', 'layout');                 // 4. Layout padrão (layout.ejs)
-app.set('layout extractScripts', true);      // 5. Extrair scripts para layout
-app.set('layout extractStyles', true);       // 6. Extrair styles para layout
+//app.set('layout', 'layout');                 // 4. Layout padrão (layout.ejs)
+//app.set('layout extractScripts', true);      // 5. Extrair scripts para layout
+//app.set('layout extractStyles', true);       // 6. Extrair styles para layout
 
 // LOG PARA DEBUG (opcional, remove depois)
-console.log('✅ Express-EJS-Layouts configurado corretamente');
-console.log(`📁 Layout: ${app.get('layout')}`);
-console.log(`📁 Views: ${app.get('views')}`);
+//console.log('✅ Express-EJS-Layouts configurado corretamente');
+//console.log(`📁 Layout: ${app.get('layout')}`);
+//console.log(`📁 Views: ${app.get('views')}`);
 // ============================================
 // 3. CONEXÃO COM MONGODB
 // ============================================
@@ -410,7 +410,7 @@ app.get('/dashboard', authMiddleware, async (req, res) => {
         const demandasPendentes = await Demanda.countDocuments({ status: 'pendente' });
         const demandasConcluidas = await Demanda.countDocuments({ status: 'concluida' });
         
-        res.render('dashboard', {
+        res.render('dashboard-funcional', {  // ⬅️ MUDE PARA dashboard-funcional
             title: 'Dashboard - Sistema de Demandas',
             user: req.user,
             totalDemandas,
@@ -420,10 +420,11 @@ app.get('/dashboard', authMiddleware, async (req, res) => {
         });
     } catch (error) {
         console.error('❌ Erro no dashboard:', error);
-        res.status(500).render('error', {
-            title: 'Erro',
-            message: 'Erro ao carregar dashboard'
-        });
+        res.status(500).send(`
+            <h1>Erro no Dashboard</h1>
+            <p><strong>${error.message}</strong></p>
+            <a href="/" class="btn btn-primary">Voltar ao Login</a>
+        `);
     }
 });
 // ROTA: Página de gerenciamento de demandas
