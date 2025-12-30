@@ -1,0 +1,212 @@
+<% layout('layout', { title: 'Dashboard - Sistema de Demandas' }) -%>
+<% block('content', function() { %>
+<div class="row mb-4">
+    <div class="col-12">
+        <div class="card shadow border-0">
+            <div class="card-body">
+                <h1 class="h3 mb-3">👋 Bem-vindo, <%= user.nome.split(' ')[0] %>!</h1>
+                <p class="text-muted mb-4">Você está no painel de controle do Sistema de Gerenciamento de Demandas Escolares.</p>
+                
+                <div class="row g-3 mb-4">
+                    <div class="col-md-4">
+                        <div class="alert alert-info">
+                            <h6 class="alert-heading mb-2">Tipo de Usuário</h6>
+                            <p class="mb-0 fw-bold"><%= user.tipo.toUpperCase() %></p>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="alert alert-success">
+                            <h6 class="alert-heading mb-2">Escolas Ativas</h6>
+                            <p class="mb-0 fw-bold"><%= user.escolas.length %></p>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="alert alert-warning">
+                            <h6 class="alert-heading mb-2">Status</h6>
+                            <p class="mb-0 fw-bold text-success">● Ativo</p>
+                        </div>
+                    </div>
+                </div>
+                
+                <% if (user.escolas && user.escolas.length > 0) { %>
+                <div class="mb-4">
+                    <h5 class="mb-3">🏫 Suas Escolas</h5>
+                    <div class="row g-2">
+                        <% user.escolas.forEach(function(escola) { %>
+                        <div class="col-md-3 col-6">
+                            <div class="border rounded p-3 text-center">
+                                <i class="fas fa-school text-primary mb-2"></i>
+                                <p class="mb-0 fw-semibold"><%= escola %></p>
+                            </div>
+                        </div>
+                        <% }); %>
+                    </div>
+                </div>
+                <% } %>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Cards de Estatísticas -->
+<div class="row mb-4">
+    <div class="col-lg-3 col-md-6 mb-4">
+        <div class="card border-primary border-2 shadow">
+            <div class="card-body text-center">
+                <i class="fas fa-tasks fa-2x text-primary mb-3"></i>
+                <h2 class="display-6 fw-bold"><%= totalDemandas %></h2>
+                <p class="text-muted mb-0">Total de Demandas</p>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-lg-3 col-md-6 mb-4">
+        <div class="card border-warning border-2 shadow">
+            <div class="card-body text-center">
+                <i class="fas fa-clock fa-2x text-warning mb-3"></i>
+                <h2 class="display-6 fw-bold"><%= demandasPendentes %></h2>
+                <p class="text-muted mb-0">Pendentes</p>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-lg-3 col-md-6 mb-4">
+        <div class="card border-success border-2 shadow">
+            <div class="card-body text-center">
+                <i class="fas fa-check-circle fa-2x text-success mb-3"></i>
+                <h2 class="display-6 fw-bold"><%= demandasConcluidas %></h2>
+                <p class="text-muted mb-0">Concluídas</p>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-lg-3 col-md-6 mb-4">
+        <div class="card border-info border-2 shadow">
+            <div class="card-body text-center">
+                <i class="fas fa-school fa-2x text-info mb-3"></i>
+                <h2 class="display-6 fw-bold"><%= user.escolas.length %></h2>
+                <p class="text-muted mb-0">Escolas Ativas</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Ações Rápidas -->
+<div class="row mb-4">
+    <div class="col-12">
+        <div class="card shadow">
+            <div class="card-header bg-white">
+                <h5 class="mb-0">🚀 Ações Rápidas</h5>
+            </div>
+            <div class="card-body">
+                <div class="row g-3">
+                    <div class="col-lg-3 col-md-6">
+                        <div class="card action-card h-100" onclick="window.location.href='/demandas'">
+                            <div class="card-body text-center">
+                                <i class="fas fa-list fa-2x text-primary mb-3"></i>
+                                <h6 class="card-title mb-2">Gerenciar Demandas</h6>
+                                <p class="card-text small text-muted">Criar, visualizar e editar demandas</p>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="col-lg-3 col-md-6">
+                        <div class="card action-card h-100" onclick="criarDemandaRapida()">
+                            <div class="card-body text-center">
+                                <i class="fas fa-bolt fa-2x text-warning mb-3"></i>
+                                <h6 class="card-title mb-2">Nova Demanda Rápida</h6>
+                                <p class="card-text small text-muted">Criar demanda de forma rápida</p>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <% if (user.tipo === 'administrador') { %>
+                    <div class="col-lg-3 col-md-6">
+                        <div class="card action-card h-100" onclick="window.location.href='/cadastro'">
+                            <div class="card-body text-center">
+                                <i class="fas fa-user-plus fa-2x text-success mb-3"></i>
+                                <h6 class="card-title mb-2">Cadastrar Usuário</h6>
+                                <p class="card-text small text-muted">Adicionar novo usuário</p>
+                            </div>
+                        </div>
+                    </div>
+                    <% } %>
+                    
+                    <div class="col-lg-3 col-md-6">
+                        <div class="card action-card h-100" onclick="window.location.href='/perfil'">
+                            <div class="card-body text-center">
+                                <i class="fas fa-user fa-2x text-info mb-3"></i>
+                                <h6 class="card-title mb-2">Meu Perfil</h6>
+                                <p class="card-text small text-muted">Ver e editar perfil</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Dica PWA -->
+<div class="row">
+    <div class="col-12">
+        <div class="card border-warning shadow">
+            <div class="card-header bg-warning text-white">
+                <h5 class="mb-0">📱 Instalar como App</h5>
+            </div>
+            <div class="card-body">
+                <div class="row align-items-center">
+                    <div class="col-md-8">
+                        <p class="mb-2"><strong>Aproveite melhor no celular!</strong></p>
+                        <p class="text-muted small mb-0">
+                            Instale este sistema como aplicativo nativo. Toque no botão "Instalar App" 
+                            que aparece no canto inferior direito.
+                        </p>
+                    </div>
+                    <div class="col-md-4 text-end">
+                        <div class="alert alert-info mb-0">
+                            <i class="fas fa-mobile-alt me-2"></i>
+                            <strong>Como instalar:</strong>
+                            <ol class="mb-0 small">
+                                <li>Toque em "Instalar App"</li>
+                                <li>Confirme a instalação</li>
+                                <li>O ícone aparecerá na tela inicial</li>
+                            </ol>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+    .action-card {
+        cursor: pointer;
+        transition: all 0.3s ease;
+        border: 2px solid transparent;
+    }
+    
+    .action-card:hover {
+        transform: translateY(-5px);
+        border-color: #0d6efd;
+        box-shadow: 0 10px 20px rgba(0,0,0,0.1);
+    }
+    
+    .card-header {
+        font-weight: 600;
+    }
+    
+    .display-6 {
+        font-size: 2.5rem;
+    }
+</style>
+
+<script>
+    function criarDemandaRapida() {
+        // Em breve: Modal para criar demanda rápida
+        // Por enquanto, redireciona para página de demandas
+        window.location.href = '/demandas';
+    }
+</script>
+<% }) %>

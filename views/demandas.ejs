@@ -1,0 +1,733 @@
+<%- include('layout', { title: 'Gerenciar Demandas - Sistema Escolar' }) %>
+
+<style>
+    .card {
+        border-radius: 10px;
+        border: none;
+        box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        transition: transform 0.3s;
+    }
+    .card:hover {
+        transform: translateY(-5px);
+    }
+    .status-pendente {
+        background-color: #fff3cd;
+        color: #856404;
+        border-left: 4px solid #ffc107;
+    }
+    .status-andamento {
+        background-color: #d1ecf1;
+        color: #0c5460;
+        border-left: 4px solid #17a2b8;
+    }
+    .status-concluida {
+        background-color: #d4edda;
+        color: #155724;
+        border-left: 4px solid #28a745;
+    }
+    .status-cancelada {
+        background-color: #f8d7da;
+        color: #721c24;
+        border-left: 4px solid #dc3545;
+    }
+    .prioridade-alta {
+        color: #dc3545;
+        font-weight: bold;
+    }
+    .prioridade-media {
+        color: #ffc107;
+        font-weight: bold;
+    }
+    .prioridade-baixa {
+        color: #28a745;
+        font-weight: bold;
+    }
+    .filtro-ativo {
+        background-color: #2c3e50 !important;
+        color: white !important;
+    }
+    .btn-criar {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        border: none;
+        color: white;
+        font-weight: bold;
+        padding: 10px 25px;
+        border-radius: 8px;
+    }
+    .btn-criar:hover {
+        background: linear-gradient(135deg, #5a6fd8 0%, #693e8f 100%);
+        color: white;
+        transform: scale(1.05);
+    }
+    .badge-escola {
+        background-color: #e3f2fd;
+        color: #1565c0;
+        font-weight: normal;
+        padding: 5px 10px;
+        border-radius: 20px;
+    }
+    .table-hover tbody tr:hover {
+        background-color: rgba(0,123,255,0.05);
+        cursor: pointer;
+    }
+    .modal-header {
+        background-color: #2c3e50;
+        color: white;
+    }
+    .loading {
+        display: none;
+        text-align: center;
+        padding: 20px;
+    }
+    #loadingSpinner {
+        display: none;
+    }
+    @media (max-width: 768px) {
+        .card {
+            margin-bottom: 15px;
+        }
+        .btn-responsive {
+            width: 100%;
+            margin-bottom: 10px;
+        }
+    }
+</style>
+
+<!-- Conteúdo Principal -->
+<div class="container mt-4">
+    <!-- Cabeçalho e Estatísticas -->
+    <div class="row mb-4">
+        <div class="col-md-8">
+            <h2><i class="fas fa-tasks"></i> Gerenciamento de Demandas</h2>
+            <p class="text-muted">Gerencie todas as demandas do sistema escolar</p>
+        </div>
+        <div class="col-md-4 text-end">
+            <button class="btn btn-criar" data-bs-toggle="modal" data-bs-target="#modalCriarDemanda">
+                <i class="fas fa-plus-circle"></i> Nova Demanda
+            </button>
+        </div>
+    </div>
+
+    <!-- Cards de Estatísticas -->
+    <div class="row mb-4">
+        <div class="col-md-3">
+            <div class="card">
+                <div class="card-body">
+                    <h5 class="card-title">Total</h5>
+                    <h2 id="totalDemandas">0</h2>
+                    <p class="card-text">Demandas no sistema</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card">
+                <div class="card-body status-pendente">
+                    <h5 class="card-title">Pendentes</h5>
+                    <h2 id="demandasPendentes">0</h2>
+                    <p class="card-text">Aguardando ação</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card">
+                <div class="card-body status-andamento">
+                    <h5 class="card-title">Em Andamento</h5>
+                    <h2 id="demandasAndamento">0</h2>
+                    <p class="card-text">Sendo resolvidas</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card">
+                <div class="card-body status-concluida">
+                    <h5 class="card-title">Concluídas</h5>
+                    <h2 id="demandasConcluidas">0</h2>
+                    <p class="card-text">Finalizadas</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Filtros -->
+    <div class="card mb-4">
+        <div class="card-header bg-white">
+            <h5 class="mb-0"><i class="fas fa-filter"></i> Filtros</h5>
+        </div>
+        <div class="card-body">
+            <div class="row g-3">
+                <div class="col-md-3">
+                    <label>Escola</label>
+                    <select id="filtroEscola" class="form-select">
+                        <option value="">Todas as escolas</option>
+                        <!-- As escolas serão carregadas via JavaScript -->
+                    </select>
+                </div>
+                <div class="col-md-3">
+                    <label>Status</label>
+                    <select id="filtroStatus" class="form-select">
+                        <option value="">Todos os status</option>
+                        <option value="pendente">Pendente</option>
+                        <option value="em andamento">Em Andamento</option>
+                        <option value="concluida">Concluída</option>
+                        <option value="cancelada">Cancelada</option>
+                    </select>
+                </div>
+                <div class="col-md-3">
+                    <label>Departamento</label>
+                    <select id="filtroDepartamento" class="form-select">
+                        <option value="">Todos departamentos</option>
+                        <option value="Pedagogico">Pedagógico</option>
+                        <option value="Administrativo">Administrativo</option>
+                        <option value="Manutenção">Manutenção</option>
+                        <option value="Recursos Humanos">Recursos Humanos</option>
+                        <option value="Alimentação">Alimentação</option>
+                        <option value="Transporte">Transporte</option>
+                        <option value="Outros">Outros</option>
+                    </select>
+                </div>
+                <div class="col-md-3 d-flex align-items-end">
+                    <button class="btn btn-primary w-100" onclick="aplicarFiltros()">
+                        <i class="fas fa-search"></i> Aplicar Filtros
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Lista de Demandas -->
+    <div class="card">
+        <div class="card-header bg-white d-flex justify-content-between align-items-center">
+            <h5 class="mb-0"><i class="fas fa-list"></i> Lista de Demandas</h5>
+            <div>
+                <button class="btn btn-sm btn-outline-secondary" onclick="carregarDemandas()">
+                    <i class="fas fa-sync-alt"></i> Atualizar
+                </button>
+            </div>
+        </div>
+        <div class="card-body">
+            <!-- Loading Spinner -->
+            <div id="loadingSpinner" class="text-center py-4">
+                <div class="spinner-border text-primary" role="status">
+                    <span class="visually-hidden">Carregando...</span>
+                </div>
+                <p class="mt-2">Carregando demandas...</p>
+            </div>
+
+            <!-- Tabela de Demandas -->
+            <div id="tabelaDemandas" style="display: none;">
+                <div class="table-responsive">
+                    <table class="table table-hover">
+                        <thead>
+                            <tr>
+                                <th>Título</th>
+                                <th>Escola</th>
+                                <th>Departamento</th>
+                                <th>Status</th>
+                                <th>Data Criação</th>
+                                <th>Ações</th>
+                            </tr>
+                        </thead>
+                        <tbody id="corpoTabela">
+                            <!-- As demandas serão carregadas via JavaScript -->
+                        </tbody>
+                    </table>
+                </div>
+                <div id="semResultados" class="text-center py-5" style="display: none;">
+                    <i class="fas fa-inbox fa-3x text-muted mb-3"></i>
+                    <h4>Nenhuma demanda encontrada</h4>
+                    <p class="text-muted">Tente ajustar os filtros ou criar uma nova demanda</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Paginação -->
+    <nav id="paginacao" class="mt-4" style="display: none;">
+        <ul class="pagination justify-content-center">
+            <!-- A paginação será gerada via JavaScript -->
+        </ul>
+    </nav>
+</div>
+
+<!-- Modal: Criar Nova Demanda -->
+<div class="modal fade" id="modalCriarDemanda" tabindex="-1">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title"><i class="fas fa-plus-circle"></i> Nova Demanda</h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <form id="formCriarDemanda">
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label">Título *</label>
+                            <input type="text" class="form-control" id="titulo" required>
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label">Escola *</label>
+                            <select class="form-select" id="escola" required>
+                                <option value="">Selecione uma escola</option>
+                                <!-- As escolas serão carregadas via JavaScript -->
+                            </select>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label">Departamento *</label>
+                            <select class="form-select" id="departamento" required>
+                                <option value="">Selecione um departamento</option>
+                                <option value="Pedagogico">Pedagógico</option>
+                                <option value="Administrativo">Administrativo</option>
+                                <option value="Manutenção">Manutenção</option>
+                                <option value="Recursos Humanos">Recursos Humanos</option>
+                                <option value="Alimentação">Alimentação</option>
+                                <option value="Transporte">Transporte</option>
+                                <option value="Outros">Outros</option>
+                            </select>
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label">Prioridade</label>
+                            <select class="form-select" id="prioridade">
+                                <option value="Baixa">Baixa</option>
+                                <option value="Média" selected>Média</option>
+                                <option value="Alta">Alta</option>
+                                <option value="Urgente">Urgente</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Descrição *</label>
+                        <textarea class="form-control" id="descricao" rows="4" required></textarea>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Prazo *</label>
+                        <input type="date" class="form-control" id="prazo" required>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                <button type="button" class="btn btn-primary" onclick="criarDemanda()">
+                    <i class="fas fa-save"></i> Salvar Demanda
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal: Ver Detalhes da Demanda -->
+<div class="modal fade" id="modalDetalhesDemanda" tabindex="-1">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title"><i class="fas fa-info-circle"></i> Detalhes da Demanda</h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body" id="detalhesDemandaConteudo">
+                <!-- Os detalhes serão carregados via JavaScript -->
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Fechar</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- jQuery (opcional, mas útil) -->
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+
+<script>
+    // Variáveis globais
+    let todasEscolas = [];
+    let demandas = [];
+    let paginaAtual = 1;
+    const itensPorPagina = 10;
+
+    // Função para carregar escolas
+    async function carregarEscolas() {
+        try {
+            // Se já temos a lista de escolas no HTML, usamos ela
+            const escolasArray = [
+                'CEEFMTI Afonso Cláudio', 'CEEFMTI Elisa Paiva', 'EEEFM Domingos Perim',
+                'EEEFM Fazenda Emílio Schroeder', 'EEEFM Álvaro Castelo', 'EEEFM Alto Rio Possmoser',
+                'EEEFM Elvira Barros', 'EEEFM Fazenda Camporês', 'EEEFM Fioravante Caliman',
+                'EEEFM Frederico Boldt', 'EEEFM Gisela Salloker Fayet', 'EEEFM Graça Aranha',
+                'EEEFM Joaquim Caetano de Paiva', 'EEEFM José Cupertino', 'EEEFM José Giestas',
+                'EEEFM José Roberto Christo', 'EEEFM Leogildo Severiano de Souza',
+                'EEEFM Luiz Jouffroy', 'EEEFM Marlene Brandão', 'EEEFM Maria de Abreu Alvim',
+                'EEEFM Pedra Azul', 'EEEFM Ponto do Alto', 'EEEFM Prof. Hermann Berger',
+                'EEEFM Profª Aldy Soares Merçon Vargas', 'EEEFM São Jorge', 'EEEFM São Luís',
+                'EEEFM Teófilo Paulino', 'EEEM Francisco Guilherme', 'EEEM Mata Fria', 'EEEM Sobreiro'
+            ];
+            
+            todasEscolas = escolasArray;
+            
+            // Preencher select de escolas
+            const selectEscola = document.getElementById('filtroEscola');
+            const selectEscolaModal = document.getElementById('escola');
+            
+            // Limpar selects primeiro
+            selectEscola.innerHTML = '<option value="">Todas as escolas</option>';
+            selectEscolaModal.innerHTML = '<option value="">Selecione uma escola</option>';
+            
+            escolasArray.forEach(escola => {
+                const option = document.createElement('option');
+                option.value = escola;
+                option.textContent = escola;
+                selectEscola.appendChild(option.cloneNode(true));
+                selectEscolaModal.appendChild(option);
+            });
+            
+        } catch (error) {
+            console.error('Erro ao carregar escolas:', error);
+        }
+    }
+
+    // Função para carregar demandas
+    async function carregarDemandas() {
+        try {
+            // Mostrar loading
+            document.getElementById('loadingSpinner').style.display = 'block';
+            document.getElementById('tabelaDemandas').style.display = 'none';
+            
+            // Simular carregamento de dados (substituir por API real)
+            setTimeout(() => {
+                // Dados de exemplo (simulação)
+                demandas = [
+                    {
+                        _id: '1',
+                        titulo: 'Reparo na rede elétrica',
+                        descricao: 'Problemas na rede elétrica do bloco B',
+                        escola: 'EEEFM Domingos Perim',
+                        departamento: 'Manutenção',
+                        status: 'pendente',
+                        criadoEm: new Date().toISOString(),
+                        prioridade: 'Alta'
+                    },
+                    {
+                        _id: '2',
+                        titulo: 'Compra de material pedagógico',
+                        descricao: 'Livros e materiais para o 3º ano',
+                        escola: 'CEEFMTI Afonso Cláudio',
+                        departamento: 'Pedagogico',
+                        status: 'em andamento',
+                        criadoEm: new Date(Date.now() - 86400000).toISOString(),
+                        prioridade: 'Média'
+                    },
+                    {
+                        _id: '3',
+                        titulo: 'Manutenção de computadores',
+                        descricao: 'Laboratório de informática precisa de manutenção',
+                        escola: 'EEEFM Álvaro Castelo',
+                        departamento: 'Manutenção',
+                        status: 'concluida',
+                        criadoEm: new Date(Date.now() - 172800000).toISOString(),
+                        prioridade: 'Alta'
+                    }
+                ];
+                
+                // Atualizar estatísticas
+                atualizarEstatisticas();
+                
+                // Atualizar tabela
+                atualizarTabelaDemandas();
+                
+                // Esconder loading
+                document.getElementById('loadingSpinner').style.display = 'none';
+                document.getElementById('tabelaDemandas').style.display = 'block';
+                
+            }, 1000); // Simular delay de rede
+            
+        } catch (error) {
+            console.error('Erro ao carregar demandas:', error);
+            document.getElementById('loadingSpinner').style.display = 'none';
+            alert('Erro ao carregar demandas. Tente novamente.');
+        }
+    }
+
+    // Função para atualizar estatísticas
+    function atualizarEstatisticas() {
+        const total = demandas.length;
+        const pendentes = demandas.filter(d => d.status === 'pendente').length;
+        const andamento = demandas.filter(d => d.status === 'em andamento').length;
+        const concluidas = demandas.filter(d => d.status === 'concluida').length;
+        
+        document.getElementById('totalDemandas').textContent = total;
+        document.getElementById('demandasPendentes').textContent = pendentes;
+        document.getElementById('demandasAndamento').textContent = andamento;
+        document.getElementById('demandasConcluidas').textContent = concluidas;
+    }
+
+    // Função para atualizar tabela de demandas
+    function atualizarTabelaDemandas() {
+        const corpoTabela = document.getElementById('corpoTabela');
+        corpoTabela.innerHTML = '';
+        
+        if (demandas.length === 0) {
+            document.getElementById('semResultados').style.display = 'block';
+            document.getElementById('paginacao').style.display = 'none';
+            return;
+        }
+        
+        document.getElementById('semResultados').style.display = 'none';
+        
+        // Calcular paginação
+        const totalPaginas = Math.ceil(demandas.length / itensPorPagina);
+        const inicio = (paginaAtual - 1) * itensPorPagina;
+        const fim = inicio + itensPorPagina;
+        const demandasPagina = demandas.slice(inicio, fim);
+        
+        // Preencher tabela
+        demandasPagina.forEach(demanda => {
+            const row = document.createElement('tr');
+            row.onclick = () => mostrarDetalhesDemanda(demanda._id);
+            
+            // Formatar data
+            const dataCriacao = new Date(demanda.criadoEm).toLocaleDateString('pt-BR');
+            
+            // Determinar classe de status
+            let classeStatus = 'status-pendente';
+            if (demanda.status === 'em andamento') classeStatus = 'status-andamento';
+            if (demanda.status === 'concluida') classeStatus = 'status-concluida';
+            if (demanda.status === 'cancelada') classeStatus = 'status-cancelada';
+            
+            // Determinar classe de prioridade
+            let classePrioridade = 'prioridade-media';
+            if (demanda.prioridade === 'Alta') classePrioridade = 'prioridade-alta';
+            if (demanda.prioridade === 'Baixa') classePrioridade = 'prioridade-baixa';
+            if (demanda.prioridade === 'Urgente') classePrioridade = 'prioridade-alta';
+            
+            row.innerHTML = `
+                <td>
+                    <strong>${demanda.titulo}</strong>
+                    <br><small class="text-muted">${demanda.descricao.substring(0, 50)}${demanda.descricao.length > 50 ? '...' : ''}</small>
+                </td>
+                <td>
+                    <span class="badge badge-escola">${demanda.escola}</span>
+                </td>
+                <td>${demanda.departamento}</td>
+                <td>
+                    <span class="badge ${classeStatus} p-2">${demanda.status}</span>
+                </td>
+                <td>${dataCriacao}</td>
+                <td>
+                    <button class="btn btn-sm btn-outline-primary" onclick="event.stopPropagation(); mostrarDetalhesDemanda('${demanda._id}')">
+                        <i class="fas fa-eye"></i>
+                    </button>
+                    <button class="btn btn-sm btn-outline-warning" onclick="event.stopPropagation(); editarDemanda('${demanda._id}')">
+                        <i class="fas fa-edit"></i>
+                    </button>
+                </td>
+            `;
+            
+            corpoTabela.appendChild(row);
+        });
+        
+        // Atualizar paginação
+        atualizarPaginacao(totalPaginas);
+    }
+
+    // Função para atualizar paginação
+    function atualizarPaginacao(totalPaginas) {
+        const paginacao = document.getElementById('paginacao');
+        const ul = paginacao.querySelector('ul');
+        ul.innerHTML = '';
+        
+        if (totalPaginas <= 1) {
+            paginacao.style.display = 'none';
+            return;
+        }
+        
+        paginacao.style.display = 'block';
+        
+        // Botão anterior
+        const liAnterior = document.createElement('li');
+        liAnterior.className = `page-item ${paginaAtual === 1 ? 'disabled' : ''}`;
+        liAnterior.innerHTML = `<a class="page-link" href="#" onclick="mudarPagina(${paginaAtual - 1})">Anterior</a>`;
+        ul.appendChild(liAnterior);
+        
+        // Números das páginas
+        for (let i = 1; i <= totalPaginas; i++) {
+            const li = document.createElement('li');
+            li.className = `page-item ${paginaAtual === i ? 'active' : ''}`;
+            li.innerHTML = `<a class="page-link" href="#" onclick="mudarPagina(${i})">${i}</a>`;
+            ul.appendChild(li);
+        }
+        
+        // Botão próximo
+        const liProximo = document.createElement('li');
+        liProximo.className = `page-item ${paginaAtual === totalPaginas ? 'disabled' : ''}`;
+        liProximo.innerHTML = `<a class="page-link" href="#" onclick="mudarPagina(${paginaAtual + 1})">Próximo</a>`;
+        ul.appendChild(liProximo);
+    }
+
+    // Função para mudar página
+    function mudarPagina(novaPagina) {
+        if (novaPagina >= 1 && novaPagina <= Math.ceil(demandas.length / itensPorPagina)) {
+            paginaAtual = novaPagina;
+            atualizarTabelaDemandas();
+        }
+    }
+
+    // Função para aplicar filtros
+    function aplicarFiltros() {
+        paginaAtual = 1;
+        carregarDemandas();
+    }
+
+    // Função para criar nova demanda
+    async function criarDemanda() {
+        try {
+            const titulo = document.getElementById('titulo').value;
+            const descricao = document.getElementById('descricao').value;
+            const escola = document.getElementById('escola').value;
+            const departamento = document.getElementById('departamento').value;
+            const prioridade = document.getElementById('prioridade').value;
+            const prazo = document.getElementById('prazo').value;
+            
+            // Validação básica
+            if (!titulo || !descricao || !escola || !departamento || !prazo) {
+                alert('Por favor, preencha todos os campos obrigatórios.');
+                return;
+            }
+            
+            // Validar data do prazo
+            if (new Date(prazo) <= new Date()) {
+                alert('O prazo deve ser uma data futura.');
+                return;
+            }
+            
+            // Simular criação (substituir por API real)
+            setTimeout(() => {
+                const novaDemanda = {
+                    _id: Date.now().toString(),
+                    titulo,
+                    descricao,
+                    escola,
+                    departamento,
+                    prioridade,
+                    status: 'pendente',
+                    criadoEm: new Date().toISOString(),
+                    prazo: prazo
+                };
+                
+                demandas.unshift(novaDemanda); // Adicionar no início
+                
+                // Fechar modal e limpar formulário
+                const modalEl = document.getElementById('modalCriarDemanda');
+                const modal = bootstrap.Modal.getInstance(modalEl);
+                modal.hide();
+                
+                document.getElementById('formCriarDemanda').reset();
+                
+                // Mostrar mensagem de sucesso
+                alert('Demanda criada com sucesso!');
+                
+                // Recarregar a lista de demandas
+                carregarDemandas();
+                
+            }, 1000);
+            
+        } catch (error) {
+            console.error('Erro ao criar demanda:', error);
+            alert('Erro ao criar demanda. Tente novamente.');
+        }
+    }
+
+    // Função para mostrar detalhes da demanda
+    async function mostrarDetalhesDemanda(id) {
+        try {
+            // Encontrar a demanda pelo ID
+            const demanda = demandas.find(d => d._id === id);
+            
+            if (!demanda) {
+                alert('Demanda não encontrada.');
+                return;
+            }
+            
+            // Formatar datas
+            const dataCriacao = new Date(demanda.criadoEm).toLocaleString('pt-BR');
+            const prazoFormatado = demanda.prazo ? new Date(demanda.prazo).toLocaleDateString('pt-BR') : 'Não definido';
+            
+            // Determinar classe de status
+            let classeStatus = 'status-pendente';
+            if (demanda.status === 'em andamento') classeStatus = 'status-andamento';
+            if (demanda.status === 'concluida') classeStatus = 'status-concluida';
+            if (demanda.status === 'cancelada') classeStatus = 'status-cancelada';
+            
+            // Determinar classe de prioridade
+            let classePrioridade = 'prioridade-media';
+            if (demanda.prioridade === 'Alta') classePrioridade = 'prioridade-alta';
+            if (demanda.prioridade === 'Baixa') classePrioridade = 'prioridade-baixa';
+            if (demanda.prioridade === 'Urgente') classePrioridade = 'prioridade-alta';
+            
+            // Montar conteúdo do modal
+            const conteudo = `
+                <div class="row">
+                    <div class="col-md-8">
+                        <h4>${demanda.titulo}</h4>
+                        <p class="text-muted">${demanda.descricao}</p>
+                    </div>
+                    <div class="col-md-4">
+                        <span class="badge ${classeStatus} p-2">${demanda.status}</span>
+                        <span class="badge ${classePrioridade} p-2">${demanda.prioridade || 'Média'}</span>
+                    </div>
+                </div>
+                
+                <hr>
+                
+                <div class="row">
+                    <div class="col-md-6">
+                        <h6><i class="fas fa-school"></i> Escola</h6>
+                        <p>${demanda.escola}</p>
+                        
+                        <h6><i class="fas fa-building"></i> Departamento</h6>
+                        <p>${demanda.departamento}</p>
+                    </div>
+                    <div class="col-md-6">
+                        <h6><i class="fas fa-calendar-plus"></i> Data de Criação</h6>
+                        <p>${dataCriacao}</p>
+                        
+                        <h6><i class="fas fa-calendar-check"></i> Prazo</h6>
+                        <p>${prazoFormatado}</p>
+                    </div>
+                </div>
+                
+                <div class="mt-3">
+                    <h6><i class="fas fa-user"></i> Criado por</h6>
+                    <p>${demanda.criadoPor || 'Sistema'}</p>
+                </div>
+            `;
+            
+            document.getElementById('detalhesDemandaConteudo').innerHTML = conteudo;
+            
+            // Mostrar modal
+            const modalEl = document.getElementById('modalDetalhesDemanda');
+            const modal = new bootstrap.Modal(modalEl);
+            modal.show();
+            
+        } catch (error) {
+            console.error('Erro ao mostrar detalhes:', error);
+            alert('Erro ao carregar detalhes da demanda.');
+        }
+    }
+
+    // Função para editar demanda (simplificada)
+    function editarDemanda(id) {
+        alert('Funcionalidade de edição será implementada em breve!');
+        // Aqui você pode implementar a lógica para editar a demanda
+    }
+
+    // Inicializar a página quando carregar
+    document.addEventListener('DOMContentLoaded', function() {
+        carregarEscolas();
+        carregarDemandas();
+        
+        // Configurar data mínima para o campo prazo (amanhã)
+        const amanha = new Date();
+        amanha.setDate(amanha.getDate() + 1);
+        const amanhaFormatada = amanha.toISOString().split('T')[0];
+        document.getElementById('prazo').min = amanhaFormatada;
+    });
+</script>

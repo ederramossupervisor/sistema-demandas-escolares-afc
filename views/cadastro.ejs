@@ -1,0 +1,436 @@
+<%- include('layout', { title: 'Cadastrar Usuário - Sistema Escolar' }) %>
+
+<style>
+    .container {
+        max-width: 800px;
+        margin: 0 auto;
+    }
+    
+    .form-card {
+        background: white;
+        padding: 30px;
+        border-radius: 10px;
+        box-shadow: 0 0 20px rgba(0,0,0,0.1);
+        margin-top: 20px;
+    }
+    
+    .form-group {
+        margin-bottom: 20px;
+    }
+    
+    label {
+        display: block;
+        margin-bottom: 5px;
+        color: #555;
+        font-weight: bold;
+    }
+    
+    input, select {
+        width: 100%;
+        padding: 10px;
+        border: 1px solid #ddd;
+        border-radius: 5px;
+        font-size: 16px;
+    }
+    
+    select[multiple] {
+        height: 150px;
+        padding: 10px;
+    }
+    
+    .btn-submit {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        border: none;
+        padding: 12px 20px;
+        border-radius: 5px;
+        font-size: 16px;
+        cursor: pointer;
+        width: 100%;
+        font-weight: bold;
+    }
+    
+    .btn-submit:hover {
+        opacity: 0.9;
+    }
+    
+    .info-box {
+        background: #e3f2fd;
+        border-left: 4px solid #2196F3;
+        padding: 15px;
+        margin: 20px 0;
+        border-radius: 5px;
+    }
+    
+    .alert-box {
+        background: #fff3cd;
+        border-left: 4px solid #ffc107;
+        padding: 15px;
+        margin: 20px 0;
+        border-radius: 5px;
+        color: #856404;
+    }
+    
+    .help-text {
+        font-size: 0.9em;
+        color: #6c757d;
+        margin-top: 5px;
+    }
+    
+    .school-badge {
+        display: inline-block;
+        background: #e9ecef;
+        padding: 3px 8px;
+        border-radius: 10px;
+        margin: 2px;
+        font-size: 0.85em;
+    }
+    
+    .section-title {
+        border-bottom: 2px solid #0d6efd;
+        padding-bottom: 10px;
+        margin-bottom: 20px;
+        color: #333;
+    }
+</style>
+
+<div class="container mt-4">
+    <!-- Cabeçalho -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <h2><i class="fas fa-user-plus"></i> Cadastrar Novo Usuário</h2>
+            <p class="text-muted">Adicione novos usuários ao sistema de demandas escolares</p>
+        </div>
+    </div>
+
+    <!-- Informações -->
+    <div class="row">
+        <div class="col-12">
+            <div class="alert-box">
+                <h5><i class="fas fa-info-circle"></i> Informação Importante</h5>
+                <p class="mb-0">
+                    <strong>Apenas administradores podem cadastrar novos usuários.</strong> 
+                    Certifique-se de que o usuário receberá as permissões corretas para seu papel.
+                </p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Formulário -->
+    <div class="row">
+        <div class="col-12">
+            <div class="form-card">
+                <h4 class="section-title">Dados do Usuário</h4>
+                
+                <form id="cadastroForm">
+                    <!-- Dados Básicos -->
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label for="nome">Nome Completo *</label>
+                                <input type="text" id="nome" class="form-control" placeholder="Digite o nome completo" required>
+                            </div>
+                        </div>
+                        
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label for="email">Email Institucional *</label>
+                                <input type="email" id="email" class="form-control" placeholder="usuario@escola.gov.br" required>
+                                <div class="help-text">Use um email institucional válido</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Tipo e Departamento -->
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label for="tipo">Tipo de Usuário *</label>
+                                <select id="tipo" class="form-select" required>
+                                    <option value="">Selecione o tipo...</option>
+                                    <% tiposUsuario.forEach(function(tipo) { %>
+                                        <option value="<%= tipo.valor %>"><%= tipo.label %></option>
+                                    <% }); %>
+                                </select>
+                                <div class="help-text">
+                                    Administrador: Acesso total<br>
+                                    Supervisor: Gerencia escolas específicas<br>
+                                    Gestão: Apenas visualização<br>
+                                    Comum: Cria demandas apenas
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label for="departamento">Departamento</label>
+                                <select id="departamento" class="form-select">
+                                    <option value="">Selecione o departamento...</option>
+                                    <% departamentos.forEach(function(depto) { %>
+                                        <option value="<%= depto.valor %>"><%= depto.label %></option>
+                                    <% }); %>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Escolas -->
+                    <div class="row">
+                        <div class="col-12">
+                            <div class="form-group">
+                                <label for="escolas">Escolas Atribuídas *</label>
+                                <select id="escolas" class="form-select" multiple required>
+                                    <% escolas.forEach(function(escola) { %>
+                                        <option value="<%= escola %>"><%= escola %></option>
+                                    <% }); %>
+                                </select>
+                                <div class="help-text">
+                                    <strong>Ctrl+Click</strong> para selecionar múltiplas escolas<br>
+                                    <strong>Shift+Click</strong> para selecionar um intervalo
+                                </div>
+                                
+                                <!-- Escolas selecionadas (visual) -->
+                                <div id="escolasSelecionadas" class="mt-3" style="display: none;">
+                                    <h6>Escolas selecionadas:</h6>
+                                    <div id="escolasLista" class="d-flex flex-wrap gap-2"></div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Senha -->
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label for="senha">Senha *</label>
+                                <input type="password" id="senha" class="form-control" placeholder="Mínimo 6 caracteres" required>
+                            </div>
+                        </div>
+                        
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label for="confirmarSenha">Confirmar Senha *</label>
+                                <input type="password" id="confirmarSenha" class="form-control" placeholder="Digite a senha novamente" required>
+                                <div class="help-text" id="senhaMatch"></div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Botões -->
+                    <div class="row mt-4">
+                        <div class="col-md-6">
+                            <button type="button" class="btn btn-secondary w-100" onclick="window.history.back()">
+                                <i class="fas fa-arrow-left"></i> Cancelar
+                            </button>
+                        </div>
+                        <div class="col-md-6">
+                            <button type="submit" class="btn btn-primary w-100 btn-submit">
+                                <i class="fas fa-save"></i> Cadastrar Usuário
+                            </button>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Informações de Suporte -->
+    <div class="row mt-4">
+        <div class="col-12">
+            <div class="info-box">
+                <h5><i class="fas fa-question-circle"></i> Como Funciona o Cadastro</h5>
+                <div class="row">
+                    <div class="col-md-6">
+                        <h6><i class="fas fa-shield-alt"></i> Permissões</h6>
+                        <ul class="mb-0">
+                            <li><strong>Administrador:</strong> Acesso completo a todas as funcionalidades</li>
+                            <li><strong>Supervisor:</strong> Gerencia escolas específicas</li>
+                            <li><strong>Gestão:</strong> Visualiza relatórios e estatísticas</li>
+                            <li><strong>Comum:</strong> Cria e acompanha suas próprias demandas</li>
+                        </ul>
+                    </div>
+                    <div class="col-md-6">
+                        <h6><i class="fas fa-school"></i> Escolas</h6>
+                        <ul class="mb-0">
+                            <li>Cada usuário pode ser atribuído a uma ou mais escolas</li>
+                            <li>Os supervisores veem apenas demandas de suas escolas</li>
+                            <li>Administradores veem todas as escolas</li>
+                            <li>Selecione as escolas que o usuário irá gerenciar</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    // Variáveis
+    const todasEscolas = [
+        'CEEFMTI Afonso Cláudio', 'CEEFMTI Elisa Paiva', 'EEEFM Domingos Perim',
+        'EEEFM Fazenda Emílio Schroeder', 'EEEFM Álvaro Castelo', 'EEEFM Alto Rio Possmoser',
+        'EEEFM Elvira Barros', 'EEEFM Fazenda Camporês', 'EEEFM Fioravante Caliman',
+        'EEEFM Frederico Boldt', 'EEEFM Gisela Salloker Fayet', 'EEEFM Graça Aranha',
+        'EEEFM Joaquim Caetano de Paiva', 'EEEFM José Cupertino', 'EEEFM José Giestas',
+        'EEEFM José Roberto Christo', 'EEEFM Leogildo Severiano de Souza',
+        'EEEFM Luiz Jouffroy', 'EEEFM Marlene Brandão', 'EEEFM Maria de Abreu Alvim',
+        'EEEFM Pedra Azul', 'EEEFM Ponto do Alto', 'EEEFM Prof. Hermann Berger',
+        'EEEFM Profª Aldy Soares Merçon Vargas', 'EEEFM São Jorge', 'EEEFM São Luís',
+        'EEEFM Teófilo Paulino', 'EEEM Francisco Guilherme', 'EEEM Mata Fria', 'EEEM Sobreiro'
+    ];
+
+    // Atualizar visualização das escolas selecionadas
+    function atualizarEscolasSelecionadas() {
+        const select = document.getElementById('escolas');
+        const container = document.getElementById('escolasSelecionadas');
+        const lista = document.getElementById('escolasLista');
+        
+        const selecionadas = Array.from(select.selectedOptions).map(o => o.value);
+        
+        if (selecionadas.length > 0) {
+            container.style.display = 'block';
+            lista.innerHTML = '';
+            
+            selecionadas.forEach(escola => {
+                const badge = document.createElement('span');
+                badge.className = 'school-badge';
+                badge.textContent = escola;
+                lista.appendChild(badge);
+            });
+        } else {
+            container.style.display = 'none';
+        }
+    }
+
+    // Validar confirmação de senha
+    function validarSenha() {
+        const senha = document.getElementById('senha').value;
+        const confirmarSenha = document.getElementById('confirmarSenha').value;
+        const mensagem = document.getElementById('senhaMatch');
+        
+        if (!senha || !confirmarSenha) {
+            mensagem.textContent = '';
+            return false;
+        }
+        
+        if (senha === confirmarSenha) {
+            mensagem.textContent = '✓ As senhas coincidem';
+            mensagem.style.color = 'green';
+            return true;
+        } else {
+            mensagem.textContent = '✗ As senhas não coincidem';
+            mensagem.style.color = 'red';
+            return false;
+        }
+    }
+
+    // Validar formulário completo
+    function validarFormulario() {
+        const nome = document.getElementById('nome').value;
+        const email = document.getElementById('email').value;
+        const tipo = document.getElementById('tipo').value;
+        const escolas = document.getElementById('escolas');
+        const senha = document.getElementById('senha').value;
+        
+        if (!nome || !email || !tipo || escolas.selectedOptions.length === 0 || !senha) {
+            alert('Por favor, preencha todos os campos obrigatórios (*).');
+            return false;
+        }
+        
+        if (senha.length < 6) {
+            alert('A senha deve ter pelo menos 6 caracteres.');
+            return false;
+        }
+        
+        if (!validarSenha()) {
+            alert('As senhas não coincidem.');
+            return false;
+        }
+        
+        return true;
+    }
+
+    // Submeter formulário
+    async function submeterFormulario(event) {
+        event.preventDefault();
+        
+        if (!validarFormulario()) {
+            return;
+        }
+        
+        const usuario = {
+            nome: document.getElementById('nome').value,
+            email: document.getElementById('email').value,
+            tipo: document.getElementById('tipo').value,
+            departamento: document.getElementById('departamento').value,
+            escolas: Array.from(document.getElementById('escolas').selectedOptions).map(o => o.value),
+            senha: document.getElementById('senha').value
+        };
+        
+        try {
+            // Mostrar loading
+            const botaoSubmit = event.target.querySelector('button[type="submit"]');
+            const textoOriginal = botaoSubmit.innerHTML;
+            botaoSubmit.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Cadastrando...';
+            botaoSubmit.disabled = true;
+            
+            const response = await fetch('/api/usuarios', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': 'Bearer ' + (localStorage.getItem('token') || 'jwt_token_simulado')
+                },
+                body: JSON.stringify(usuario)
+            });
+            
+            const data = await response.json();
+            
+            // Restaurar botão
+            botaoSubmit.innerHTML = textoOriginal;
+            botaoSubmit.disabled = false;
+            
+            if (data.success) {
+                alert('✅ Usuário cadastrado com sucesso!');
+                window.location.href = '/dashboard';
+            } else {
+                alert('❌ Erro: ' + (data.message || 'Erro ao cadastrar usuário'));
+            }
+            
+        } catch (error) {
+            console.error('Erro ao cadastrar usuário:', error);
+            alert('❌ Erro de conexão. Tente novamente.');
+            
+            // Restaurar botão em caso de erro
+            const botaoSubmit = event.target.querySelector('button[type="submit"]');
+            botaoSubmit.innerHTML = '<i class="fas fa-save"></i> Cadastrar Usuário';
+            botaoSubmit.disabled = false;
+        }
+    }
+
+    // Inicializar página
+    document.addEventListener('DOMContentLoaded', function() {
+        // Configurar eventos
+        document.getElementById('cadastroForm').addEventListener('submit', submeterFormulario);
+        
+        document.getElementById('escolas').addEventListener('change', atualizarEscolasSelecionadas);
+        document.getElementById('confirmarSenha').addEventListener('input', validarSenha);
+        document.getElementById('senha').addEventListener('input', validarSenha);
+        
+        // Configurar seleção inicial (3 escolas como exemplo)
+        const selectEscolas = document.getElementById('escolas');
+        if (todasEscolas.length >= 3) {
+            for (let i = 0; i < 3; i++) {
+                selectEscolas.options[i].selected = true;
+            }
+        }
+        atualizarEscolasSelecionadas();
+        
+        // Configurar validação de email
+        document.getElementById('email').addEventListener('blur', function() {
+            const email = this.value;
+            if (email && !email.endsWith('@escola.gov.br')) {
+                alert('⚠️ Recomendamos usar email institucional (@escola.gov.br)');
+            }
+        });
+    });
+</script>

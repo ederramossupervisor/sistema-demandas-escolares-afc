@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <link rel="manifest" href="manifest.json">
+    <link rel="icon" href="images/icon-192x192.png">
+</head>
+<body>
+    <h1>Teste PWA</h1>
+    <p>Acesse: <a href="/">Página de Login</a></p>
+    
+    <script>
+    // Testar se pode instalar
+    let deferredPrompt;
+    
+    window.addEventListener('beforeinstallprompt', (e) => {
+        e.preventDefault();
+        deferredPrompt = e;
+        console.log('✅ Pode instalar como PWA!');
+        
+        // Mostrar botão de instalação
+        const installBtn = document.createElement('button');
+        installBtn.textContent = '📱 Instalar App';
+        installBtn.onclick = () => {
+            deferredPrompt.prompt();
+            deferredPrompt.userChoice.then((choice) => {
+                if (choice.outcome === 'accepted') {
+                    console.log('✅ App instalado!');
+                }
+                deferredPrompt = null;
+            });
+        };
+        document.body.appendChild(installBtn);
+    });
+    </script>
+</body>
+</html>
