@@ -1,7 +1,6 @@
 /**
  * MIDDLEWARE DE AUTENTICAÇÃO VIA SESSÃO (PARA WEB)
- * 
- * Usado para páginas EJS que precisam de redirecionamento
+ * VERSÃO CORRIGIDA - SEM LOOP DE REDIRECIONAMENTO
  */
 
 const { User } = require('../models/User');
@@ -29,10 +28,17 @@ module.exports = async function sessionAuth(req, res, next) {
     
     if (isPublicRoute) {
         console.log('✅ [Session Auth] Rota pública, permitindo acesso');
+        
+        // SE ESTIVER NA PÁGINA DE LOGIN E JÁ ESTIVER LOGADO, REDIRECIONA PARA DASHBOARD
+        if ((req.path === '/' || req.path === '/login') && req.session.userId) {
+            console.log('🔄 [Session Auth] Usuário já logado, redirecionando para dashboard');
+            return res.redirect('/dashboard');
+        }
+        
         return next();
     }
     
-    // 2. Verificar se usuário está na sessão
+    // 2. Verificar se usuário está na sessão (para rotas PRIVADAS)
     if (!req.session.userId) {
         console.log('❌ [Session Auth] Sessão não encontrada, redirecionando para login');
         

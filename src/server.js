@@ -66,7 +66,8 @@ app.use(session({
     cookie: {
         maxAge: 24 * 60 * 60 * 1000, // 1 dia
         httpOnly: true,
-        secure: process.env.NODE_ENV === 'production'
+        secure: false, // ← MUDAR PARA false TEMPORARIAMENTE
+        sameSite: 'lax' // ← ADICIONAR ESTA LINHA
     }
 }));
 // ============================================
@@ -101,11 +102,11 @@ app.use((req, res, next) => {
 // Middleware de arquivos estáticos (SEM autenticação)
 app.use(express.static(path.join(__dirname, '../public')));
 
-// Middleware de autenticação via sessão (APLICA EM TODAS AS ROTAS)
-app.use(sessionAuth);
+// Middleware de autenticação via sessão (COMENTADO TEMPORARIAMENTE)
+// app.use(sessionAuth);
 
-// Middleware de verificação de primeiro acesso (APLICA EM TODAS AS ROTAS)
-app.use(checkFirstAccess);
+// Middleware de verificação de primeiro acesso (COMENTADO TEMPORARIAMENTE)
+// app.use(checkFirstAccess);
 
 // ============================================
 // CONFIGURAÇÃO DO SOCKET.IO (NOTIFICAÇÕES PUSH)
@@ -2331,7 +2332,18 @@ app.post('/login', async (req, res) => {
         });
     }
 });
+// ============================================
+// APLICAÇÃO DOS MIDDLEWARES DE AUTENTICAÇÃO
+// (APENAS NAS ROTAS ABAIXO DESTE PONTO)
+// ============================================
 
+// Middleware de autenticação via sessão
+app.use(sessionAuth);
+
+// Middleware de verificação de primeiro acesso
+app.use(checkFirstAccess);
+
+console.log('✅ Middlewares de autenticação aplicados a partir deste ponto');
 // ============================================
 // ROTA: Página de Login (GET)
 // ============================================
