@@ -2683,36 +2683,40 @@ app.get('/solicitar-cadastro', (req, res) => {
     });
 });
 
-// ROTA: Processar solicitação de cadastro
+// ROTA: Processar solicitação de cadastro (CORRIGIDA)
 app.post('/solicitar-cadastro', async (req, res) => {
     try {
-        console.log('📝 Recebendo solicitação de cadastro...');
+        console.log('🔍 === INÍCIO DO PROCESSAMENTO DE CADASTRO ===');
+        console.log('📦 Body completo recebido:', req.body);
+        console.log('📦 Content-Type:', req.headers['content-type']);
         
-        const {
-            nomeCompleto,
-            email,
-            funcao,
-            departamento,
-            escola
-        } = req.body;
+        // Extrair dados CORRETAMENTE
+        const nomeCompleto = req.body.nomeCompleto;
+        const email = req.body.email;
+        const funcao = req.body.funcao;
+        const departamento = req.body.departamento;
+        const escola = req.body.escola;
         
-        console.log('📋 Dados recebidos:', { nomeCompleto, email, funcao, departamento, escola });
+        console.log('🔍 Campos extraídos:');
+        console.log('  nomeCompleto:', nomeCompleto);
+        console.log('  email:', email);
+        console.log('  funcao:', funcao);
+        console.log('  departamento:', departamento);
+        console.log('  escola:', escola);
         
         // Validações básicas
-        if (!nomeCompleto || !email || !funcao || !departamento || !escola) {
+        if (!nomeCompleto || nomeCompleto.trim().length < 3) {
             return res.render('solicitar-cadastro', {
                 title: 'Solicitar Cadastro - Sistema de Demandas Escolares',
                 user: null,
                 escolas: escolasLista,
                 mensagemSucesso: null,
-                mensagemErro: 'Preencha todos os campos obrigatórios (*)',
+                mensagemErro: 'Nome completo é obrigatório (mínimo 3 caracteres)',
                 dadosForm: req.body
             });
         }
         
-        // Validar formato do email
-        const emailRegex = /^\S+@\S+\.\S+$/;
-        if (!emailRegex.test(email)) {
+        if (!email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
             return res.render('solicitar-cadastro', {
                 title: 'Solicitar Cadastro - Sistema de Demandas Escolares',
                 user: null,
@@ -2723,9 +2727,44 @@ app.post('/solicitar-cadastro', async (req, res) => {
             });
         }
         
+        if (!funcao || funcao.trim().length === 0) {
+            return res.render('solicitar-cadastro', {
+                title: 'Solicitar Cadastro - Sistema de Demandas Escolares',
+                user: null,
+                escolas: escolasLista,
+                mensagemSucesso: null,
+                mensagemErro: 'Função é obrigatória',
+                dadosForm: req.body
+            });
+        }
+        
+        // Normalizar função para formato do ENUM
+        let funcaoNormalizada = funcao.trim();
+        const mapeamentoFuncoes = {
+            'supervisor': 'Supervisor(a)',
+            'supervisora': 'Supervisor(a)',
+            'supervisor(a)': 'Supervisor(a)',
+            'diretor': 'Diretor(a)',
+            'diretora': 'Diretor(a)',
+            'diretor(a)': 'Diretor(a)',
+            'casf': 'Casf',
+            'ase': 'ASE',
+            'coordenador pedagógico': 'Coordenador(a) Pedagógico(a)',
+            'coordenadora pedagógica': 'Coordenador(a) Pedagógico(a)',
+            'coordenador(a) pedagógico(a)': 'Coordenador(a) Pedagógico(a)',
+            'pedagogo': 'Pedagogo(a)',
+            'pedagoga': 'Pedagogo(a)',
+            'pedagogo(a)': 'Pedagogo(a)',
+            'outro': 'Outro'
+        };
+        
+        if (mapeamentoFuncoes[funcaoNormalizada.toLowerCase()]) {
+            funcaoNormalizada = mapeamentoFuncoes[funcaoNormalizada.toLowerCase()];
+        }
+        
         // Verificar se já existe solicitação com este email (pendente)
         const solicitacaoExistente = await SolicitacaoCadastro.findOne({
-            email: email.toLowerCase(),
+            email: email.toLowerCase().trim(),
             status: 'pendente'
         });
         
@@ -2741,8 +2780,8 @@ app.post('/solicitar-cadastro', async (req, res) => {
         }
         
         // Verificar se já existe usuário com este email
-        const usuarioExistente = await UserModule.User.findOne({
-            email: email.toLowerCase()
+        const usuarioExistente = await User.findOne({
+            email: email.toLowerCase().trim()
         });
         
         if (usuarioExistente) {
@@ -2751,37 +2790,36 @@ app.post('/solicitar-cadastro', async (req, res) => {
                 user: null,
                 escolas: escolasLista,
                 mensagemSucesso: null,
-                mensagemErro: 'Este e-mail já está cadastrado no sistema. <a href="/login" class="alert-link">Faça login aqui</a>.',
+                mensagemErro: 'Este e-mail já está cadastrado no sistema.',
                 dadosForm: req.body
             });
         }
         
-        // Criar nova solicitação (usando o formato do seu modelo)
+        console.log('📝 Criando nova solicitação com campos CORRETOS...');
+        
+        // Criar nova solicitação (usando o formato CORRETO do modelo)
         const novaSolicitacao = new SolicitacaoCadastro({
-            nome: nomeCompleto.trim(),
+            nomeCompleto: nomeCompleto.trim(),
             email: email.toLowerCase().trim(),
-            cargo: funcao,
-            escola: escola,
+            funcao: funcao,
             departamento: departamento,
-            status: 'pendente',
-            dataSolicitacao: new Date()
+            escola: escola,
+            status: 'pendente'
+            // NÃO inclua dataSolicitacao - timestamps são automáticos
         });
+        
+        console.log('📄 Objeto a ser salvo:', novaSolicitacao);
         
         // Salvar no banco
         await novaSolicitacao.save();
         
-        console.log('✅ Nova solicitação salva:', {
-            id: novaSolicitacao._id,
-            nome: novaSolicitacao.nome,
-            email: novaSolicitacao.email,
-            escola: novaSolicitacao.escola
-        });
+        console.log('✅ Solicitação salva com sucesso! ID:', novaSolicitacao._id);
         
         // 🔔 EMITIR EVENTO SOCKET.IO PARA NOTIFICAR ADMINS
         if (io) {
             io.emit('nova-solicitacao-cadastro', {
                 email: novaSolicitacao.email,
-                nome: novaSolicitacao.nome,
+                nome: novaSolicitacao.nomeCompleto,
                 timestamp: new Date()
             });
             
@@ -2794,13 +2832,14 @@ app.post('/solicitar-cadastro', async (req, res) => {
         console.log('══════════════════════════════════════════════════════════════════');
         console.log(`📨 Para: ecramos@sedu.es.gov.br`);
         console.log(`📨 De: sistema-escolar@sedu.es.gov.br`);
-        console.log(`🏷️ Assunto: Nova Solicitação de Cadastro - ${novaSolicitacao.nome}`);
+        console.log(`🏷️ Assunto: Nova Solicitação de Cadastro - ${novaSolicitacao.nomeCompleto}`);
         console.log('══════════════════════════════════════════════════════════════════');
         console.log(`👤 Nova solicitação recebida:`);
-        console.log(`   Nome: ${novaSolicitacao.nome}`);
+        console.log(`   Nome: ${novaSolicitacao.nomeCompleto}`);
         console.log(`   E-mail: ${novaSolicitacao.email}`);
         console.log(`   Escola: ${novaSolicitacao.escola}`);
-        console.log(`   Cargo: ${novaSolicitacao.cargo || 'Não informado'}`);
+        console.log(`   Função: ${novaSolicitacao.funcao}`);
+        console.log(`   Departamento: ${novaSolicitacao.departamento}`);
         console.log('');
         console.log('🔗 Para revisar: http://localhost:3000/admin/solicitacoes');
         console.log('══════════════════════════════════════════════════════════════════\n');
@@ -2816,7 +2855,33 @@ app.post('/solicitar-cadastro', async (req, res) => {
         });
         
     } catch (error) {
-        console.error('❌ Erro ao processar solicitação:', error);
+        console.error('❌ ERRO NO PROCESSAMENTO DA SOLICITAÇÃO:');
+        console.error('Mensagem:', error.message);
+        console.error('Nome do erro:', error.name);
+        
+        // Log detalhado para erros de validação do Mongoose
+        if (error.name === 'ValidationError') {
+            console.error('Erros de validação:');
+            Object.keys(error.errors).forEach(key => {
+                console.error(`  ${key}:`, error.errors[key].message);
+            });
+        }
+        
+        console.error('Stack:', error.stack);
+        
+        // Tratar erro de validação do Mongoose
+        if (error.name === 'ValidationError') {
+            const erros = Object.values(error.errors).map(err => err.message).join(', ');
+            return res.render('solicitar-cadastro', {
+                title: 'Solicitar Cadastro - Sistema de Demandas Escolares',
+                user: null,
+                escolas: escolasLista,
+                mensagemSucesso: null,
+                mensagemErro: `Erro de validação: ${erros}`,
+                dadosForm: req.body
+            });
+        }
+        
         res.render('solicitar-cadastro', {
             title: 'Solicitar Cadastro - Sistema de Demandas Escolares',
             user: null,
@@ -3191,24 +3256,21 @@ app.post('/admin/solicitacoes/aprovar', async (req, res) => {
         const saltRounds = 10;
         const hashedPassword = await bcrypt.hash(senhaTemporaria, saltRounds);
         
-        // Criar novo usuário (AGORA COM TIPO MAPEADO)
-        const novoUsuario = UserModule.User({
-            nome: solicitacao.nome,
-            email: solicitacao.email,
-            telefone: solicitacao.telefone,
-            cpf: solicitacao.cpf,
-            escola: solicitacao.escola,
-            cargo: solicitacao.cargo,
-            matricula: solicitacao.matricula,
-            tipo: tipoMapeado, 
-            senha: hashedPassword,
+        // Criar novo usuário (COM CAMPOS CORRETOS DO MODELO USER)
+        const novoUsuario = new User({
+            nome: solicitacao.nomeCompleto || solicitacao.nome, // Use o campo correto da solicitação
+            email: solicitacao.email.toLowerCase().trim(),
+            senha: senhaTemporaria, // Deixe a senha em texto puro, o pre-save vai criptografar
+            tipo: tipoMapeado || 'comum', // Garantir valor padrão
+            departamento: solicitacao.departamento, // Modelo usa 'departamento', não 'cargo'
+            escolas: solicitacao.escola ? [solicitacao.escola] : [], // Converter para array
+            ativo: true,
             primeiroAcesso: true,
-            dataCadastro: new Date(),
+            solicitacaoOrigem: solicitacao._id,
+            dataAprovacao: new Date(),
             aprovadoPor: user._id,
-            senhasAnteriores: [{
-                hash: hashedPassword,
-                alteradaEm: new Date()
-            }]
+            // Não inclua: telefone, cpf, matricula, cargo (a menos que adicione ao modelo)
+            // O campo senhasAnteriores será preenchido pelo middleware pre-save
         });
         
         // Salvar o usuário

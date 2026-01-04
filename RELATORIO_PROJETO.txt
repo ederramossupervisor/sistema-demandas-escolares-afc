@@ -1,0 +1,219 @@
+📌 DIAGNÓSTICO DO PROJETO
+
+📁 ESTRUTURA DE PASTAS E ARQUIVOS
+- ({
+- .env
+- .env.production
+- .gitignore
+- 0
+- backups
+  - database
+    - 2026-01-03
+      - demandas.json
+      - notificacaos.json
+      - sessions.json
+      - solicitacaocadastros.json
+      - users.json
+    - 2026-01-04
+      - demandas.json
+      - notificacaos.json
+      - sessions.json
+      - solicitacaocadastros.json
+      - users.json
+  - logs
+    - backup-admin.log
+    - scheduler.log
+    - server-start.log
+  - reports
+- cleanup-users.js
+- correcao-definitiva-admin.js
+- corrigir-admin.js
+- corrigir-senha-admin.js
+- corrigir-tudo.js
+- criar-usuario.js
+- criar-usuario.jsecho
+- debug-alterar-senha.js
+- debug-basico.js
+- diagnostico-projeto.js
+- fix-admin.js
+- listar-colecoes.js
+- package.json
+- public
+  - atribuir_demandas.html
+  - css
+    - style.css
+  - images
+    - favicon.ico
+    - icon-192x192.png
+    - icon-512x512.png
+  - js
+    - charts.js
+    - notifications.js
+    - push-notifications.js
+    - pwa-install.js
+  - manifest.json
+  - notifications-old.js
+  - sw.js
+  - teste-pwa.html
+  - uploads
+- scripts
+  - backup-scheduler.js
+  - backup.js
+- src
+  - backup
+    - backup-admin.js
+    - backup-routes.js
+    - backup-scheduler.js
+  - config
+    - database.js
+    - email.js
+  - controllers
+    - authController.js
+    - demandaController.js
+  - middleware
+    - auth.js
+    - checkFirstAccess.js
+    - sessionAuth.js
+  - models
+    - Demanda.js
+    - Notificacao.js
+    - notification-rules.js
+    - scheduler.js
+    - SolicitacaoCadastro.js
+    - User.js
+  - routes
+    - authRoutes.js
+    - debug.js
+    - demandaRoutes.js
+    - solicitacoes.js
+  - server.js
+  - utils
+    - senhaHelper.js
+- tall
+- views
+  - admin
+    - backup.ejs
+    - solicitacoes.ejs
+  - admin-backup.ejs
+  - admin-solicitacoes.ejs
+  - alterar-senha.ejs
+  - atribuir.ejs
+  - base.ejs
+  - cadastro-com-includes.ejs
+  - dashboard-personalizado.ejs
+  - debug-agendador.ejs
+  - demandas-com-includes.ejs
+  - esqueci-senha.ejs
+  - layout.ejs
+  - login-bonito.ejs
+  - partials
+    - footer.ejs
+    - head.ejs
+    - navbar.ejs
+    - pwa-button.ejs
+    - scripts.ejs
+    - sidebar.ejs
+  - perfil-com-includes.ejs
+  - solicitar-cadastro.ejs
+  - usuarios.ejs
+- {
+
+📦 package.json
+{
+  "name": "sistema-demandas-escolares",
+  "version": "2.0.0",
+  "description": "Sistema de gerenciamento de demandas escolares - Afonso Cláudio",
+  "main": "src/server.js",
+  "scripts": {
+    "start": "node src/server.js",
+    "dev": "nodemon src/server.js",
+    "build": "npm install",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [
+    "escola",
+    "demandas",
+    "gestão",
+    "educação",
+    "secretaria"
+  ],
+  "author": "Secretaria de Educação - Afonso Cláudio",
+  "license": "MIT",
+  "dependencies": {
+    "bcrypt": "^5.1.1",
+    "bcryptjs": "^2.4.3",
+    "connect-mongo": "^5.1.0",
+    "cookie-parser": "^1.4.6",
+    "date-fns": "^4.1.0",
+    "dotenv": "^16.4.7",
+    "ejs": "^3.1.10",
+    "express": "^4.21.2",
+    "express-session": "^1.18.1",
+    "fs-extra": "^11.3.0",
+    "jsonwebtoken": "^9.0.2",
+    "moment-timezone": "^0.5.46",
+    "mongodb": "^6.9.0",
+    "mongoose": "^8.9.0",
+    "multer": "^1.4.5-lts.1",
+    "node-cron": "^3.0.3",
+    "nodemailer": "^6.9.16",
+    "socket.io": "^4.8.1"
+  },
+  "devDependencies": {
+    "nodemon": "^3.1.7"
+  },
+  "engines": {
+    "node": ">=18.0.0",
+    "npm": ">=9.0.0"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/ederramossupervisor/sistema-demandas-escolares-afc.git"
+  },
+  "bugs": {
+    "url": "https://github.com/ederramossupervisor/sistema-demandas-escolares-afc/issues"
+  },
+  "homepage": "https://github.com/ederramossupervisor/sistema-demandas-escolares-afc#readme"
+}
+📄 README.md
+❌ Arquivo não encontrado
+
+🚀 ARQUIVO PRINCIPAL DO SERVIDOR
+❌ Arquivo não encontrado
+❌ Arquivo não encontrado
+❌ Arquivo não encontrado
+
+🔥 CONFIGURAÇÕES DE FIREBASE
+❌ Arquivo não encontrado
+❌ Arquivo não encontrado
+
+🛣️ ROTAS (routes)
+❌ Pasta routes não encontrada
+
+🖥️ VIEWS / TELAS
+- admin
+  - backup.ejs
+  - solicitacoes.ejs
+- admin-backup.ejs
+- admin-solicitacoes.ejs
+- alterar-senha.ejs
+- atribuir.ejs
+- base.ejs
+- cadastro-com-includes.ejs
+- dashboard-personalizado.ejs
+- debug-agendador.ejs
+- demandas-com-includes.ejs
+- esqueci-senha.ejs
+- layout.ejs
+- login-bonito.ejs
+- partials
+  - footer.ejs
+  - head.ejs
+  - navbar.ejs
+  - pwa-button.ejs
+  - scripts.ejs
+  - sidebar.ejs
+- perfil-com-includes.ejs
+- solicitar-cadastro.ejs
+- usuarios.ejs
+
