@@ -2580,11 +2580,11 @@ app.post('/alterar-senha', async (req, res) => {
         req.session.obrigarAlteracaoSenha = false;
         
         // 12. Retornar sucesso
-        return res.json({
-            success: true,
-            message: 'Senha alterada com sucesso! Redirecionando para o sistema...',
-            redirect: '/dashboard'
-        });
+        req.session.mensagem = {
+            tipo: 'success',
+            texto: 'Senha alterada com sucesso!'
+        };
+        return res.redirect('/dashboard');
         
     } catch (error) {
         console.error('❌ Erro ao alterar senha:', error);
