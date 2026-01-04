@@ -3259,7 +3259,7 @@ app.post('/admin/solicitacoes/aprovar', async (req, res) => {
         
 
         // Criar novo usuário (COM CAMPOS CORRETOS DO MODELO USER)
-        const novoUsuario = new User({
+        const novoUsuario = UserModule.User({
             nome: solicitacao.nomeCompleto || solicitacao.nome, // Use o campo correto da solicitação
             email: solicitacao.email.toLowerCase().trim(),
             senha: senhaTemporaria, // Deixe a senha em texto puro, o pre-save vai criptografar
