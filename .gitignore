@@ -23,3 +23,29 @@ yarn-error.log*
 # Sistema
 .DS_Store
 Thumbs.db
+# Adicionar estas linhas ao seu .gitignore existente:
+echo "
+# Backups e dados sensíveis
+backups/
+*.log
+
+# Scripts de debug/administração
+corrigir-*.js
+debug-*.js
+test-*.js
+verificar-*.js
+listar-*.js
+correcao-definitiva-admin.js
+testar-formulario-senha.js
+
+# Arquivos de configuração local
+test-dotenv.js
+
+# Pasta de scripts (se for apenas para administração local)
+scripts/
+
+# Pasta src/backup (se contém scripts de backup que não devem ser commitados)
+src/backup/
+
+# Outros
+public/notifications-old.js" >> .gitignore

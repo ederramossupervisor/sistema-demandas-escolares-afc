@@ -8,6 +8,8 @@ const MongoStore = require('connect-mongo');
 // ============================================
 // NOVAS IMPORTAÇÕES PARA NOTIFICAÇÕES PUSH
 // ============================================
+
+
 const http = require('http');
 const socketIo = require('socket.io');
 // 🔔 Sistema de Regras de Notificação
@@ -27,7 +29,8 @@ const BackupScheduler = require('./backup/backup-scheduler');
 // ============================================
 require('dotenv').config();
 //const expressLayouts = require('express-ejs-layouts');
-
+console.log("🔧 Ambiente:", process.env.NODE_ENV || "development");
+console.log("📁 Banco de dados:", process.env.MONGODB_URI ? "Configurado" : "Não configurado");
 // ============================================
 // 2. CONFIGURAÇÃO DO EXPRESS + SOCKET.IO
 // ============================================
@@ -4353,16 +4356,6 @@ app.get('/api/health', (req, res) => {
     
     res.json(health);
 });
-
-app.get('/health', (req, res) => {
-  res.status(200).json({ 
-    status: 'healthy',
-    service: 'Sistema de Demandas Escolares',
-    timestamp: new Date().toISOString(),
-    version: '1.0.0'
-  });
-});
-
 // server.js - Adicione antes do app.listen()
 
 
@@ -4437,8 +4430,7 @@ mongoose.connection.once('open', () => {
         console.log('='.repeat(60));
         console.log('🚀 SISTEMA DE DEMANDAS ESCOLARES');
         console.log('='.repeat(60));
-        const port = process.env.PORT || 3000;
-        console.log(`✅ Servidor rodando na porta ${port}`);
+        console.log(`✅ Servidor: http://localhost:${PORT}`);
         console.log(`📊 MongoDB: ${conectado ? '✅ CONECTADO' : '⚠️  MODO SIMULAÇÃO'}`);
         console.log(`🔔 Notificações: ✅ PUSH ATIVADO (Socket.io)`);
         
