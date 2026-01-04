@@ -4353,6 +4353,16 @@ app.get('/api/health', (req, res) => {
     
     res.json(health);
 });
+
+app.get('/health', (req, res) => {
+  res.status(200).json({ 
+    status: 'healthy',
+    service: 'Sistema de Demandas Escolares',
+    timestamp: new Date().toISOString(),
+    version: '1.0.0'
+  });
+});
+
 // server.js - Adicione antes do app.listen()
 
 
@@ -4427,7 +4437,8 @@ mongoose.connection.once('open', () => {
         console.log('='.repeat(60));
         console.log('🚀 SISTEMA DE DEMANDAS ESCOLARES');
         console.log('='.repeat(60));
-        console.log(`✅ Servidor: http://localhost:${PORT}`);
+        const port = process.env.PORT || 3000;
+        console.log(`✅ Servidor rodando na porta ${port}`);
         console.log(`📊 MongoDB: ${conectado ? '✅ CONECTADO' : '⚠️  MODO SIMULAÇÃO'}`);
         console.log(`🔔 Notificações: ✅ PUSH ATIVADO (Socket.io)`);
         
@@ -4438,9 +4449,9 @@ mongoose.connection.once('open', () => {
             console.log('   3. Teste novamente reiniciando o servidor');
         }
         
-        console.log('\n👑 CREDENCIAIS PARA TESTE:');
-        console.log('   Email: supervisor@escola.gov.br');
-        console.log('   Senha: SenhaAdmin123');
+        //console.log('\n👑 CREDENCIAIS PARA TESTE:');
+        //console.log('   Email: supervisor@escola.gov.br');
+        //console.log('   Senha: SenhaAdmin123');
         console.log('='.repeat(60));
     });
 }
