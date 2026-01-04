@@ -1,45 +1,130 @@
-<!-- views/partials/navbar.ejs -->
-<!-- Navbar -->
-<nav class="navbar navbar-expand-lg navbar-dark bg-primary">
+<!-- ============================================
+     📱 NAVBAR COMPLETA - TODOS OS BOTÕES
+     ============================================ -->
+<nav class="navbar navbar-expand-lg navbar-dark">
     <div class="container-fluid">
+        <!-- LOGO -->
         <a class="navbar-brand" href="/dashboard">
             <i class="fas fa-tasks me-2"></i> Sistema Escolar
         </a>
-        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+        
+        <!-- 📱 BOTÃO SANDUÍCHE -->
+        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#mainNavbar" 
+                aria-controls="mainNavbar" aria-expanded="false" aria-label="Toggle navigation">
             <span class="navbar-toggler-icon"></span>
         </button>
-        <div class="collapse navbar-collapse" id="navbarNav">
+        
+        <!-- 🎯 TODOS OS BOTÕES DO SISTEMA -->
+        <div class="collapse navbar-collapse" id="mainNavbar">
             <ul class="navbar-nav ms-auto">
+                <!-- Dashboard -->
                 <li class="nav-item">
-                    <a class="nav-link active" href="/dashboard">
-                        <i class="fas fa-home"></i> Dashboard
+                    <a class="nav-link <%= typeof currentPage !== 'undefined' && currentPage === 'dashboard' ? 'active' : '' %>" 
+                       href="/dashboard">
+                        <i class="fas fa-tachometer-alt me-1"></i> Dashboard
                     </a>
                 </li>
+                
+                <!-- Meu Perfil -->
                 <li class="nav-item">
-                    <a class="nav-link" href="/demandas">
-                        <i class="fas fa-list"></i> Demandas
+                    <a class="nav-link <%= typeof currentPage !== 'undefined' && currentPage === 'perfil' ? 'active' : '' %>" 
+                       href="/perfil">
+                        <i class="fas fa-user-circle me-1"></i> Meu Perfil
                     </a>
                 </li>
+                
+                <!-- Gerenciar Demandas -->
                 <li class="nav-item">
-                    <a class="nav-link" href="/cadastro">
-                        <i class="fas fa-user-plus"></i> Cadastrar
+                    <a class="nav-link <%= typeof currentPage !== 'undefined' && currentPage === 'demandas' ? 'active' : '' %>" 
+                       href="/demandas">
+                        <i class="fas fa-list me-1"></i> Demandas
                     </a>
                 </li>
-                <li class="nav-item dropdown">
-                    <a class="nav-link dropdown-toggle" href="#" data-bs-toggle="dropdown">
-                        <i class="fas fa-user"></i> <%= user.nome.split(' ')[0] %>
+                
+                <!-- Atribuir Demandas -->
+                <li class="nav-item">
+                    <a class="nav-link <%= typeof currentPage !== 'undefined' && currentPage === 'atribuir' ? 'active' : '' %>" 
+                       href="/atribuir">
+                        <i class="fas fa-user-check me-1"></i> Atribuir
                     </a>
-                    <ul class="dropdown-menu">
-                        <li><a class="dropdown-item" href="#">
-                            <i class="fas fa-user-tag"></i> <%= user.tipo %>
-                        </a></li>
-                        <li><hr class="dropdown-divider"></li>
-                        <li><a class="dropdown-item text-danger" href="/logout">
-                            <i class="fas fa-sign-out-alt"></i> Sair
-                        </a></li>
-                    </ul>
+                </li>
+                
+                <!-- Cadastrar Usuário (apenas admin) -->
+                <% if (user && user.tipo === 'administrador') { %>
+                <li class="nav-item">
+                    <a class="nav-link <%= typeof currentPage !== 'undefined' && currentPage === 'cadastro' ? 'active' : '' %>" 
+                       href="/cadastro">
+                        <i class="fas fa-user-plus me-1"></i> Cadastrar
+                    </a>
+                </li>
+                <% } %>
+                
+                <!-- Usuários (apenas admin) -->
+                <% if (user && user.tipo === 'administrador') { %>
+                <li class="nav-item">
+                    <a class="nav-link <%= typeof currentPage !== 'undefined' && currentPage === 'usuarios' ? 'active' : '' %>" 
+                       href="/usuarios">
+                        <i class="fas fa-users me-1"></i> Usuários
+                        <span class="badge bg-danger ms-1">Admin</span>
+                    </a>
+                </li>
+                <% } %>
+                
+                <!-- Configurações -->
+                <li class="nav-item">
+                    <a class="nav-link <%= typeof currentPage !== 'undefined' && currentPage === 'configuracoes' ? 'active' : '' %>" 
+                       href="/configuracoes">
+                        <i class="fas fa-cog me-1"></i> Configurações
+                    </a>
+                </li>
+                
+                <!-- Relatórios -->
+                <li class="nav-item">
+                    <a class="nav-link <%= typeof currentPage !== 'undefined' && currentPage === 'relatorios' ? 'active' : '' %>" 
+                       href="/relatorios">
+                        <i class="fas fa-chart-bar me-1"></i> Relatórios
+                    </a>
+                </li>
+                
+                <!-- Sair -->
+                <li class="nav-item">
+                    <a class="nav-link text-danger" href="/logout">
+                        <i class="fas fa-sign-out-alt me-1"></i> Sair
+                    </a>
                 </li>
             </ul>
         </div>
     </div>
 </nav>
+
+<!-- ============================================
+     📱 JAVASCRIPT PARA MELHORAR EXPERIÊNCIA MOBILE
+     ============================================ -->
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    console.log('📱 Navbar mobile otimizada');
+    
+    // Fechar menu mobile automaticamente ao clicar em um link
+    const navLinks = document.querySelectorAll('#mainNavbar .nav-link');
+    const navbarToggler = document.querySelector('.navbar-toggler');
+    const navbarCollapse = document.getElementById('mainNavbar');
+    
+    navLinks.forEach(link => {
+        link.addEventListener('click', function() {
+            // Se estiver em mobile e menu aberto, fecha automaticamente
+            if (window.innerWidth <= 768 && navbarCollapse.classList.contains('show')) {
+                navbarToggler.click();
+            }
+        });
+    });
+    
+    // Melhorar toque em mobile
+    if (window.innerWidth <= 768) {
+        // Aumentar área de toque
+        document.querySelectorAll('.nav-link').forEach(link => {
+            link.style.padding = '12px 16px';
+            link.style.minHeight = '48px';
+        });
+    }
+});
+</script>

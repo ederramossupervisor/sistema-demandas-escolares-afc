@@ -1,0 +1,1509 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sistema Escolar - Atribuir Demandas</title>
+    <link rel="stylesheet" href="/css/style.css">    <style>
+        /* Estilos específicos para esta página */
+        .container {
+            max-width: 1200px;
+            margin: 20px auto;
+            padding: 20px;
+        }
+        
+        .dashboard {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+        
+        .card {
+            background: white;
+            border-radius: 10px;
+            padding: 20px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        
+        .card h2 {
+            margin-top: 0;
+            color: #2c3e50;
+            border-bottom: 2px solid #3498db;
+            padding-bottom: 10px;
+        }
+        
+        .demanda-item {
+            background: #f8f9fa;
+            border: 1px solid #dee2e6;
+            border-radius: 5px;
+            padding: 15px;
+            margin: 10px 0;
+            transition: all 0.3s;
+        }
+        
+        .demanda-item:hover {
+            background: #e9ecef;
+            transform: translateY(-2px);
+        }
+        
+        .btn-atribuir {
+            background: #2ecc71;
+            color: white;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 5px;
+            cursor: pointer;
+            float: right;
+        }
+        
+        .btn-atribuir:hover {
+            background: #27ae60;
+        }
+        
+        .minhas-demandas {
+            margin-top: 30px;
+        }
+        
+        .status {
+            display: inline-block;
+            padding: 5px 10px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: bold;
+        }
+        
+        .status-pendente {
+            background: #f39c12;
+            color: white;
+        }
+        
+        .status-andamento {
+            background: #3498db;
+            color: white;
+        }
+        
+        .status-concluido {
+            background: #2ecc71;
+            color: white;
+        }
+    </style>
+</head>
+<body>
+    <!-- Menu de navegação -->
+    <nav>
+        <div class="nav-container">
+            <h1>🏫 Sistema Escolar</h1>
+            <ul class="nav-menu">
+                <li><a href="index.html">🏠 Início</a></li>
+                <li><a href="criar_demanda.html">📝 Nova Demanda</a></li>
+                <li><a href="ver_demandas.html">📋 Ver Demandas</a></li>
+                <li><a href="atribuir_demandas.html" class="active">👥 Atribuir Demandas</a></li>
+                <li><a href="relatorios.html">📊 Relatórios</a></li>
+            </ul>
+        </div>
+    </nav>
+
+    <div class="container">
+        <h1>👥 Atribuição de Demandas</h1>
+        <p class="descricao">Aqui você pode atribuir demandas não atribuídas para outros usuários e ver as demandas atribuídas para você.</p>
+        
+        <div class="dashboard">
+            <!-- Coluna 1: Demandas não atribuídas -->
+            <div class="card">
+                <h2>📥 Demandas Não Atribuídas</h2>
+                <div id="demandas-nao-atribuidas">
+                    <p>Carregando demandas não atribuídas...</p>
+                </div>
+            </div>
+            
+            <!-- Coluna 2: Usuários disponíveis -->
+            <div class="card">
+                <h2>👤 Usuários Disponíveis</h2>
+                <div id="usuarios-disponiveis">
+                    <p>Carregando usuários...</p>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Minhas demandas atribuídas -->
+        <div class="card minhas-demandas">
+            <h2>📋 Minhas Demandas Atribuídas</h2>
+            <div id="minhas-demandas">
+                <p>Carregando minhas demandas...</p>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Aviso inicial
+        console.log("🔧 Página de atribuição carregada!");
+        console.log("📡 Conectando à API...");
+        
+        // Função para carregar dados da API
+        async function carregarDados() {
+            try {
+                console.log("🔄 Iniciando carregamento de dados...");
+                
+                // Vamos carregar os dados em etapas
+                await carregarUsuarios();
+                await carregarDemandasNaoAtribuidas();
+                await carregarMinhasDemandas();
+                
+                console.log("✅ Todos os dados carregados com sucesso!");
+            } catch (erro) {
+                console.error("❌ Erro ao carregar dados:", erro);
+                alert("Erro ao carregar dados. Verifique o console para detalhes.");
+            }
+        }
+        
+// Função para carregar usuários (VERSÃO CORRIGIDA)
+async function carregarUsuarios() {
+    console.log("👤 Carregando usuários...");
+    
+    try {
+        // Fazer requisição para a API de teste
+        const resposta = await fetch('/usuarios-teste');
+        
+        if (!resposta.ok) {
+            throw new Error(`Erro HTTP: ${resposta.status}`);
+        }
+        
+        const dados = await resposta.json();
+        console.log("📦 Dados recebidos:", dados);
+        
+        // VERIFICAR DIFERENTES ESTRUTURAS DE RESPOSTA
+        let usuarios = [];
+        
+        if (Array.isArray(dados)) {
+            // Se a resposta já é um array
+            usuarios = dados;
+        } else if (dados.usuarios && Array.isArray(dados.usuarios)) {
+            // Se tem propriedade "usuarios" que é array
+            usuarios = dados.usuarios;
+        } else if (dados.data && Array.isArray(dados.data)) {
+            // Se tem propriedade "data" que é array
+            usuarios = dados.data;
+        } else {
+            // Se não for nenhum dos formatos esperados
+            console.warn("⚠️ Formato de resposta inesperado:", dados);
+            usuarios = [];
+        }
+        
+        console.log(`✅ ${usuarios.length} usuários carregados`);
+        
+        // Exibir usuários na página
+        const container = document.getElementById('usuarios-disponiveis');
+        
+        if (usuarios.length === 0) {
+            container.innerHTML = '<p>Nenhum usuário disponível.</p>';
+            return;
+        }
+        
+        let html = '<div class="lista-usuarios">';
+        
+        usuarios.forEach(usuario => {
+            // Garantir que temos os campos necessários
+            const usuarioId = usuario._id || usuario.id || 'sem-id';
+            const usuarioNome = usuario.nome || 'Usuário sem nome';
+            const usuarioEmail = usuario.email || 'Sem e-mail';
+            const usuarioTipo = usuario.tipo || 'Não definido';
+            
+            html += `
+                <div class="usuario-card" onclick="selecionarUsuarioCard(this)" data-id="${usuarioId}" data-nome="${usuarioNome}" data-tipo="${usuarioTipo}">
+                    <div class="usuario-avatar ${usuarioTipo.toLowerCase()}">
+                        ${usuarioNome.charAt(0).toUpperCase()}
+                    </div>
+                    <div class="usuario-info">
+                        <h3>${usuarioNome}</h3>
+                        <p class="usuario-email">📧 ${usuarioEmail}</p>
+                        <div class="usuario-tipo ${usuarioTipo.toLowerCase()}">
+                            ${usuarioTipo}
+                        </div>
+                    </div>
+                    <button class="btn-selecionar-card" data-id="${usuarioId}" data-nome="${usuarioNome}">
+                        <span class="btn-icon">👆</span>
+                        Selecionar
+                    </button>
+                </div>
+            `;
+        });
+        
+        html += '</div>';
+        container.innerHTML = html;
+        
+        // Adicionar estilos para os itens de usuário
+        const style = document.createElement('style');
+        style.textContent = `
+                .lista-usuarios {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+        gap: 20px;
+        margin-top: 20px;
+    }
+    
+    .usuario-card {
+        background: white;
+        border: 2px solid #e0e0e0;
+        border-radius: 12px;
+        padding: 20px;
+        transition: all 0.3s ease;
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        gap: 15px;
+        position: relative;
+        overflow: hidden;
+    }
+    
+    .usuario-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 10px 20px rgba(0,0,0,0.1);
+        border-color: #3498db;
+    }
+    
+    .usuario-card.selecionado {
+        border-color: #2ecc71;
+        background: linear-gradient(135deg, #f0f9ff, #e6f7f0);
+        transform: translateY(-3px);
+    }
+    
+    .usuario-avatar {
+        width: 60px;
+        height: 60px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 24px;
+        font-weight: bold;
+        color: #2196F3; /* Azul sólido */
+        text-shadow: 0 0 5px rgba(33, 150, 243, 0.5);
+        flex-shrink: 0;
+        box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+    }
+    
+    .usuario-avatar.professor { background: linear-gradient(135deg, #2980b9, #1c5a80); }
+    .usuario-avatar.coordenador { background: linear-gradient(135deg, #8e44ad, #6c3483); }
+    .usuario-avatar.diretor { background: linear-gradient(135deg, #c0392b, #922b21); }
+    .usuario-avatar.administrador { background: linear-gradient(135deg, #16a085, #117864); }
+    .usuario-avatar.secretario { background: linear-gradient(135deg, #d35400, #a04000); }
+    .usuario-avatar.teste { background: linear-gradient(135deg, #7f8c8d, #616a6b); }
+    
+    /* Cores para tipos específicos dos dados reais */
+    
+    .usuario-avatar.coordenadora { background: linear-gradient(135deg, #9b59b6, #8e44ad); }
+    .usuario-avatar.professora { background: linear-gradient(135deg, #3498db, #2980b9); }
+    .usuario-avatar['nao-definido'] { background: linear-gradient(135deg, #95a5a6, #7f8c8d); }
+    
+    .usuario-info {
+        flex: 1;
+    }
+    
+    .usuario-info h3 {
+        margin: 0 0 5px 0;
+        color: #2c3e50;
+        font-size: 16px;
+    }
+    
+    .usuario-email {
+        margin: 0 0 10px 0;
+        color: #7f8c8d;
+        font-size: 14px;
+    }
+    
+    .usuario-tipo {
+        display: inline-block;
+        padding: 4px 12px;
+        border-radius: 20px;
+        font-size: 12px;
+        font-weight: bold;
+        color: white;
+    }
+    
+    .usuario-tipo.professor { background: #2980b9; }
+    .usuario-tipo.coordenador { background: #8e44ad; }
+    .usuario-tipo.diretor { background: #c0392b; }
+    .usuario-tipo.administrador { background: #16a085; }
+    .usuario-tipo.secretario { background: #d35400; }
+    .usuario-tipo.nao-definido { background: #7f8c8d; }
+    /* Cores para tipos específicos */
+    .usuario-tipo.coordenadora { background: #9b59b6; }
+    .usuario-tipo.professora { background: #3498db; }
+    
+    .btn-selecionar-card {
+        background: linear-gradient(135deg, #3498db, #2980b9);
+        color: white;
+        border: none;
+        padding: 10px 15px;
+        border-radius: 8px;
+        cursor: pointer;
+        font-size: 14px;
+        font-weight: bold;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        transition: all 0.3s;
+        flex-shrink: 0;
+    }
+    
+    .btn-selecionar-card:hover {
+        background: linear-gradient(135deg, #2980b9, #1c5a80);
+        transform: scale(1.05);
+    }
+    
+    .usuario-card.selecionado .btn-selecionar-card {
+        background: linear-gradient(135deg, #2ecc71, #27ae60);
+    }
+    
+    .btn-icon {
+        font-size: 16px;
+    }
+    
+    /* Efeito de seleção */
+    .usuario-card::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        height: 4px;
+        background: transparent;
+        transition: background 0.3s;
+    }
+    
+    .usuario-card.selecionado::before {
+        background: #2ecc71;
+    }
+    
+    /* Animações */
+    @keyframes pulse {
+        0% { box-shadow: 0 0 0 0 rgba(46, 204, 113, 0.4); }
+        70% { box-shadow: 0 0 0 10px rgba(46, 204, 113, 0); }
+        100% { box-shadow: 0 0 0 0 rgba(46, 204, 113, 0); }
+    }
+    
+    .usuario-card.selecionado {
+        animation: pulse 2s infinite;
+    }
+    
+    /* Responsividade */
+    @media (max-width: 768px) {
+        .lista-usuarios {
+            grid-template-columns: 1fr;
+        }
+        
+        .usuario-card {
+            flex-direction: column;
+            text-align: center;
+            padding: 25px;
+        }
+        
+        .usuario-info {
+            margin: 15px 0;
+        }
+    }
+        `;
+        document.head.appendChild(style);
+        
+    } catch (erro) {
+        console.error("❌ Erro ao carregar usuários:", erro);
+        document.getElementById('usuarios-disponiveis').innerHTML = `
+            <div style="color: red; padding: 20px; border: 2px solid red; border-radius: 5px;">
+                <p><strong>Erro ao carregar usuários:</strong> ${erro.message}</p>
+                <p>Usando dados de exemplo para continuar...</p>
+            </div>
+        `;
+        
+        // Carregar dados de exemplo em caso de erro
+        carregarUsuariosExemplo();
+    }
+}
+
+// Função de fallback com dados de exemplo
+function carregarUsuariosExemplo() {
+    const usuariosExemplo = [
+        { id: 1, nome: 'João (Exemplo)', email: 'joao@exemplo.com', tipo: 'professor' },
+        { id: 2, nome: 'Maria (Exemplo)', email: 'maria@exemplo.com', tipo: 'coordenadora' },
+        { id: 3, nome: 'Carlos (Exemplo)', email: 'carlos@exemplo.com', tipo: 'diretor' }
+    ];
+    
+    const container = document.getElementById('usuarios-disponiveis');
+    let html = '<div class="lista-usuarios">';
+    
+    usuariosExemplo.forEach(usuario => {
+        html += `
+            <div class="usuario-item">
+                <strong>👤 ${usuario.nome}</strong>
+                <p><small>${usuario.email}</small></p>
+                <p><small>Tipo: ${usuario.tipo}</small></p>
+                <button class="btn-selecionar" data-id="${usuario.id}" data-nome="${usuario.nome}">
+                    Selecionar
+                </button>
+            </div>
+        `;
+    });
+    
+    html += '</div>';
+    container.innerHTML = html;
+}        // 🔧 FUNÇÃO ATUALIZADA: Carregar demandas não atribuídas da API REAL
+async function carregarDemandasNaoAtribuidas() {
+    console.log("📥 CONECTANDO À API REAL: Buscando demandas não atribuídas...");
+    
+    const container = document.getElementById('demandas-nao-atribuidas');
+    
+    try {
+        // 📡 PASSO 1: Mostrar carregamento
+        container.innerHTML = `
+            <div style="text-align: center; padding: 30px;">
+                <div style="font-size: 24px;">🔄</div>
+                <p>Conectando ao servidor...</p>
+                <p><small>Aguarde enquanto buscamos as demandas reais</small></p>
+            </div>
+        `;
+        
+        // 📡 PASSO 2: Fazer requisição para a API REAL
+        console.log("🌐 Fazendo requisição para: /api/demandas?status=pendente");
+        const resposta = await fetch('/api/demandas?status=pendente');
+        
+        if (!resposta.ok) {
+            throw new Error(`API respondeu com erro ${resposta.status}`);
+        }
+        
+        const dados = await resposta.json();
+        console.log("✅ RESPOSTA DA API REAL:", dados);
+        
+        // 📡 PASSO 3: VERIFICAR SE TEM DADOS
+        if (!dados || !dados.success) {
+            throw new Error(`API não retornou dados válidos: ${dados?.message || 'Erro desconhecido'}`);
+        }
+        
+        // 📡 PASSO 4: FILTRAR APENAS DEMANDAS NÃO ATRIBUÍDAS
+        // A API real retorna demandas onde 'responsavel' é null ou não existe
+        let demandasNaoAtribuidas = [];
+        
+        if (dados.data && Array.isArray(dados.data)) {
+            demandasNaoAtribuidas = dados.data.filter(demanda => {
+                // Demanda não atribuída = não tem responsável OU responsável é null/vazio
+                return !demanda.responsavel || 
+                       !demanda.responsavel.id || 
+                       demanda.responsavel.id === null;
+            });
+        } else if (Array.isArray(dados)) {
+            // Se a resposta for um array direto (formato antigo)
+            demandasNaoAtribuidas = dados.filter(demanda => 
+                !demanda.responsavel || !demanda.responsavel.id
+            );
+        }
+        
+        console.log(`🎯 ${demandasNaoAtribuidas.length} DEMANDAS REAIS NÃO ATRIBUÍDAS ENCONTRADAS`);
+        
+        // 📡 PASSO 5: EXIBIR AS DEMANDAS REAIS
+        if (demandasNaoAtribuidas.length === 0) {
+            container.innerHTML = `
+                <div style="text-align: center; padding: 40px; background: #f8f9fa; border-radius: 10px;">
+                    <div style="font-size: 48px; margin-bottom: 20px;">🎉</div>
+                    <h3 style="color: #2ecc71;">Tudo em dia!</h3>
+                    <p>Não há demandas pendentes para atribuir no momento.</p>
+                    <p><small>As demandas da API real foram carregadas com sucesso!</small></p>
+                </div>
+            `;
+            return;
+        }
+        
+        // 📡 PASSO 6: CRIAR HTML COM AS DEMANDAS REAIS
+        let html = '<div class="lista-demandas">';
+        
+        demandasNaoAtribuidas.forEach(demanda => {
+            // 🏷️ DADOS DA API REAL
+            const demandaId = demanda._id || demanda.id || 'sem-id';
+            const demandaTitulo = demanda.titulo || 'Demanda sem título';
+            const demandaDescricao = demanda.descricao || 'Sem descrição disponível';
+            const demandaPrioridade = demanda.prioridade || 'Média';
+            const dataCriacao = demanda.criadoEm ? 
+                new Date(demanda.criadoEm).toLocaleDateString('pt-BR') : 
+                'Data não informada';
+            
+            // 🏫 ESCOLA (dado real da API)
+            const escola = demanda.escola || 'Escola não especificada';
+            
+            // 🎨 COR BASEADA NA PRIORIDADE REAL
+            let corPrioridade = '#f39c12'; // média (padrão)
+            if (demandaPrioridade.toLowerCase() === 'alta') corPrioridade = '#e74c3c';
+            if (demandaPrioridade.toLowerCase() === 'urgente') corPrioridade = '#c0392b';
+            if (demandaPrioridade.toLowerCase() === 'baixa') corPrioridade = '#2ecc71';
+            
+            html += `
+                <div class="demanda-item" id="demanda-${demandaId}">
+                    <div style="display: flex; justify-content: space-between; align-items: flex-start;">
+                        <div style="flex: 1;">
+                            <strong style="font-size: 16px; color: #2c3e50;">${demandaTitulo}</strong>
+                            <p style="margin: 8px 0; color: #555; line-height: 1.4;">${demandaDescricao}</p>
+                            
+                            <div style="display: flex; gap: 15px; margin-top: 12px; flex-wrap: wrap;">
+                                <span style="background: ${corPrioridade}; color: white; padding: 4px 10px; border-radius: 4px; font-size: 12px; font-weight: bold;">
+                                    ⚡ ${demandaPrioridade.toUpperCase()}
+                                </span>
+                                
+                                <span style="color: #3498db; font-size: 12px; display: flex; align-items: center; gap: 4px;">
+                                    🏫 ${escola.substring(0, 20)}${escola.length > 20 ? '...' : ''}
+                                </span>
+                                
+                                <span style="color: #7f8c8d; font-size: 12px; display: flex; align-items: center; gap: 4px;">
+                                    📅 ${dataCriacao}
+                                </span>
+                            </div>
+                        </div>
+                        
+                        <button 
+                            class="btn-atribuir" 
+                            data-id="${demandaId}"
+                            data-titulo="${demandaTitulo.replace(/"/g, '&quot;')}"
+                            onclick="atribuirDemanda('${demandaId}', '${demandaTitulo.replace(/'/g, "\\'").replace(/"/g, '\\"')}')"
+                            style="margin-left: 15px;">
+                            📤 Atribuir
+                        </button>
+                    </div>
+                </div>
+            `;
+        });
+        
+        html += '</div>';
+        container.innerHTML = html;
+        
+        // 📡 PASSO 7: ADICIONAR ESTILOS ESPECÍFICOS
+        const estiloExtra = document.createElement('style');
+        estiloExtra.textContent = `
+            .demanda-item {
+                border-left: 4px solid #3498db;
+                margin-bottom: 12px;
+            }
+            
+            .btn-atribuir {
+                background: linear-gradient(135deg, #3498db, #2980b9);
+                color: white;
+                border: none;
+                padding: 10px 18px;
+                border-radius: 6px;
+                cursor: pointer;
+                font-weight: bold;
+                transition: all 0.3s;
+                white-space: nowrap;
+            }
+            
+            .btn-atribuir:hover {
+                background: linear-gradient(135deg, #2980b9, #1c5a80);
+                transform: translateY(-2px);
+                box-shadow: 0 4px 8px rgba(52, 152, 219, 0.3);
+            }
+        `;
+        
+        if (!document.querySelector('#estilo-demandas-reais')) {
+            estiloExtra.id = 'estilo-demandas-reais';
+            document.head.appendChild(estiloExtra);
+        }
+        
+        console.log("✅ API REAL CONECTADA: Demandas reais carregadas com sucesso!");
+        
+    } catch (erro) {
+        console.error("❌ ERRO AO CONECTAR COM API REAL:", erro);
+        
+        // 🚨 MENSAGEM DE ERRO MELHORADA (SEM DADOS DE EXEMPLO)
+        container.innerHTML = `
+            <div style="background: #fff5f5; border: 2px solid #fed7d7; border-radius: 10px; padding: 25px; margin: 20px 0;">
+                <div style="display: flex; align-items: center; gap: 15px; margin-bottom: 15px;">
+                    <div style="font-size: 36px; color: #e53e3e;">⚠️</div>
+                    <div>
+                        <h3 style="color: #c53030; margin: 0;">Falha na Conexão</h3>
+                        <p style="margin: 5px 0 0 0; color: #742a2a;">
+                            Não foi possível conectar com o servidor de demandas
+                        </p>
+                    </div>
+                </div>
+                
+                <div style="background: white; padding: 15px; border-radius: 6px; margin-top: 15px;">
+                    <p><strong>Detalhes do erro:</strong> ${erro.message}</p>
+                    <p><strong>O que fazer:</strong></p>
+                    <ol style="margin: 10px 0 10px 20px; color: #4a5568;">
+                        <li>Verifique se o servidor está rodando</li>
+                        <li>Confira sua conexão com a internet</li>
+                        <li>Tente recarregar a página (F5)</li>
+                        <li>Se o problema persistir, contate o suporte</li>
+                    </ol>
+                </div>
+                
+                <div style="margin-top: 20px; padding-top: 15px; border-top: 1px solid #e2e8f0;">
+                    <button 
+                        onclick="carregarDemandasNaoAtribuidas()" 
+                        style="background: #e53e3e; color: white; border: none; padding: 10px 20px; border-radius: 5px; cursor: pointer;">
+                        🔄 Tentar Novamente
+                    </button>
+                    
+                    <button 
+                        onclick="window.location.reload()" 
+                        style="background: #718096; color: white; border: none; padding: 10px 20px; border-radius: 5px; cursor: pointer; margin-left: 10px;">
+                        🔃 Recarregar Página
+                    </button>
+                </div>
+            </div>
+        `;
+    }
+}        
+        // Função para carregar demandas de exemplo (se API falhar)
+        function carregarDemandasExemplo() {
+            console.log("📋 Carregando demandas de exemplo...");
+            
+            const demandasExemplo = [
+                {
+                    id: 'exemplo1',
+                    titulo: 'Corrigir provas do 3º ano',
+                    descricao: 'Provas de matemática que precisam ser corrigidas urgentemente',
+                    prioridade: 'alta',
+                    dataCriacao: '2024-01-15',
+                    atribuidaPara: null
+                },
+                {
+                    id: 'exemplo2', 
+                    titulo: 'Preparar material de aula',
+                    descricao: 'Material sobre história do Brasil para o 2º ano',
+                    prioridade: 'media',
+                    dataCriacao: '2024-01-14',
+                    atribuidaPara: null
+                },
+                {
+                    id: 'exemplo3',
+                    titulo: 'Organizar biblioteca',
+                    descricao: 'Reorganizar os livros por ordem alfabética',
+                    prioridade: 'baixa',
+                    dataCriacao: '2024-01-13',
+                    atribuidaPara: null
+                },
+                {
+                    id: 'exemplo4',
+                    titulo: 'Atualizar sistema de notas',
+                    descricao: 'Inserir as notas do último bimestre no sistema',
+                    prioridade: 'alta',
+                    dataCriacao: '2024-01-12',
+                    atribuidaPara: null
+                }
+            ];
+            
+            const container = document.getElementById('demandas-nao-atribuidas');
+            let html = '<div class="lista-demandas">';
+            
+            demandasExemplo.forEach(demanda => {
+                // Cor baseada na prioridade
+                let corPrioridade = '#f39c12'; // média
+                if (demanda.prioridade === 'alta') corPrioridade = '#e74c3c';
+                if (demanda.prioridade === 'baixa') corPrioridade = '#2ecc71';
+                
+                html += `
+                    <div class="demanda-item" id="demanda-${demanda.id}">
+                        <div style="display: flex; justify-content: space-between; align-items: flex-start;">
+                            <div>
+                                <strong style="font-size: 16px;">${demanda.titulo} (Exemplo)</strong>
+                                <p style="margin: 5px 0; color: #666;">${demanda.descricao}</p>
+                                <div style="display: flex; gap: 10px; margin-top: 10px;">
+                                    <span style="background: ${corPrioridade}; color: white; padding: 3px 8px; border-radius: 3px; font-size: 12px;">
+                                        ${demanda.prioridade.toUpperCase()}
+                                    </span>
+                                    <span style="color: #7f8c8d; font-size: 12px;">📅 ${new Date(demanda.dataCriacao).toLocaleDateString('pt-BR')}</span>
+                                </div>
+                            </div>
+                            <button 
+                                class="btn-atribuir" 
+                                data-id="${demanda.id}"
+                                data-titulo="${demanda.titulo}"
+                                onclick="atribuirDemanda('${demanda.id}', '${demanda.titulo.replace(/'/g, "\\'")}')">
+                                Atribuir Demanda
+                            </button>
+                        </div>
+                    </div>
+                `;
+            });
+            
+            html += '</div>';
+            container.innerHTML = html;
+            
+            console.log("✅ Demandas de exemplo carregadas");
+        }
+        
+        // 🔧 FUNÇÃO COMPLETAMENTE CORRIGIDA: Atribuir demanda usando API REAL
+async function atribuirDemanda(demandaId, demandatitulo) {
+    console.log(`🎯 ATRIBUINDO DEMANDA REAL: ${demandatitulo} (ID: ${demandaId})`);
+    
+    // 🛡️ PASSO 1: Verificar se tem usuário selecionado (CORRIGIDO)
+    console.log("🔍 Procurando usuário selecionado...");
+    
+    // Método PRINCIPAL: pela classe
+    let usuarioSelecionado = document.querySelector('.usuario-item.selecionado');
+    
+    // Método ALTERNATIVO: pelo estilo (fallback)
+    if (!usuarioSelecionado) {
+        console.log("⚠️  Não encontrou por classe, tentando pelo estilo...");
+        usuarioSelecionado = document.querySelector('.usuario-item[style*="border-color: #2ecc71"]');
+    }
+    
+    // DEBUG detalhado
+    console.log("Elemento encontrado:", usuarioSelecionado);
+    
+    if (!usuarioSelecionado) {
+        console.error("❌ NENHUM USUÁRIO SELECIONADO ENCONTRADO!");
+        
+        // Mensagem amigável
+        const mensagemDiv = document.createElement('div');
+        mensagemDiv.style.cssText = `
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background: #f39c12;
+            color: white;
+            padding: 15px 25px;
+            border-radius: 8px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+            z-index: 1000;
+            animation: slideIn 0.5s ease;
+            max-width: 400px;
+        `;
+        
+        mensagemDiv.innerHTML = `
+            <div style="display: flex; align-items: center; gap: 10px;">
+                <span style="font-size: 24px;">👆</span>
+                <div>
+                    <strong>Primeiro selecione um usuário!</strong>
+                    <div style="font-size: 14px; margin-top: 5px;">
+                        Clique em "Selecionar" em um usuário da lista à direita.
+                    </div>
+                </div>
+            </div>
+        `;
+        
+        document.body.appendChild(mensagemDiv);
+        
+        setTimeout(() => {
+            if (mensagemDiv.parentNode) {
+                mensagemDiv.parentNode.removeChild(mensagemDiv);
+            }
+        }, 4000);
+        
+        return;
+    }
+    
+    // 👤 PASSO 2: Pegar dados do usuário selecionado (CORRIGIDO)
+    console.log("✅ Usuário selecionado encontrado!");
+    
+    // Tentar pegar pelo botão dentro do elemento
+    const botaoSelecionado = usuarioSelecionado.querySelector('.btn-selecionar');
+    let usuarioId, usuarioNome;
+    
+    if (botaoSelecionado) {
+        // Se tem botão, pegar dos atributos do botão
+        usuarioId = botaoSelecionado.getAttribute('data-id');
+        usuarioNome = botaoSelecionado.getAttribute('data-nome');
+        console.log(`📋 Dados do BOTÃO: ID=${usuarioId}, Nome=${usuarioNome}`);
+    } else {
+        // Se não tem botão, tentar pegar do próprio elemento
+        usuarioId = usuarioSelecionado.getAttribute('data-id') || 
+                    usuarioSelecionado.querySelector('[data-id]')?.getAttribute('data-id');
+        usuarioNome = usuarioSelecionado.getAttribute('data-nome') || 
+                      usuarioSelecionado.querySelector('[data-nome]')?.getAttribute('data-nome');
+        console.log(`📋 Dados do ELEMENTO: ID=${usuarioId}, Nome=${usuarioNome}`);
+    }
+    
+    // VALIDAÇÃO FINAL dos dados
+    if (!usuarioId || !usuarioNome || usuarioId === 'null' || usuarioNome === 'null') {
+        console.error("❌ Dados do usuário inválidos!", { usuarioId, usuarioNome });
+        alert("Erro: Não foi possível identificar o usuário selecionado. Tente selecionar novamente.");
+        return;
+    }
+    
+    console.log(`👤 USUÁRIO CONFIRMADO: ${usuarioNome} (ID: ${usuarioId})`);
+    
+    // ❓ PASSO 3: Pedir confirmação
+    const confirmacao = confirm(`ATRIBUIR DEMANDA:\n\n"${demandatitulo}"\n\nPara: ${usuarioNome}\n\nConfirmar?`);
+    
+    if (!confirmacao) {
+        console.log("❌ Atribuição cancelada pelo usuário");
+        return;
+    }
+    
+    // 🔄 PASSO 4: Mostrar estado de carregamento
+    const botaoDemanda = document.querySelector(`button[data-id="${demandaId}"]`);
+    const textoOriginal = botaoDemanda?.textContent || "Atribuir";
+    
+    if (botaoDemanda) {
+        botaoDemanda.textContent = "🔄 Atribuindo...";
+        botaoDemanda.disabled = true;
+        botaoDemanda.style.background = '#95a5a6';
+        botaoDemanda.style.opacity = '0.7';
+    }
+    
+    // Mostrar indicador de carregamento
+    const loadingDiv = document.createElement('div');
+    loadingDiv.id = 'loading-atribuicao';
+    loadingDiv.style.cssText = `
+        position: fixed;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: rgba(0, 0, 0, 0.7);
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        z-index: 9999;
+        flex-direction: column;
+    `;
+    
+    loadingDiv.innerHTML = `
+        <div style="background: white; padding: 30px; border-radius: 10px; text-align: center; max-width: 400px;">
+            <div style="font-size: 48px; margin-bottom: 20px;">🔄</div>
+            <h3 style="color: #2c3e50;">Processando Atribuição</h3>
+            <p style="color: #7f8c8d; margin: 15px 0;">
+                "${demandatitulo.substring(0, 50)}${demandatitulo.length > 50 ? '...' : ''}"
+            </p>
+            <p><strong>Para:</strong> ${usuarioNome}</p>
+            <div style="margin-top: 20px; padding: 10px; background: #f8f9fa; border-radius: 5px;">
+                <small>Conectando com o servidor...</small>
+            </div>
+        </div>
+    `;
+    
+    document.body.appendChild(loadingDiv);
+    
+    try {
+        // 📡 PASSO 5: PREPARAR DADOS PARA API REAL (VERSÃO CORRIGIDA)
+        console.log("📡 Preparando dados para API real...");
+        
+        // 📌 IMPORTANTE: A API espera TODOS os campos da demanda, não só a atribuição
+        // Primeiro, buscar os dados COMPLETOS da demanda
+        console.log(`🔍 Buscando dados completos da demanda ${demandaId}...`);
+        
+        const respostaGet = await fetch(`/api/demandas/${demandaId}`);
+        
+        if (!respostaGet.ok) {
+            throw new Error(`Erro ao buscar demanda: ${respostaGet.status}`);
+        }
+        
+        const dadosDemanda = await respostaGet.json();
+        console.log("📦 Dados completos da demanda:", dadosDemanda);
+        
+        if (!dadosDemanda.success || !dadosDemanda.data) {
+            throw new Error("Demanda não encontrada ou dados inválidos");
+        }
+        
+        // Preparar dados para ATUALIZAÇÃO (PUT)
+        const demandaCompleta = dadosDemanda.data;
+        
+        const dadosParaAtualizar = {
+            // 🔄 Manter TODOS os campos existentes
+            titulo: demandaCompleta.titulo,
+            descricao: demandaCompleta.descricao,
+            escola: demandaCompleta.escola,
+            departamento: demandaCompleta.departamento,
+            prioridade: demandaCompleta.prioridade || 'Média',
+            status: 'em_andamento', // Muda status quando atribuída
+            
+            // 👤 Adicionar/atualizar responsável
+            responsavel: {
+                id: usuarioId,
+                nome: usuarioNome
+            },
+            
+            // 📅 Adicionar data de atribuição
+            dataAtribuicao: new Date().toISOString(),
+            
+            // 🔄 Atualizar data de modificação
+            atualizadoEm: new Date().toISOString()
+        };
+        
+        console.log("📤 Dados para enviar (PUT):", dadosParaAtualizar);
+        
+        // 📡 PASSO 6: ENVIAR ATUALIZAÇÃO PARA API
+        console.log(`🌐 Enviando PUT para: /api/demandas/${demandaId}`);
+        
+        const resposta = await fetch(`/api/demandas/${demandaId}`, {
+            method: 'PUT',
+            headers: {
+                'Content-Type': 'application/json',
+                'Accept': 'application/json'
+            },
+            body: JSON.stringify(dadosParaAtualizar)
+        });
+        
+        // 📡 PASSO 7: VERIFICAR RESPOSTA
+        const respostaTexto = await resposta.text();
+        console.log("📥 Resposta bruta:", respostaTexto);
+        
+        if (!resposta.ok) {
+            throw new Error(`API respondeu com erro ${resposta.status}: ${respostaTexto}`);
+        }
+        
+        const resultado = JSON.parse(respostaTexto);
+        console.log("✅ RESPOSTA DA API REAL:", resultado);
+        
+        if (!resultado.success) {
+            throw new Error(`API não processou a atribuição: ${resultado.message}`);
+        }
+        
+        // 🎉 PASSO 8: SUCESSO
+        console.log("🎉 DEMANDA ATRIBUÍDA COM SUCESSO VIA API REAL!");
+        
+        // Remover loading
+        if (loadingDiv.parentNode) {
+            loadingDiv.parentNode.removeChild(loadingDiv);
+        }
+        
+        // Atualizar botão
+        if (botaoDemanda) {
+            botaoDemanda.textContent = "✅ Atribuída!";
+            botaoDemanda.style.background = '#2ecc71';
+            botaoDemanda.style.opacity = '1';
+        }
+        
+        // 🗑️ PASSO 9: Remover demanda da lista
+        setTimeout(() => {
+            const demandaItem = document.getElementById(`demanda-${demandaId}`);
+            if (demandaItem) {
+                // Animação
+                demandaItem.style.opacity = '0';
+                demandaItem.style.transform = 'translateX(-50px)';
+                demandaItem.style.transition = 'all 0.5s';
+                
+                setTimeout(() => {
+                    if (demandaItem.parentNode) {
+                        demandaItem.parentNode.removeChild(demandaItem);
+                        console.log(`🗑️ Demanda removida da lista`);
+                        
+                        // Atualizar contador
+                        atualizarContadorDemandas();
+                        
+                        // Mostrar mensagem de sucesso
+                        mostrarMensagemSucesso(demandatitulo, usuarioNome, resultado.data);
+                    }
+                }, 500);
+            }
+        }, 1000);
+        
+    } catch (erro) {
+        console.error("❌ ERRO AO ATRIBUIR VIA API REAL:", erro);
+        
+        // Remover loading
+        if (loadingDiv.parentNode) {
+            loadingDiv.parentNode.removeChild(loadingDiv);
+        }
+        
+        // Restaurar botão
+        if (botaoDemanda) {
+            botaoDemanda.textContent = "❌ Erro";
+            botaoDemanda.style.background = '#e74c3c';
+            
+            setTimeout(() => {
+                botaoDemanda.textContent = textoOriginal;
+                botaoDemanda.disabled = false;
+                botaoDemanda.style.background = '';
+                botaoDemanda.style.opacity = '1';
+            }, 2000);
+        }
+        
+        // Mostrar erro
+        alert(`ERRO: ${erro.message}\n\nVerifique o console para detalhes.`);
+    }
+}
+        
+        // 🔔 FUNÇÃO ATUALIZADA: Mostrar mensagem de sucesso com dados da API REAL
+function mostrarMensagemSucesso(demandatitulo, usuarioNome, dadosApi = null) {
+    console.log("🎊 Mostrando mensagem de sucesso com dados da API:", dadosApi);
+    
+    // Criar elemento de mensagem
+    const mensagemDiv = document.createElement('div');
+    mensagemDiv.style.cssText = `
+        position: fixed;
+        top: 20px;
+        right: 20px;
+        background: linear-gradient(135deg, #2ecc71, #27ae60);
+        color: white;
+        padding: 20px;
+        border-radius: 10px;
+        box-shadow: 0 6px 20px rgba(46, 204, 113, 0.3);
+        z-index: 1000;
+        animation: slideInSuccess 0.5s cubic-bezier(0.68, -0.55, 0.27, 1.55);
+        max-width: 450px;
+        border-left: 5px solid #27ae60;
+    `;
+    
+    // Conteúdo baseado nos dados da API
+    let conteudoMensagem = '';
+    
+    if (dadosApi) {
+        // 📊 SE TEM DADOS DA API: Mostrar informações completas
+        const dataAtribuicao = dadosApi.dataAtribuicao ? 
+            new Date(dadosApi.dataAtribuicao).toLocaleString('pt-BR') : 
+            new Date().toLocaleString('pt-BR');
+        
+        const escola = dadosApi.escola || 'Escola não especificada';
+        const prioridade = dadosApi.prioridade || 'Média';
+        
+        conteudoMensagem = `
+            <div style="display: flex; align-items: flex-start; gap: 15px;">
+                <div style="font-size: 32px; background: white; color: #2ecc71; width: 50px; height: 50px; border-radius: 50%; display: flex; align-items: center; justify-content: center;">
+                    ✅
+                </div>
+                <div style="flex: 1;">
+                    <strong style="font-size: 16px; display: block; margin-bottom: 8px;">✅ Atribuição Confirmada!</strong>
+                    
+                    <div style="background: rgba(255,255,255,0.15); padding: 12px; border-radius: 6px; margin: 10px 0;">
+                        <div style="font-weight: bold; margin-bottom: 5px;">"${demandatitulo}"</div>
+                        <div style="font-size: 13px; opacity: 0.9;">📌 Agora é responsabilidade de:</div>
+                        <div style="font-size: 15px; font-weight: bold; margin: 5px 0;">👤 ${usuarioNome}</div>
+                    </div>
+                    
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin: 12px 0; font-size: 12px;">
+                        <div style="background: rgba(255,255,255,0.1); padding: 6px; border-radius: 4px;">
+                            <div>🏫 Escola</div>
+                            <div style="font-weight: bold;">${escola.substring(0, 15)}${escola.length > 15 ? '...' : ''}</div>
+                        </div>
+                        <div style="background: rgba(255,255,255,0.1); padding: 6px; border-radius: 4px;">
+                            <div>⚡ Prioridade</div>
+                            <div style="font-weight: bold;">${prioridade}</div>
+                        </div>
+                    </div>
+                    
+                    <div style="font-size: 11px; opacity: 0.8; margin-top: 10px; padding-top: 10px; border-top: 1px solid rgba(255,255,255,0.2);">
+                        📅 Atribuída em: ${dataAtribuicao}
+                        ${dadosApi._id ? `<br>🆔 ID: ${dadosApi._id.substring(0, 8)}...` : ''}
+                    </div>
+                </div>
+            </div>
+        `;
+    } else {
+        // 📱 SE NÃO TEM DADOS DA API: Mensagem mais simples
+        conteudoMensagem = `
+            <div style="display: flex; align-items: center; gap: 15px;">
+                <span style="font-size: 32px;">✅</span>
+                <div>
+                    <strong style="font-size: 16px;">Demanda atribuída com sucesso!</strong>
+                    <div style="font-size: 14px; margin-top: 8px;">
+                        <div>"${demandatitulo}"</div>
+                        <div style="margin-top: 5px;">→ Agora é responsabilidade de <strong>${usuarioNome}</strong></div>
+                    </div>
+                </div>
+            </div>
+        `;
+    }
+    
+    mensagemDiv.innerHTML = conteudoMensagem;
+    
+    // Adicionar animação CSS específica
+    const style = document.createElement('style');
+    style.textContent = `
+        @keyframes slideInSuccess {
+            from { 
+                transform: translateX(100%) translateY(-20px); 
+                opacity: 0; 
+            }
+            to { 
+                transform: translateX(0) translateY(0); 
+                opacity: 1; 
+            }
+        }
+        @keyframes slideOutSuccess {
+            from { 
+                transform: translateX(0) translateY(0); 
+                opacity: 1; 
+            }
+            to { 
+                transform: translateX(100%) translateY(-20px); 
+                opacity: 0; 
+            }
+        }
+    `;
+    
+    if (!document.querySelector('#animacao-sucesso')) {
+        style.id = 'animacao-sucesso';
+        document.head.appendChild(style);
+    }
+    
+    // Adicionar ao corpo da página
+    document.body.appendChild(mensagemDiv);
+    
+    // 🎯 Adicionar botão de fechar
+    const botaoFechar = document.createElement('button');
+    botaoFechar.textContent = '✕';
+    botaoFechar.style.cssText = `
+        position: absolute;
+        top: 10px;
+        right: 10px;
+        background: rgba(255,255,255,0.2);
+        color: white;
+        border: none;
+        width: 24px;
+        height: 24px;
+        border-radius: 50%;
+        cursor: pointer;
+        font-size: 12px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        transition: background 0.2s;
+    `;
+    
+    botaoFechar.onclick = function() {
+        fecharMensagem(mensagemDiv);
+    };
+    
+    mensagemDiv.appendChild(botaoFechar);
+    
+    // Efeito hover no botão de fechar
+    botaoFechar.onmouseover = function() {
+        this.style.background = 'rgba(255,255,255,0.3)';
+    };
+    
+    botaoFechar.onmouseout = function() {
+        this.style.background = 'rgba(255,255,255,0.2)';
+    };
+    
+    // Função para fechar a mensagem
+    function fecharMensagem(elemento) {
+        elemento.style.animation = 'slideOutSuccess 0.5s cubic-bezier(0.68, -0.55, 0.27, 1.55)';
+        setTimeout(() => {
+            if (elemento.parentNode) {
+                elemento.parentNode.removeChild(elemento);
+            }
+        }, 500);
+    }
+    
+    // 📊 Adicionar botão para ver mais detalhes (se tiver dados da API)
+    if (dadosApi && dadosApi._id) {
+        const botaoDetalhes = document.createElement('button');
+        botaoDetalhes.textContent = '📋 Ver Detalhes';
+        botaoDetalhes.style.cssText = `
+            background: rgba(255,255,255,0.9);
+            color: #27ae60;
+            border: none;
+            padding: 8px 15px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 12px;
+            font-weight: bold;
+            margin-top: 15px;
+            width: 100%;
+            transition: all 0.2s;
+        `;
+        
+        botaoDetalhes.onmouseover = function() {
+            this.style.background = 'white';
+            this.style.transform = 'translateY(-2px)';
+        };
+        
+        botaoDetalhes.onmouseout = function() {
+            this.style.background = 'rgba(255,255,255,0.9)';
+            this.style.transform = 'translateY(0)';
+        };
+        
+        botaoDetalhes.onclick = function() {
+            console.log("📋 Mostrando detalhes da demanda:", dadosApi);
+            alert(`Detalhes da demanda:\n\nTítulo: ${dadosApi.titulo || demandatitulo}\nResponsável: ${dadosApi.responsavel?.nome || usuarioNome}\nEscola: ${dadosApi.escola || 'Não especificada'}\nStatus: ${dadosApi.status || 'em_andamento'}\nID: ${dadosApi._id}`);
+        };
+        
+        // Encontrar o container para adicionar o botão
+        const containerBotoes = mensagemDiv.querySelector('div > div');
+        if (containerBotoes) {
+            containerBotoes.appendChild(botaoDetalhes);
+        }
+    }
+    
+    // ⏰ Remover automaticamente após 8 segundos
+    setTimeout(() => {
+        if (mensagemDiv.parentNode) {
+            fecharMensagem(mensagemDiv);
+        }
+    }, 8000);
+    
+    // 🔊 Efeito sonoro simulado (apenas log)
+    console.log("🔊 (Som simulado): Sucesso! Demanda atribuída!");
+}
+        
+        // 🔄 Função para atualizar contador de demandas
+        function atualizarContadorDemandas() {
+            const demandasRestantes = document.querySelectorAll('.demanda-item').length;
+            console.log(`📊 Demandas restantes: ${demandasRestantes}`);
+            
+            // Pode adicionar um contador visual aqui se quiser
+            if (demandasRestantes === 0) {
+                const container = document.getElementById('demandas-nao-atribuidas');
+                if (container && !container.innerHTML.includes('🎉')) {
+                    container.innerHTML = '<p style="text-align: center; padding: 40px; color: #27ae60; font-size: 18px;">🎉 Todas as demandas foram atribuídas! 🎉</p>';
+                }
+            }
+        }
+        
+        // 👆 FUNÇÃO ATUALIZADA: Selecionar usuário (VERSÃO COMPATÍVEL COM CARDS)
+function selecionarUsuario(botao) {
+    console.log("👆 Selecionar usuário chamado (versão compatível com cards)!");
+    
+    // 1. Pegar os dados do botão CLICADO
+    const usuarioId = botao.getAttribute('data-id');
+    const usuarioNome = botao.getAttribute('data-nome');
+    
+    console.log(`📋 Dados do botão: ID=${usuarioId}, Nome=${usuarioNome}`);
+    
+    if (!usuarioId || usuarioId === 'null' || usuarioId === 'undefined') {
+        console.error("❌ ERRO: Botão não tem data-id correto!");
+        return;
+    }
+    
+    // 2. Tentar encontrar o card pai
+    let usuarioCard = botao.closest('.usuario-card');
+    
+    if (!usuarioCard) {
+        console.log("⚠️ Não encontrou .usuario-card, tentando .usuario-item...");
+        usuarioCard = botao.closest('.usuario-item');
+    }
+    
+    if (!usuarioCard) {
+        console.error("❌ ERRO: Não encontrou elemento pai do botão!");
+        console.log("Botão clicado:", botao);
+        return;
+    }
+    
+    // 3. Remover seleção anterior de CARDS
+    document.querySelectorAll('.usuario-card, .usuario-item').forEach(item => {
+        item.classList.remove('selecionado');
+        item.style.borderColor = '';
+        item.style.background = '';
+        item.style.transform = '';
+        
+        // Restaurar botões dentro
+        const btn = item.querySelector('.btn-selecionar, .btn-selecionar-card');
+        if (btn) {
+            btn.textContent = btn.classList.contains('btn-selecionar-card') 
+                ? 'Selecionar' 
+                : 'Selecionar';
+            btn.disabled = false;
+            btn.style.background = '';
+            
+            // Restaurar ícone se for card
+            if (btn.classList.contains('btn-selecionar-card')) {
+                btn.innerHTML = '<span class="btn-icon">👆</span> Selecionar';
+            }
+        }
+    });
+    
+    // 4. Adicionar seleção
+    usuarioCard.classList.add('selecionado');
+    
+    // 5. Estilizar de acordo com o tipo de elemento
+    if (usuarioCard.classList.contains('usuario-card')) {
+        // É um card novo
+        usuarioCard.style.borderColor = '#2ecc71';
+        usuarioCard.style.background = 'linear-gradient(135deg, #f0f9ff, #e6f7f0)';
+        usuarioCard.style.transform = 'translateY(-3px)';
+        
+        // Atualizar botão do card
+        const btnCard = usuarioCard.querySelector('.btn-selecionar-card');
+        if (btnCard) {
+            btnCard.innerHTML = '<span class="btn-icon">✅</span> Selecionado';
+            btnCard.style.background = 'linear-gradient(135deg, #2ecc71, #27ae60)';
+            btnCard.disabled = true;
+        }
+    } else {
+        // É um item antigo (backward compatibility)
+        usuarioCard.style.borderColor = '#2ecc71';
+        usuarioCard.style.background = '#d5f4e6';
+        usuarioCard.style.transform = 'scale(1.02)';
+        
+        botao.textContent = '✅ Selecionado';
+        botao.style.background = '#2ecc71';
+        botao.disabled = true;
+    }
+    
+    console.log(`🎯 Usuário selecionado: ${usuarioNome} (ID: ${usuarioId})`);
+    
+    // 6. Mostrar mensagem
+    mostrarMensagemUsuarioSelecionado(usuarioNome);
+    
+    // 7. Guardar em variável global para debug
+    window.usuarioSelecionadoDebug = {
+        id: usuarioId,
+        nome: usuarioNome,
+        elemento: usuarioCard
+    };
+    
+    console.log("📌 Debug salvo:", window.usuarioSelecionadoDebug);
+}
+        
+        // 💬 Função para mostrar qual usuário foi selecionado
+        function mostrarMensagemUsuarioSelecionado(nomeUsuario) {
+            // Remover mensagem anterior se existir
+            const msgAnterior = document.getElementById('msg-usuario-selecionado');
+            if (msgAnterior) msgAnterior.remove();
+            
+            // Criar nova mensagem
+            const mensagemDiv = document.createElement('div');
+            mensagemDiv.id = 'msg-usuario-selecionado';
+            mensagemDiv.style.cssText = `
+                background: #3498db;
+                color: white;
+                padding: 10px 15px;
+                border-radius: 5px;
+                margin: 10px 0;
+                text-align: center;
+                animation: fadeIn 0.5s ease;
+            `;
+            
+            mensagemDiv.innerHTML = `
+                <strong>👤 Usuário selecionado:</strong> ${nomeUsuario}<br>
+                <small>Agora clique em "Atribuir Demanda" em qualquer demanda para atribuir</small>
+            `;
+            
+            // Adicionar ao container de usuários
+            const container = document.getElementById('usuarios-disponiveis');
+            container.insertBefore(mensagemDiv, container.firstChild);
+            
+            // Adicionar animação CSS se não existir
+            if (!document.querySelector('#animacoes-usuario')) {
+                const style = document.createElement('style');
+                style.id = 'animacoes-usuario';
+                style.textContent = `
+                    @keyframes fadeIn {
+                        from { opacity: 0; transform: translateY(-10px); }
+                        to { opacity: 1; transform: translateY(0); }
+                    }
+                `;
+                document.head.appendChild(style);
+            }
+        }
+
+        // Função para carregar minhas demandas
+        async function carregarMinhasDemandas() {
+            console.log("📋 Carregando minhas demandas...");
+            // Esta função será implementada no próximo passo
+            document.getElementById('minhas-demandas').innerHTML = '<p>Funcionalidade em desenvolvimento...</p>';
+        }
+        
+        // Carregar dados quando a página abrir
+        window.onload = carregarDados;
+    
+        // 🎯 Event Listeners - Fazem os botões funcionarem
+        document.addEventListener('click', function(event) {
+            // Quando clicar em um botão "Selecionar"
+            if (event.target.classList.contains('btn-selecionar')) {
+                console.log("👆 Botão Selecionar clicado!");
+                selecionarUsuario(event.target);
+            }
+            
+            // Quando clicar em um botão "Atribuir Demanda" (versão alternativa)
+            if (event.target.classList.contains('btn-atribuir') && event.target.hasAttribute('data-id')) {
+                const demandaId = event.target.getAttribute('data-id');
+                const demandatitulo = event.target.getAttribute('data-titulo');
+                console.log(`🎯 Atribuir Demanda clicado: ${demandatitulo}`);
+                atribuirDemanda(demandaId, demandatitulo);
+            }
+        });
+        
+        // 📢 Adicionar mensagem de instrução inicial
+        window.addEventListener('load', function() {
+            setTimeout(() => {
+                if (!document.getElementById('msg-usuario-selecionado')) {
+                    const instrucaoDiv = document.createElement('div');
+                    instrucaoDiv.style.cssText = `
+                        background: #f39c12;
+                        color: white;
+                        padding: 12px;
+                        border-radius: 5px;
+                        margin: 15px 0;
+                        text-align: center;
+                        animation: pulse 2s infinite;
+                    `;
+                    
+                    instrucaoDiv.innerHTML = `
+                        <strong>📋 COMO USAR:</strong><br>
+                        1. 👆 Selecione um usuário clicando em "Selecionar"<br>
+                        2. 🎯 Escolha uma demanda e clique em "Atribuir Demanda"<br>
+                        3. ✅ Confirme a atribuição e veja o resultado!
+                    `;
+                    
+                    // Adicionar animação de pulsar
+                    const style = document.createElement('style');
+                    style.textContent = `
+                        @keyframes pulse {
+                            0% { opacity: 1; }
+                            50% { opacity: 0.8; }
+                            100% { opacity: 1; }
+                        }
+                    `;
+                    document.head.appendChild(style);
+                    
+                    // Adicionar no topo da página
+                    const container = document.querySelector('.container');
+                    if (container) {
+                        container.insertBefore(instrucaoDiv, container.firstChild);
+                        
+                        // Remover após 15 segundos
+                        setTimeout(() => {
+                            if (instrucaoDiv.parentNode) {
+                                instrucaoDiv.style.transition = 'opacity 1s';
+                                instrucaoDiv.style.opacity = '0';
+                                setTimeout(() => {
+                                    if (instrucaoDiv.parentNode) {
+                                        instrucaoDiv.parentNode.removeChild(instrucaoDiv);
+                                    }
+                                }, 1000);
+                            }
+                        }, 15000);
+                    }
+                }
+            }, 2000);
+        });
+        
+        // 🔄 Função para carregar minhas demandas (VERSÃO ATUALIZADA)
+        async function carregarMinhasDemandas() {
+            console.log("📋 Carregando minhas demandas...");
+            
+            try {
+                // Esta função será implementada depois que tivermos login
+                // Por enquanto, mostrar mensagem
+                const container = document.getElementById('minhas-demandas');
+                container.innerHTML = `
+                    <div style="text-align: center; padding: 30px; color: #7f8c8d;">
+                        <div style="font-size: 48px; margin-bottom: 20px;">👤</div>
+                        <h3>Suas Demandas Atribuídas</h3>
+                        <p>Esta funcionalidade será ativada após o sistema de login.</p>
+                        <p><small>Você verá aqui as demandas que foram atribuídas para você.</small></p>
+                        <div style="margin-top: 20px; padding: 15px; background: #ecf0f1; border-radius: 5px;">
+                            <strong>Funcionalidades futuras:</strong><br>
+                            • Aceitar/rejeitar demandas<br>
+                            • Marcar como concluído<br>
+                            • Ver histórico
+                        </div>
+                    </div>
+                `;
+                
+            } catch (erro) {
+                console.error("❌ Erro ao carregar minhas demandas:", erro);
+                document.getElementById('minhas-demandas').innerHTML = `
+                    <p style="color: #e74c3c;">Erro ao carregar suas demandas: ${erro.message}</p>
+                `;
+            }
+        }
+        
+        console.log("🎉 Sistema de atribuição carregado e pronto para uso!");
+        console.log("👉 Selecione um usuário e clique em 'Atribuir Demanda' para testar!");
+    // 🎯 FUNÇÃO PARA SELECIONAR USUÁRIO PELO CARD (CLIQUE NO CARD INTEIRO)
+function selecionarUsuarioCard(cardElement) {
+    console.log("🃏 Card de usuário clicado!");
+    
+    // Encontrar o botão dentro do card
+    const botao = cardElement.querySelector('.btn-selecionar-card');
+    
+    if (botao) {
+        // Usar a função principal para selecionar
+        selecionarUsuario(botao);
+    } else {
+        console.error("❌ ERRO: Não encontrou botão dentro do card!");
+    }
+}    
+    </script>
+</body>
+</html>

@@ -146,18 +146,189 @@
             }
         }
         
-        /* Responsividade */
-        @media (max-width: 576px) {
-            .login-card {
-                padding: 30px 20px;
-            }
-            
-            .login-logo {
-                width: 60px;
-                height: 60px;
-                font-size: 24px;
-            }
-        }
+        /* ==================== */
+/* RESPONSIVIDADE MOBILE */
+/* ==================== */
+@media (max-width: 768px) {
+    /* Container principal */
+    body {
+        padding: 15px;
+        display: block; /* Muda de flex para block em mobile muito pequeno */
+        min-height: 100vh;
+    }
+    
+    .login-container {
+        width: 100%;
+        max-width: 100%;
+        padding: 10px;
+    }
+    
+    /* Card de login */
+    .login-card {
+        padding: 25px 20px;
+        margin: 0;
+        border-radius: 15px;
+        width: 100%;
+        max-width: 100%;
+        box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
+    }
+    
+    /* Cabeçalho */
+    .login-header {
+        margin-bottom: 25px;
+    }
+    
+    .login-logo {
+        width: 70px;
+        height: 70px;
+        font-size: 28px;
+        margin-bottom: 15px;
+    }
+    
+    .login-title {
+        font-size: 1.5rem; /* 24px em mobile */
+        margin-bottom: 5px;
+    }
+    
+    .login-subtitle {
+        font-size: 0.9rem; /* 14px em mobile */
+    }
+    
+    /* FORMULÁRIOS - MELHORIAS PARA DEDO */
+    .form-group {
+        margin-bottom: 20px;
+    }
+    
+    .form-label {
+        font-size: 1rem; /* 16px mínimo para legibilidade */
+        margin-bottom: 10px;
+    }
+    
+    /* INPUTS MAIORES PARA DEDO */
+    .form-control {
+        padding: 16px 15px !important; /* Mais alto para dedo */
+        font-size: 16px !important; /* Previne zoom automático do iOS */
+        min-height: 52px; /* Altura mínima para toque fácil */
+        border-radius: 12px;
+    }
+    
+    /* Input group também maior */
+    .input-group-text {
+        padding: 16px 15px;
+        min-height: 52px;
+        font-size: 18px;
+    }
+    
+    /* Labels menores */
+    .form-check-label {
+        font-size: 0.95rem;
+    }
+    
+    /* BOTÃO GRANDE PARA DEDO */
+    .btn-login {
+        padding: 18px !important;
+        font-size: 17px !important;
+        min-height: 56px;
+        border-radius: 12px;
+        margin-top: 15px;
+    }
+    
+    /* Rodapé ajustado */
+    .login-footer {
+        margin-top: 25px;
+    }
+    
+    .login-footer p {
+        font-size: 0.9rem;
+        line-height: 1.5;
+    }
+    
+    /* Credenciais de teste mais legíveis */
+    .login-footer strong {
+        font-size: 0.95rem;
+    }
+    
+    /* Alerta de mensagem */
+    .alert {
+        padding: 15px;
+        font-size: 0.95rem;
+        margin-bottom: 20px;
+    }
+    
+    /* Remove hover effects em touch devices */
+    .btn-login:hover {
+        transform: none;
+    }
+}
+
+/* ==================== */
+/* CELULARES MUITO PEQUENOS */
+/* ==================== */
+@media (max-width: 375px) {
+    .login-card {
+        padding: 20px 15px;
+    }
+    
+    .login-title {
+        font-size: 1.3rem;
+    }
+    
+    .form-control {
+        padding: 14px 12px !important;
+        min-height: 48px;
+    }
+    
+    .input-group-text {
+        padding: 14px 12px;
+        min-height: 48px;
+    }
+    
+    .btn-login {
+        padding: 16px !important;
+        min-height: 52px;
+    }
+    
+    /* Ajusta texto das credenciais */
+    .login-footer p {
+        font-size: 0.85rem;
+    }
+}
+
+/* ==================== */
+/* PREVENÇÃO DE ZOOM NO iOS */
+/* ==================== */
+/* Garante que inputs não deem zoom automático no iOS */
+@media screen and (-webkit-min-device-pixel-ratio: 0) {
+    input[type="email"],
+    input[type="password"],
+    input[type="text"],
+    select,
+    textarea {
+        font-size: 16px !important;
+    }
+}
+
+/* Previne zoom automático no iOS */
+@media screen and (-webkit-min-device-pixel-ratio:0) {
+    select,
+    textarea,
+    input[type="text"],
+    input[type="password"],
+    input[type="datetime"],
+    input[type="datetime-local"],
+    input[type="date"],
+    input[type="month"],
+    input[type="time"],
+    input[type="week"],
+    input[type="number"],
+    input[type="email"],
+    input[type="url"],
+    input[type="search"],
+    input[type="tel"],
+    input[type="color"] {
+        font-size: 16px !important;
+    }
+}
     </style>
 </head>
 <body>
@@ -252,13 +423,32 @@
                     E-mail: supervisor@escola.gov.br<br>
                     Senha: SenhaAdmin123
                 </p>
+                
+                <!-- NOVO: LINK PARA SOLICITAR CADASTRO -->
+                <p class="mt-2">
+                    <i class="bi bi-person-plus"></i> 
+                    <strong>Novo na equipe?</strong> 
+                    <a href="/solicitar-cadastro" class="fw-bold">Solicite seu acesso</a>
+                </p>
+                
                 <p class="mt-3">
+                    <i class="bi bi-question-circle"></i>
                     Problemas para acessar? 
                     <a href="mailto:suporte@escola.gov.br">Contate o suporte</a>
                 </p>
+                
+                <!-- ADICIONE TAMBÉM LINK PARA RECUPERAR SENHA -->
+                <p class="mt-2">
+                    <i class="bi bi-key"></i>
+                    <a href="/esqueci-senha" class="text-decoration-none">
+                        Esqueceu sua senha?
+                    </a>
+                </p>
+                
                 <p class="text-muted small mt-3">
                     <i class="bi bi-shield-check"></i>
-                    Sistema seguro · Versão 1.0.0
+                    Sistema seguro · Versão 2.0.0 · 
+                    <span id="current-year"><%= new Date().getFullYear() %></span>
                 </p>
             </div>
         </div>

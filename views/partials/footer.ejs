@@ -11,12 +11,22 @@
             </div>
             <div class="col-md-6 text-end">
                 <small class="text-muted">
-                    <i class="fas fa-user me-1"></i> Logado como: <%= user.nome.split(' ')[0] %>
-                    | <i class="fas fa-shield-alt me-1"></i> <%= user.tipo %>
-                    <% if (totalDemandas !== undefined) { %>
-                    | <i class="fas fa-tasks me-1"></i> <%= totalDemandas %> demandas
-                    <% } %>
-                </small>
+                <i class="fas fa-user me-1"></i> Logado como: 
+                <% if (user && user.nome) { %>
+                    <%= user.nome.split(' ')[0] %>
+                <% } else { %>
+                    Usuário
+                <% } %>
+                | <i class="fas fa-shield-alt me-1"></i> 
+                <% if (user && user.tipo) { %>
+                    <%= user.tipo %>
+                <% } else { %>
+                    N/A
+                <% } %>
+                <% if (typeof totalDemandas !== 'undefined' && totalDemandas !== null) { %>
+                | <i class="fas fa-tasks me-1"></i> <%= totalDemandas %> demandas
+                <% } %>
+            </small>
             </div>
         </div>
     </div>

@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <%- include('partials/head', {title: 'Recuperar Senha - Sistema de Demandas'}) %>
+    
+    <style>
+        body {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+        
+        .recovery-card {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.2);
+            padding: 40px;
+            width: 100%;
+            max-width: 450px;
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            animation: fadeIn 0.8s ease-out;
+        }
+        
+        .recovery-icon {
+            width: 70px;
+            height: 70px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 20px;
+            color: white;
+            font-size: 28px;
+        }
+        
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="recovery-card">
+        <div class="text-center mb-4">
+            <div class="recovery-icon">
+                <i class="bi bi-key"></i>
+            </div>
+            <h2 class="fw-bold">Recuperar Senha</h2>
+            <p class="text-muted">Digite seu e-mail cadastrado</p>
+        </div>
+        
+        <% if (success) { %>
+            <div class="alert alert-success" role="alert">
+                <i class="bi bi-check-circle-fill me-2"></i>
+                <%= success %>
+            </div>
+        <% } %>
+        
+        <% if (error) { %>
+            <div class="alert alert-danger" role="alert">
+                <i class="bi bi-exclamation-triangle-fill me-2"></i>
+                <%= error %>
+            </div>
+        <% } %>
+        
+        <form action="/esqueci-senha" method="POST">
+            <div class="mb-3">
+                <label for="email" class="form-label">E-mail Cadastrado</label>
+                <div class="input-group">
+                    <span class="input-group-text">
+                        <i class="bi bi-envelope"></i>
+                    </span>
+                    <input type="email" class="form-control" id="email" name="email" 
+                           placeholder="seu.email@escola.gov.br" required>
+                </div>
+                <small class="text-muted">Enviaremos uma senha temporária para este e-mail</small>
+            </div>
+            
+            <button type="submit" class="btn btn-primary w-100 py-2">
+                <i class="bi bi-send me-2"></i>Enviar Nova Senha
+            </button>
+            
+            <div class="text-center mt-3">
+                <a href="/login" class="text-decoration-none">
+                    <i class="bi bi-arrow-left me-1"></i>Voltar para o login
+                </a>
+            </div>
+        </form>
+    </div>
+    
+    <%- include('partials/scripts') %>
+</body>
+</html>

@@ -1,0 +1,959 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <%- include('partials/head', {title: title}) %>
+    <style>
+        .dashboard-card { 
+            transition: transform 0.3s; 
+            border-radius: 8px; 
+            border: 1px solid #e9ecef;
+            margin-bottom: 15px;
+        }
+        .dashboard-card:hover { 
+            transform: translateY(-2px); 
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+        }
+        .card-icon { font-size: 1.5rem; }
+        .task-item { 
+            border-left: 3px solid #007bff; 
+            padding: 8px 10px;
+            margin: 3px 0;
+            font-size: 0.9rem;
+        }
+    </style>
+    <!-- Chart.js para gráficos -->
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+<!-- CSS adicional para gráficos -->
+<style>
+    /* Estilos para gráficos */
+    .chart-container {
+        position: relative;
+        height: 300px;
+        width: 100%;
+        margin-bottom: 20px;
+    }
+    
+    .chart-card {
+        transition: all 0.3s ease;
+        border-radius: 12px;
+        overflow: hidden;
+    }
+    
+    .chart-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+    }
+    
+    /* Filtros para gráficos */
+    .chart-filters {
+        background: #f8f9fa;
+        border-radius: 10px;
+        padding: 15px;
+        margin-bottom: 20px;
+    }
+    
+    /* Cards de estatísticas melhorados */
+    .stats-card {
+        border-left: 4px solid;
+        transition: all 0.3s;
+    }
+    
+    .stats-card:hover {
+        transform: translateY(-3px);
+    }
+    
+    /* Cores para diferentes tipos de dados */
+    .stats-primary { border-left-color: #4dabf7; }
+    .stats-success { border-left-color: #40c057; }
+    .stats-warning { border-left-color: #ff922b; }
+    .stats-danger { border-left-color: #ff6b6b; }
+    .stats-info { border-left-color: #339af0; }
+    .stats-purple { border-left-color: #9c36b5; }
+</style>
+</head>
+<body>
+    <!-- Navbar -->
+    <%- include('partials/navbar', {user: user, currentPage: 'dashboard'}) %>
+    
+    <!-- CONTAINER PRINCIPAL COM SIDEBAR + DASHBOARD NA MESMA LINHA -->
+    <div class="container-fluid mt-3">
+        <div class="row">
+            
+            <!-- COLUNA 1: SIDEBAR UNIFICADA (3 de 12 colunas) -->
+            <div class="col-md-3 d-none d-md-block">
+                <div class="card border-0 shadow-sm mb-4">
+                    <div class="card-body p-3">
+                        <%- include('partials/sidebar', { 
+                            currentPage: 'dashboard', 
+                            user: user,
+                            escolas: escolas || []
+                        }); %>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- COLUNA 2: DASHBOARD (10 de 12 colunas) -->
+            <div class="col-md-9">
+                
+                <!-- Cabeçalho mais compacto -->
+                <div class="row mb-3">
+                    <div class="col-12">
+                        <div class="d-flex justify-content-between align-items-center">
+                            <div>
+                                <h4 class="mb-1">
+                                    <i class="fas fa-tachometer-alt me-2"></i>Dashboard
+                                </h4>
+                                <p class="text-muted mb-0" style="font-size: 0.9rem;">
+                                    Bem-vindo, <strong><%= user.nome %></strong> 
+                                    (<%= user.tipo.charAt(0).toUpperCase() + user.tipo.slice(1) %>)
+                                </p>
+                            </div>
+                        </div>
+                        <hr class="mt-2">
+                    </div>
+                </div>
+
+                <!-- Cards de Estatísticas - REDUZIDO PARA 2 POR LINHA -->
+                <div class="row mb-3">
+                    <% if (cards && cards.length > 0) { %>
+                    <% cards.forEach(function(card) { %>
+                    <div class="col-xl-6 col-lg-6 col-md-6 mb-3">
+                        <div class="card dashboard-card h-100">
+                            <div class="card-body py-2">
+                                <div class="d-flex align-items-center">
+                                    <div class="me-3">
+                                        <i class="<%= card.icone %> card-icon text-<%= card.cor %>"></i>
+                                    </div>
+                                    <div>
+                                        <h6 class="text-muted mb-0" style="font-size: 0.85rem;"><%= card.titulo %></h6>
+                                        <h4 class="mb-0"><%= card.valor %></h4>
+                                        <% if (card.descricao) { %>
+                                        <small class="text-muted" style="font-size: 0.75rem;"><%= card.descricao %></small>
+                                        <% } %>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <% }); %>
+                    <% } %>
+                </div>
+                <!-- ==================== -->
+                <!-- SEÇÃO DE GRÁFICOS INTERATIVOS -->
+                <!-- ==================== -->
+                <div class="row mb-4">
+                    <div class="col-12">
+                        <div class="card chart-card">
+                            <div class="card-header">
+                                <h6 class="mb-0">
+                                    <i class="fas fa-chart-bar me-2"></i>Estatísticas de Demandas
+                                </h6>
+                                <small class="text-muted">Visão geral das demandas por status e prioridade</small>
+                            </div>
+                            <div class="card-body">
+                                <!-- Filtros para gráficos -->
+                                <div class="chart-filters mb-4">
+                                    <div class="row g-2">
+                                        <div class="col-md-3 col-6">
+                                            <label class="form-label small fw-bold">Período</label>
+                                            <select class="form-select form-select-sm" id="filterPeriod">
+                                                <option value="week">Última Semana</option>
+                                                <option value="month" selected>Último Mês</option>
+                                                <option value="quarter">Último Trimestre</option>
+                                                <option value="year">Último Ano</option>
+                                            </select>
+                                        </div>
+                                        <div class="col-md-3 col-6">
+                                            <label class="form-label small fw-bold">Escola</label>
+                                            <select class="form-select form-select-sm" id="filterSchool">
+                                                <option value="all" selected>Todas as Escolas</option>
+                                                <% if (escolas && escolas.length > 0) { %>
+                                                    <% escolas.forEach(function(escola) { %>
+                                                        <option value="<%= escola %>"><%= escola.length > 25 ? escola.substring(0, 25) + '...' : escola %></option>
+                                                    <% }); %>
+                                                <% } %>
+                                            </select>
+                                        </div>
+                                        <div class="col-md-3 col-6">
+                                            <label class="form-label small fw-bold">Departamento</label>
+                                            <select class="form-select form-select-sm" id="filterDepartment">
+                                                <option value="all" selected>Todos Departamentos</option>
+                                                <option value="Pedagogico">Pedagógico</option>
+                                                <option value="Administrativo">Administrativo</option>
+                                                <option value="Manutencao">Manutenção</option>
+                                                <option value="Secretaria">Secretaria</option>
+                                            </select>
+                                        </div>
+                                        <div class="col-md-3 col-6">
+                                            <label class="form-label small fw-bold">Tipo de Gráfico</label>
+                                            <select class="form-select form-select-sm" id="chartType">
+                                                <option value="bar" selected>Barras</option>
+                                                <option value="line">Linhas</option>
+                                                <option value="pie">Pizza</option>
+                                                <option value="doughnut">Rosca</option>
+                                            </select>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- Container para os gráficos -->
+                                <div class="row">
+                                    <!-- Gráfico 1: Demandas por Status -->
+                                    <div class="col-lg-6 mb-4">
+                                        <div class="chart-container">
+                                            <canvas id="statusChart"></canvas>
+                                        </div>
+                                        <div class="text-center mt-2">
+                                            <small class="text-muted">
+                                                <i class="fas fa-info-circle me-1"></i>
+                                                Distribuição de demandas por status
+                                            </small>
+                                        </div>
+                                    </div>
+
+                                    <!-- Gráfico 2: Demandas por Prioridade -->
+                                    <div class="col-lg-6 mb-4">
+                                        <div class="chart-container">
+                                            <canvas id="priorityChart"></canvas>
+                                        </div>
+                                        <div class="text-center mt-2">
+                                            <small class="text-muted">
+                                                <i class="fas fa-exclamation-triangle me-1"></i>
+                                                Demandas por nível de prioridade
+                                            </small>
+                                        </div>
+                                    </div>
+
+                                    <!-- Gráfico 3: Evolução Temporal -->
+                                    <div class="col-lg-12">
+                                        <div class="chart-container" style="height: 250px;">
+                                            <canvas id="timelineChart"></canvas>
+                                        </div>
+                                        <div class="text-center mt-2">
+                                            <small class="text-muted">
+                                                <i class="fas fa-chart-line me-1"></i>
+                                                Evolução das demandas ao longo do tempo
+                                            </small>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Seção de Tarefas - MAIS COMPACTA -->
+                <% if (minhasTarefas && minhasTarefas.length > 0) { %>
+                <div class="row mb-3">
+                    <div class="col-12">
+                        <div class="card">
+                            <div class="card-header py-2">
+                                <h6 class="mb-0">
+                                    <i class="fas fa-tasks me-2"></i>Minhas Tarefas
+                                    <span class="badge bg-primary float-end" style="font-size: 0.7rem;">
+                                        <%= minhasTarefas.length %>
+                                    </span>
+                                </h6>
+                            </div>
+                            <div class="card-body p-2">
+                                <div class="list-group">
+                                    <% minhasTarefas.forEach(function(tarefa, index) { 
+                                        if (index < 3) { // Mostrar apenas 3 tarefas
+                                    %>
+                                    <a href="/demandas?id=<%= tarefa._id %>" 
+                                       class="list-group-item list-group-item-action task-item py-1">
+                                        <div class="d-flex justify-content-between align-items-center">
+                                            <div style="max-width: 80%;">
+                                                <strong style="font-size: 0.85rem;">
+                                                    <%= tarefa.titulo.length > 40 ? tarefa.titulo.substring(0, 40) + '...' : tarefa.titulo %>
+                                                </strong>
+                                                <br>
+                                                <small class="text-muted" style="font-size: 0.75rem;">
+                                                    <i class="fas fa-school me-1"></i>
+                                                    <%= tarefa.escola.length > 20 ? tarefa.escola.substring(0, 20) + '...' : tarefa.escola %>
+                                                    • 
+                                                    <i class="far fa-calendar me-1"></i>
+                                                    <%= new Date(tarefa.prazo).toLocaleDateString('pt-BR') %>
+                                                </small>
+                                            </div>
+                                            <div>
+                                                <span class="badge bg-<%= tarefa.status === 'pendente' ? 'warning' : 'primary' %>" 
+                                                      style="font-size: 0.7rem;">
+                                                    <%= tarefa.status === 'pendente' ? 'Pendente' : tarefa.status %>
+                                                </span>
+                                            </div>
+                                        </div>
+                                    </a>
+                                    <% } }); %>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <% } %>
+
+                <!-- Ações Rápidas - COMPACTAS -->
+                <% if (quickActions && quickActions.length > 0) { %>
+                <div class="row">
+                    <div class="col-12">
+                        <div class="card">
+                            <div class="card-header py-2">
+                                <h6 class="mb-0"><i class="fas fa-bolt me-2"></i>Ações Rápidas</h6>
+                            </div>
+                            <div class="card-body p-2">
+                                <div class="d-flex flex-wrap">
+                                    <% quickActions.forEach(function(acao) { %>
+                                    <a href="<%= acao.url %>" 
+                                       class="btn btn-<%= acao.cor %> btn-sm m-1" 
+                                       style="font-size: 0.8rem; padding: 5px 10px;">
+                                        <i class="<%= acao.icone %> me-1"></i>
+                                        <%= acao.texto %>
+                                    </a>
+                                    <% }); %>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <% } %>
+                
+            </div> <!-- Fecha col-md-10 (dashboard) -->
+            
+        </div> <!-- Fecha row -->
+    </div> <!-- Fecha container-fluid principal -->
+
+    <!-- Footer -->
+    <%- include('partials/footer', {totalDemandas: totalDemandas, anoAtual: anoAtual}) %>
+
+    <!-- Scripts -->
+    <%- include('partials/scripts') %>
+<!-- Notificações do Dashboard -->
+<script>
+/* ============================================
+   📊 NOTIFICAÇÕES INTELIGENTES DO DASHBOARD
+   ============================================ */
+
+// Aguardar a página carregar completamente
+document.addEventListener('DOMContentLoaded', function() {
+    console.log('🚀 Dashboard carregado - Iniciando notificações...');
+    
+    // Pequeno delay para garantir que tudo carregou
+    setTimeout(() => {
+        iniciarNotificacoesDashboard();
+    }, 1000);
+});
+
+// Função principal de notificações do dashboard
+function iniciarNotificacoesDashboard() {
+    console.log('🔔 Iniciando sistema de notificações do dashboard...');
+    
+    // 1️⃣ NOTIFICAÇÃO DE BOAS-VINDAS PERSONALIZADA
+    const nomeUsuario = '<%= user.nome %>';
+    const tipoUsuario = '<%= user.tipo %>';
+    const saudacoes = ['Olá', 'Bem-vindo(a)', 'Oi', 'Olá novamente'];
+    const saudacao = saudacoes[Math.floor(Math.random() * saudacoes.length)];
+    
+    setTimeout(() => {
+        if (typeof showSuccess === 'function') {
+            showSuccess(
+                `${saudacao}, ${nomeUsuario.split(' ')[0]}! 👋`,
+                `Seu dashboard está pronto. Você está logado como ${tipoUsuario}.`,
+                4000
+            );
+        }
+    }, 800);
+    
+    // 2️⃣ NOTIFICAÇÃO DE TAREFAS PENDENTES
+    setTimeout(() => {
+        const tarefasPendentes = document.querySelectorAll('.badge.bg-warning').length;
+        
+        if (tarefasPendentes > 0) {
+            if (typeof showWarning === 'function') {
+                showWarning(
+                    '📋 Tarefas Pendentes',
+                    `Você tem ${tarefasPendentes} tarefa(s) pendente(s) que precisam de atenção.`,
+                    5000
+                );
+            }
+        } else {
+            if (typeof showInfo === 'function') {
+                showInfo(
+                    '✅ Tudo em Dia!',
+                    'Parabéns! Não há tarefas pendentes no momento.',
+                    3000
+                );
+            }
+        }
+    }, 2500);
+    
+    // 3️⃣ NOTIFICAÇÃO DE DEMANDAS URGENTES (se houver)
+    setTimeout(() => {
+        // Verificar cards de estatísticas
+        const cards = document.querySelectorAll('.dashboard-card');
+        let demandaUrgente = false;
+        
+        cards.forEach(card => {
+            const texto = card.textContent.toLowerCase();
+            if (texto.includes('urgente') || texto.includes('alta') || texto.includes('prioridade')) {
+                const valor = card.querySelector('h4');
+                if (valor && parseInt(valor.textContent) > 0) {
+                    demandaUrgente = true;
+                }
+            }
+        });
+        
+        if (demandaUrgente && typeof showError === 'function') {
+            showError(
+                '🚨 Atenção Urgente!',
+                'Há demandas de alta prioridade que precisam de atenção imediata.',
+                6000
+            );
+        }
+    }, 4000);
+    
+    // 4️⃣ NOTIFICAÇÃO BASEADA NO HORÁRIO DO DIA
+    setTimeout(() => {
+        const hora = new Date().getHours();
+        let periodo = '';
+        
+        if (hora < 12) periodo = 'Bom dia';
+        else if (hora < 18) periodo = 'Boa tarde';
+        else periodo = 'Boa noite';
+        
+        if (typeof showInfo === 'function') {
+            showInfo(
+                `${periodo}! ☀️`,
+                `Aproveite para revisar suas demandas e manter tudo organizado.`,
+                3000
+            );
+        }
+    }, 5500);
+    
+    // 5️⃣ NOTIFICAÇÃO DE ATUALIZAÇÕES (simulada)
+    setTimeout(() => {
+        // Verificar se é a primeira visita do dia
+        const hoje = new Date().toDateString();
+        const ultimaVisita = localStorage.getItem('dashboard_ultima_visita');
+        
+        if (ultimaVisita !== hoje) {
+            if (typeof showInfo === 'function') {
+                showInfo(
+                    '🔄 Atualizações do Dia',
+                    'Novas demandas podem ter sido adicionadas desde sua última visita.',
+                    4000
+                );
+            }
+            // Salvar visita de hoje
+            localStorage.setItem('dashboard_ultima_visita', hoje);
+        }
+    }, 7000);
+}
+
+// 6️⃣ NOTIFICAÇÃO AO REALIZAR AÇÕES RÁPIDAS
+function configurarNotificacoesAcoesRapidas() {
+    const botoesAcoes = document.querySelectorAll('.btn[href*="/demandas"], .btn[href*="/atribuir"], .btn[href*="/cadastro"]');
+    
+    botoesAcoes.forEach(botao => {
+        botao.addEventListener('click', function(e) {
+            const textoBotao = this.textContent.trim();
+            const iconeBotao = this.querySelector('i')?.className || 'fas fa-bolt';
+            
+            // Notificação antes de redirecionar
+            setTimeout(() => {
+                if (typeof showInfo === 'function') {
+                    showInfo(
+                        '🔀 Redirecionando...',
+                        `Abrindo ${textoBotao.toLowerCase()}.`,
+                        2000
+                    );
+                }
+            }, 100);
+        });
+    });
+}
+
+// 7️⃣ NOTIFICAÇÃO AO VISUALIZAR TAREFAS
+function configurarNotificacoesTarefas() {
+    const linksTarefas = document.querySelectorAll('.task-item[href*="/demandas"]');
+    
+    linksTarefas.forEach(link => {
+        link.addEventListener('click', function(e) {
+            const tituloTarefa = this.querySelector('strong')?.textContent || 'Tarefa';
+            
+            setTimeout(() => {
+                if (typeof showInfo === 'function') {
+                    showInfo(
+                        '📖 Abrindo Detalhes',
+                        `Carregando detalhes da demanda: ${tituloTarefa.substring(0, 30)}...`,
+                        2000
+                    );
+                }
+            }, 100);
+        });
+    });
+}
+
+// 8️⃣ SISTEMA DE NOTIFICAÇÕES AUTOMÁTICAS (simulação)
+function iniciarNotificacoesAutomaticas() {
+    // Notificação a cada 5 minutos (300000ms) - apenas para demonstração
+    // Em produção, isso seria controlado por WebSockets ou polling
+    
+    console.log('⏰ Sistema de notificações automáticas iniciado');
+    
+    // Exemplo: Notificação de lembrete após 2 minutos
+    setTimeout(() => {
+        if (typeof showInfo === 'function') {
+            showInfo(
+                '⏰ Lembrete',
+                'Não se esqueça de atualizar o status das demandas em andamento.',
+                4000
+            );
+        }
+    }, 120000); // 2 minutos
+}
+
+// 9️⃣ CONFIGURAR TODOS OS EVENTOS
+function configurarTodosEventos() {
+    configurarNotificacoesAcoesRapidas();
+    configurarNotificacoesTarefas();
+    iniciarNotificacoesAutomaticas();
+    
+    // Evento para quando o usuário volta para o dashboard
+    window.addEventListener('focus', function() {
+        if (document.visibilityState === 'visible') {
+            setTimeout(() => {
+                if (typeof showInfo === 'function') {
+                    showInfo(
+                        '👋 Você está de volta!',
+                        'Bem-vindo(a) novamente ao dashboard.',
+                        2000
+                    );
+                }
+            }, 500);
+        }
+    });
+}
+
+// 🔟 INICIALIZAR TUDO
+setTimeout(() => {
+    configurarTodosEventos();
+    console.log('✅ Sistema de notificações do dashboard configurado!');
+}, 1500);
+
+// Função para testar todas as notificações (apenas desenvolvimento)
+window.testarNotificacoesDashboard = function() {
+    if (typeof showSuccess === 'function') {
+        showSuccess('✅ Teste de Sucesso', 'Esta é uma notificação de teste do dashboard.', 3000);
+    }
+    setTimeout(() => {
+        if (typeof showError === 'function') {
+            showError('❌ Teste de Erro', 'Notificação de erro de teste.', 3000);
+        }
+    }, 1000);
+    setTimeout(() => {
+        if (typeof showWarning === 'function') {
+            showWarning('⚠️ Teste de Alerta', 'Notificação de alerta de teste.', 3000);
+        }
+    }, 2000);
+    setTimeout(() => {
+        if (typeof showInfo === 'function') {
+            showInfo('ℹ️ Teste de Informação', 'Notificação informativa de teste.', 3000);
+        }
+    }, 3000);
+    
+    console.log('🧪 Todas as notificações de teste foram disparadas');
+};
+
+// Expor função de teste no console
+console.log('💡 Dica: Digite testarNotificacoesDashboard() no console para testar todas as notificações');
+/* ============================================
+   📊 SISTEMA DE GRÁFICOS INTERATIVOS
+   ============================================ */
+
+// Variáveis globais para os gráficos
+let statusChartInstance = null;
+let priorityChartInstance = null;
+let timelineChartInstance = null;
+
+// Dados de exemplo (em produção, viriam da API)
+const sampleData = {
+    status: {
+        labels: ['Pendentes', 'Em Andamento', 'Concluídas', 'Canceladas'],
+        data: [12, 8, 15, 2],
+        colors: ['#ffc107', '#17a2b8', '#28a745', '#6c757d']
+    },
+    priority: {
+        labels: ['Baixa', 'Média', 'Alta', 'Urgente'],
+        data: [10, 15, 7, 3],
+        colors: ['#28a745', '#17a2b8', '#fd7e14', '#dc3545']
+    },
+    timeline: {
+        labels: ['Jan', 'Fev', 'Mar', 'Abr', 'Mai', 'Jun', 'Jul', 'Ago', 'Set', 'Out', 'Nov', 'Dez'],
+        data: [5, 8, 12, 10, 15, 18, 20, 22, 25, 30, 28, 35]
+    }
+};
+
+// Função para inicializar todos os gráficos
+function initializeCharts() {
+    console.log('📊 Inicializando gráficos do dashboard...');
+    
+    // Destruir gráficos existentes (se houver)
+    if (statusChartInstance) statusChartInstance.destroy();
+    if (priorityChartInstance) priorityChartInstance.destroy();
+    if (timelineChartInstance) timelineChartInstance.destroy();
+    
+    // 1. Gráfico de Status
+    const statusCtx = document.getElementById('statusChart').getContext('2d');
+    statusChartInstance = new Chart(statusCtx, {
+        type: 'doughnut',
+        data: {
+            labels: sampleData.status.labels,
+            datasets: [{
+                data: sampleData.status.data,
+                backgroundColor: sampleData.status.colors,
+                borderColor: '#fff',
+                borderWidth: 2,
+                hoverOffset: 15
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                legend: {
+                    position: 'bottom',
+                    labels: {
+                        padding: 20,
+                        usePointStyle: true,
+                        font: {
+                            size: 11
+                        }
+                    }
+                },
+                tooltip: {
+                    callbacks: {
+                        label: function(context) {
+                            let label = context.label || '';
+                            if (label) {
+                                label += ': ';
+                            }
+                            label += context.raw + ' demandas';
+                            return label;
+                        }
+                    }
+                }
+            },
+            cutout: '65%'
+        }
+    });
+    
+    // 2. Gráfico de Prioridade
+    const priorityCtx = document.getElementById('priorityChart').getContext('2d');
+    priorityChartInstance = new Chart(priorityCtx, {
+        type: 'bar',
+        data: {
+            labels: sampleData.priority.labels,
+            datasets: [{
+                label: 'Quantidade',
+                data: sampleData.priority.data,
+                backgroundColor: sampleData.priority.colors,
+                borderColor: sampleData.priority.colors.map(color => color + 'CC'),
+                borderWidth: 1,
+                borderRadius: 8,
+                borderSkipped: false,
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                legend: {
+                    display: false
+                },
+                tooltip: {
+                    callbacks: {
+                        label: function(context) {
+                            return `${context.raw} demandas`;
+                        }
+                    }
+                }
+            },
+            scales: {
+                y: {
+                    beginAtZero: true,
+                    grid: {
+                        display: true,
+                        drawBorder: false
+                    },
+                    ticks: {
+                        stepSize: 5
+                    }
+                },
+                x: {
+                    grid: {
+                        display: false
+                    }
+                }
+            }
+        }
+    });
+    
+    // 3. Gráfico de Timeline (Evolução)
+    const timelineCtx = document.getElementById('timelineChart').getContext('2d');
+    timelineChartInstance = new Chart(timelineCtx, {
+        type: 'line',
+        data: {
+            labels: sampleData.timeline.labels,
+            datasets: [{
+                label: 'Demandas Criadas',
+                data: sampleData.timeline.data,
+                backgroundColor: 'rgba(77, 171, 247, 0.1)',
+                borderColor: '#4dabf7',
+                borderWidth: 3,
+                fill: true,
+                tension: 0.4,
+                pointBackgroundColor: '#4dabf7',
+                pointBorderColor: '#fff',
+                pointBorderWidth: 2,
+                pointRadius: 5,
+                pointHoverRadius: 8
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                legend: {
+                    position: 'top',
+                    labels: {
+                        font: {
+                            size: 12
+                        }
+                    }
+                },
+                tooltip: {
+                    mode: 'index',
+                    intersect: false,
+                    callbacks: {
+                        label: function(context) {
+                            return `${context.dataset.label}: ${context.raw} demandas`;
+                        }
+                    }
+                }
+            },
+            scales: {
+                y: {
+                    beginAtZero: true,
+                    grid: {
+                        borderDash: [3, 3]
+                    },
+                    title: {
+                        display: true,
+                        text: 'Quantidade',
+                        font: {
+                            size: 12
+                        }
+                    }
+                },
+                x: {
+                    grid: {
+                        display: false
+                    }
+                }
+            },
+            interaction: {
+                intersect: false,
+                mode: 'nearest'
+            }
+        }
+    });
+    
+    console.log('✅ Gráficos inicializados com sucesso!');
+}
+
+// Função para atualizar gráficos com filtros
+function updateChartsWithFilters() {
+    console.log('🔄 Atualizando gráficos com filtros...');
+    
+    const period = document.getElementById('filterPeriod').value;
+    const school = document.getElementById('filterSchool').value;
+    const department = document.getElementById('filterDepartment').value;
+    const chartType = document.getElementById('chartType').value;
+    
+    console.log('Filtros aplicados:', { period, school, department, chartType });
+    
+    // Simular dados filtrados (em produção, faria uma requisição à API)
+    const filteredData = getFilteredData(period, school, department);
+    
+    // Atualizar tipo do gráfico principal
+    if (statusChartInstance) {
+        statusChartInstance.config.type = chartType;
+        statusChartInstance.update();
+    }
+    
+    // Aqui você atualizaria os dados dos gráficos com os dados filtrados
+    // Por enquanto, apenas mostramos uma notificação
+    if (typeof showInfo === 'function') {
+        showInfo('🔍 Filtros Aplicados', 
+                `Período: ${getPeriodLabel(period)} | Escola: ${school === 'all' ? 'Todas' : school.substring(0, 20)}...`, 
+                3000);
+    }
+}
+
+// Função para simular dados filtrados
+function getFilteredData(period, school, department) {
+    // Em produção, isso viria de uma API
+    // Aqui retornamos dados de exemplo ajustados pelos filtros
+    
+    let multiplier = 1;
+    if (period === 'week') multiplier = 0.3;
+    if (period === 'month') multiplier = 1;
+    if (period === 'quarter') multiplier = 3;
+    if (period === 'year') multiplier = 12;
+    
+    return {
+        status: sampleData.status.data.map(value => Math.round(value * multiplier)),
+        priority: sampleData.priority.data.map(value => Math.round(value * multiplier)),
+        timeline: sampleData.timeline.data.map(value => Math.round(value * multiplier))
+    };
+}
+
+// Função auxiliar para labels de período
+function getPeriodLabel(period) {
+    const labels = {
+        'week': 'Última Semana',
+        'month': 'Último Mês',
+        'quarter': 'Último Trimestre',
+        'year': 'Último Ano'
+    };
+    return labels[period] || 'Período';
+}
+
+// Função para exportar gráficos
+function exportChart(chartId, format = 'png') {
+    const chartCanvas = document.getElementById(chartId);
+    if (!chartCanvas) return;
+    
+    const link = document.createElement('a');
+    link.download = `grafico-${chartId}-${new Date().toISOString().slice(0,10)}.${format}`;
+    link.href = chartCanvas.toDataURL(`image/${format}`);
+    link.click();
+    
+    if (typeof showSuccess === 'function') {
+        showSuccess('📥 Download Iniciado', `Gráfico exportado como ${format.toUpperCase()}`, 3000);
+    }
+}
+
+// Configurar eventos dos filtros
+function setupChartFilters() {
+    const filterSelects = [
+        'filterPeriod',
+        'filterSchool', 
+        'filterDepartment',
+        'chartType'
+    ];
+    
+    filterSelects.forEach(selectId => {
+        const select = document.getElementById(selectId);
+        if (select) {
+            select.addEventListener('change', updateChartsWithFilters);
+        }
+    });
+    
+    // Botões de exportação
+    document.querySelectorAll('.export-chart').forEach(button => {
+        button.addEventListener('click', function() {
+            const chartId = this.getAttribute('data-chart');
+            const format = this.getAttribute('data-format') || 'png';
+            exportChart(chartId, format);
+        });
+    });
+}
+
+// Inicializar tudo quando a página carregar
+document.addEventListener('DOMContentLoaded', function() {
+    // Pequeno delay para garantir que Chart.js carregou
+    setTimeout(() => {
+        if (typeof Chart !== 'undefined') {
+            initializeCharts();
+            setupChartFilters();
+            
+            // Adicionar botões de exportação dinamicamente
+            addExportButtons();
+            
+            console.log('🎨 Sistema de gráficos pronto!');
+            
+            // Notificação de boas-vindas com gráficos
+            setTimeout(() => {
+                if (typeof showInfo === 'function') {
+                    showInfo('📊 Gráficos Carregados', 
+                            'Agora você tem visualizações interativas das suas demandas!', 
+                            4000);
+                }
+            }, 1000);
+        } else {
+            console.error('❌ Chart.js não carregou!');
+        }
+    }, 500);
+});
+
+// Adicionar botões de exportação
+function addExportButtons() {
+    // Adicionar no cabeçalho do card de gráficos
+    const chartHeader = document.querySelector('.chart-card .card-header');
+    if (chartHeader) {
+        const exportDiv = document.createElement('div');
+        exportDiv.className = 'mt-2';
+        exportDiv.innerHTML = `
+            <small class="text-muted me-2">Exportar:</small>
+            <div class="btn-group btn-group-sm" role="group">
+                <button type="button" class="btn btn-outline-secondary export-chart" data-chart="statusChart" data-format="png">
+                    <i class="fas fa-download me-1"></i>Gráfico 1
+                </button>
+                <button type="button" class="btn btn-outline-secondary export-chart" data-chart="priorityChart" data-format="png">
+                    <i class="fas fa-download me-1"></i>Gráfico 2
+                </button>
+                <button type="button" class="btn btn-outline-secondary export-chart" data-chart="timelineChart" data-format="png">
+                    <i class="fas fa-download me-1"></i>Gráfico 3
+                </button>
+            </div>
+        `;
+        chartHeader.appendChild(exportDiv);
+    }
+}
+
+// Função para atualizar dados em tempo real (simulação)
+function simulateRealTimeUpdate() {
+    // Em produção, isso seria feito com WebSockets ou polling
+    setInterval(() => {
+        // Simular pequenas alterações nos dados
+        if (statusChartInstance && Math.random() > 0.7) {
+            const newData = sampleData.status.data.map(value => 
+                Math.max(0, value + Math.floor(Math.random() * 3) - 1)
+            );
+            
+            statusChartInstance.data.datasets[0].data = newData;
+            statusChartInstance.update('none');
+            
+            console.log('🔄 Dados do gráfico de status atualizados');
+        }
+    }, 30000); // Atualizar a cada 30 segundos
+}
+
+// Iniciar atualização em tempo real após 1 minuto
+setTimeout(simulateRealTimeUpdate, 60000);
+
+// Expor funções para debugging
+window.dashboardCharts = {
+    initializeCharts,
+    updateChartsWithFilters,
+    exportChart,
+    getSampleData: () => sampleData
+};
+
+console.log('💡 Dica: Use dashboardCharts no console para controlar os gráficos');
+</script>
+
+</body>
+</html>

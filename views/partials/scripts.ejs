@@ -1,39 +1,307 @@
 <!-- views/partials/scripts.ejs -->
-<!-- Scripts -->
+<!-- Bootstrap JS -->
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
+
+<!-- Botão de Instalação PWA (HTML) -->
+<div id="pwaInstallContainer" class="position-fixed bottom-0 end-0 p-3" style="z-index: 9999; display: none;">
+  <div class="toast show shadow-lg" role="alert" style="max-width: 350px;">
+    <div class="toast-header" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white;">
+      <i class="fas fa-mobile-alt me-2"></i>
+      <strong class="me-auto">Instalar App</strong>
+      <button type="button" class="btn-close btn-close-white" onclick="hideInstallButton()"></button>
+    </div>
+    <div class="toast-body p-3">
+      <div class="d-flex align-items-center mb-3">
+        <div class="me-3">
+          <div style="width: 50px; height: 50px; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); border-radius: 10px; display: flex; align-items: center; justify-content: center;">
+            <i class="fas fa-school text-white" style="font-size: 1.5rem;"></i>
+          </div>
+        </div>
+        <div>
+          <h6 class="mb-1">Sistema de Demandas</h6>
+          <small class="text-muted">Acesse offline como um app</small>
+        </div>
+      </div>
+      <button onclick="installApp()" class="btn btn-success w-100 mb-2">
+        <i class="fas fa-download me-2"></i>Instalar Agora
+      </button>
+      <button onclick="hideInstallButton()" class="btn btn-outline-secondary w-100 btn-sm">
+        Lembrar depois
+      </button>
+    </div>
+  </div>
+</div>
+
 <script>
-    // PWA
-    if ('serviceWorker' in navigator) {
-        navigator.serviceWorker.register('/sw.js');
+// === SISTEMA PWA COMPLETO ===
+console.log('📱 Inicializando Sistema PWA...');
+
+// 1. REGISTRAR SERVICE WORKER
+if ('serviceWorker' in navigator) {
+    navigator.serviceWorker.register('/sw.js')
+        .then(registration => {
+            console.log('✅ Service Worker registrado com sucesso:', registration.scope);
+            
+            // Verificar se há atualizações
+            registration.addEventListener('updatefound', () => {
+                const newWorker = registration.installing;
+                console.log('🔄 Nova versão do Service Worker encontrada!');
+                
+                newWorker.addEventListener('statechange', () => {
+                    if (newWorker.state === 'installed' && navigator.serviceWorker.controller) {
+                        console.log('🔄 Nova versão pronta. Recarregue a página.');
+                        // Poderia mostrar um botão "Atualizar App" aqui
+                    }
+                });
+            });
+        })
+        .catch(error => {
+            console.error('❌ Falha ao registrar Service Worker:', error);
+        });
+}
+
+// 2. SISTEMA DE INSTALAÇÃO
+let installPrompt = null;
+const installContainer = document.getElementById('pwaInstallContainer');
+
+// Evento quando o PWA pode ser instalado
+window.addEventListener('beforeinstallprompt', (e) => {
+    console.log('✅ PWA pode ser instalado!');
+    
+    // Prevenir banner automático do Chrome
+    e.preventDefault();
+    
+    // Guardar evento para uso posterior
+    installPrompt = e;
+    
+    // Verificar se já está instalado
+    if (isPWAInstalled()) {
+        console.log('📱 App já está instalado');
+        return;
     }
     
-    let installPrompt = null;
-    window.addEventListener('beforeinstallprompt', (e) => {
-        e.preventDefault();
-        installPrompt = e;
+    // Mostrar botão após 5 segundos
+    setTimeout(() => {
+        if (installPrompt) {
+            showInstallButton();
+        }
+    }, 5000);
+});
+
+// Evento quando o app é instalado
+window.addEventListener('appinstalled', () => {
+    console.log('🎉 App instalado com sucesso!');
+    hideInstallButton();
+    installPrompt = null;
+    
+    // Mostrar confirmação
+    showToast('✅ App instalado! Agora você pode acessar offline.', 'success');
+});
+
+// 3. FUNÇÕES DO SISTEMA
+function isPWAInstalled() {
+    return window.matchMedia('(display-mode: standalone)').matches || 
+           window.navigator.standalone === true;
+}
+
+function showInstallButton() {
+    if (installPrompt && !isPWAInstalled()) {
+        installContainer.style.display = 'block';
+        console.log('📱 Mostrando botão de instalação');
+        
+        // Esconder automaticamente após 30 segundos
         setTimeout(() => {
-            if (installPrompt) {
-                document.getElementById('installPWA').style.display = 'block';
+            if (installContainer.style.display !== 'none') {
+                hideInstallButton();
+                console.log('⏰ Botão escondido (timeout 30s)');
             }
-        }, 3000);
+        }, 30000);
+    }
+}
+
+function hideInstallButton() {
+    installContainer.style.display = 'none';
+    console.log('📱 Botão de instalação escondido');
+    
+    // Mostrar novamente após 24 horas se ainda não instalado
+    if (installPrompt && !isPWAInstalled()) {
+        setTimeout(() => showInstallButton(), 24 * 60 * 60 * 1000);
+    }
+}
+
+function installApp() {
+    if (installPrompt) {
+        console.log('🔄 Iniciando instalação...');
+        
+        // Mostrar prompt de instalação
+        installPrompt.prompt();
+        
+        // Aguardar resposta do usuário
+        installPrompt.userChoice.then((choiceResult) => {
+            if (choiceResult.outcome === 'accepted') {
+                console.log('✅ Usuário aceitou instalação');
+            } else {
+                console.log('❌ Usuário recusou instalação');
+                // Mostrar novamente após 2 minutos
+                setTimeout(() => showInstallButton(), 120000);
+            }
+            installPrompt = null;
+        });
+    }
+}
+
+// 4. FUNÇÃO DE TOAST SIMPLIFICADA (SEM BOOTSTRAP)
+function showToast(message, type = 'info') {
+    console.log(`📢 Toast: ${message} (${type})`);
+    
+    // Cores para cada tipo
+    const colors = {
+        'success': '#2ecc71',
+        'error': '#e74c3c',
+        'warning': '#f39c12',
+        'info': '#3498db'
+    };
+    
+    const color = colors[type] || colors.info;
+    const toastId = 'simple-toast-' + Date.now();
+    
+    // Criar elemento do toast
+    const toast = document.createElement('div');
+    toast.id = toastId;
+    toast.style.cssText = `
+        position: fixed;
+        top: 20px;
+        right: 20px;
+        background: ${color};
+        color: white;
+        padding: 15px 25px;
+        border-radius: 8px;
+        box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+        z-index: 10000;
+        max-width: 400px;
+        animation: slideInToast 0.5s ease;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+    `;
+    
+    // Ícone baseado no tipo
+    const icon = type === 'success' ? '✅' : 
+                type === 'error' ? '❌' : 
+                type === 'warning' ? '⚠️' : 'ℹ️';
+    
+    toast.innerHTML = `
+        <span style="font-size: 20px;">${icon}</span>
+        <span style="flex: 1;">${message}</span>
+        <button onclick="document.getElementById('${toastId}').remove()" 
+                style="background: transparent; border: none; color: white; font-size: 20px; cursor: pointer; margin-left: 10px;">
+            ✕
+        </button>
+    `;
+    
+    // Adicionar animação CSS
+    if (!document.querySelector('#toast-animation')) {
+        const style = document.createElement('style');
+        style.id = 'toast-animation';
+        style.textContent = `
+            @keyframes slideInToast {
+                from { transform: translateX(100%); opacity: 0; }
+                to { transform: translateX(0); opacity: 1; }
+            }
+            @keyframes slideOutToast {
+                from { transform: translateX(0); opacity: 1; }
+                to { transform: translateX(100%); opacity: 0; }
+            }
+        `;
+        document.head.appendChild(style);
+    }
+    
+    // Adicionar ao body
+    document.body.appendChild(toast);
+    
+    // Remover automaticamente após 5 segundos
+    setTimeout(() => {
+        if (toast.parentNode) {
+            toast.style.animation = 'slideOutToast 0.5s ease';
+            setTimeout(() => {
+                if (toast.parentNode) {
+                    toast.parentNode.removeChild(toast);
+                }
+            }, 500);
+        }
+    }, 5000);
+}
+
+// 5. DETECTAR MODO DE EXIBIÇÃO
+function checkDisplayMode() {
+    if (isPWAInstalled()) {
+        console.log('📱 Modo: App instalado (standalone)');
+        document.body.classList.add('pwa-mode');
+    } else {
+        console.log('🌐 Modo: Navegador web');
+        document.body.classList.remove('pwa-mode');
+    }
+}
+
+// Verificar modo quando a página carrega
+window.addEventListener('load', checkDisplayMode);
+
+// Verificar quando o display mode muda
+window.addEventListener('appinstalled', checkDisplayMode);
+
+// 6. VERIFICAÇÃO DE CONECTIVIDADE
+function updateOnlineStatus() {
+    if (navigator.onLine) {
+        console.log('✅ Conectado à internet');
+        document.body.classList.remove('offline');
+    } else {
+        console.log('⚠️  Modo offline');
+        document.body.classList.add('offline');
+        showToast('Você está offline. Algumas funcionalidades podem estar limitadas.', 'warning');
+    }
+}
+
+// Monitorar status de conexão
+window.addEventListener('online', updateOnlineStatus);
+window.addEventListener('offline', updateOnlineStatus);
+
+// Verificar status inicial
+updateOnlineStatus();
+
+// 7. LOG DE VERIFICAÇÃO PWA
+console.log('🔍 Verificação PWA:');
+console.log('- Service Worker:', 'serviceWorker' in navigator ? '✅ Suportado' : '❌ Não suportado');
+console.log('- Display Mode:', isPWAInstalled() ? '📱 App instalado' : '🌐 Navegador');
+console.log('- Conectado:', navigator.onLine ? '✅ Online' : '⚠️ Offline');
+console.log('✅ Sistema PWA inicializado com sucesso!');
+</script>
+
+<!-- Scripts específicos do dashboard -->
+<script>
+// Só executar no dashboard
+if (window.location.pathname === '/' || window.location.pathname === '/dashboard') {
+    console.log('📊 Dashboard detectado, inicializando gráficos...');
+    
+    // Garantir que os gráficos sejam inicializados
+    document.addEventListener('DOMContentLoaded', function() {
+        setTimeout(() => {
+            if (typeof initializeCharts === 'function') {
+                initializeCharts();
+            } else if (typeof DashboardCharts !== 'undefined') {
+                DashboardCharts.initializeCharts();
+            }
+        }, 500); // Pequeno delay para garantir carregamento
     });
     
-    function installApp() {
-        if (installPrompt) {
-            installPrompt.prompt();
-            installPrompt.userChoice.then((choice) => {
-                if (choice.outcome === 'accepted') {
-                    console.log('✅ App instalado!');
-                }
-                installPrompt = null;
-                document.getElementById('installPWA').style.display = 'none';
-            });
+    // Botão para atualizar gráficos (exemplo)
+    document.addEventListener('click', function(e) {
+        if (e.target && e.target.id === 'refreshCharts') {
+            console.log('🔄 Atualizando gráficos...');
+            if (typeof DashboardCharts !== 'undefined') {
+                DashboardCharts.initializeCharts();
+                showToast('Gráficos atualizados!', 'success');
+            }
         }
-    }
-    
-    function hideInstallButton() {
-        document.getElementById('installPWA').style.display = 'none';
-    }
-    
-    console.log('✅ Página carregada com sucesso!');
+    });
+}
 </script>

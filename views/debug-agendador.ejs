@@ -1,0 +1,484 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <%- include('partials/head', { title: 'Diagnóstico do Agendador' }) %>
+    <style>
+        .debug-container {
+            padding: 20px;
+        }
+        .card-debug {
+            margin-bottom: 20px;
+            border-left: 4px solid #0096E1;
+        }
+        .card-danger {
+            border-left-color: #dc3545;
+        }
+        .card-success {
+            border-left-color: #28a745;
+        }
+        .card-warning {
+            border-left-color: #ffc107;
+        }
+        .status-badge {
+            padding: 5px 10px;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            font-weight: bold;
+        }
+        .status-ok {
+            background-color: #d4edda;
+            color: #155724;
+        }
+        .status-error {
+            background-color: #f8d7da;
+            color: #721c24;
+        }
+        .status-warning {
+            background-color: #fff3cd;
+            color: #856404;
+        }
+        .log-item {
+            font-family: 'Courier New', monospace;
+            padding: 5px;
+            border-bottom: 1px solid #eee;
+        }
+        .test-button {
+            margin: 10px 0;
+        }
+        .demanda-item {
+            padding: 10px;
+            border: 1px solid #ddd;
+            margin: 5px 0;
+            border-radius: 5px;
+        }
+        .today {
+            background-color: #fff3cd;
+        }
+        .tomorrow {
+            background-color: #d4edda;
+        }
+        .future {
+            background-color: #f8f9fa;
+        }
+    </style>
+</head>
+<body>
+    <%- include('partials/navbar') %>
+    
+    <div class="container-fluid">
+        <div class="row">
+            <%- include('partials/sidebar') %>
+            
+            <main class="col-md-9 ms-sm-auto col-lg-10 px-md-4">
+                <div class="debug-container">
+                    <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
+                        <h1 class="h2">🔍 Diagnóstico do Agendador Automático</h1>
+                        <div class="btn-toolbar mb-2 mb-md-0">
+                            <button class="btn btn-sm btn-outline-primary me-2" onclick="executarTeste()">
+                                🧪 Executar Teste Manual
+                            </button>
+                            <button class="btn btn-sm btn-outline-success me-2" onclick="atualizarPagina()">
+                                🔄 Atualizar Dados
+                            </button>
+                            <a href="/api/debug/demandas?dias=3" target="_blank" class="btn btn-sm btn-outline-info">
+                                📊 Ver Dados API
+                            </a>
+                        </div>
+                    </div>
+
+                    <!-- SISTEMA STATUS -->
+                    <div class="card card-debug mb-4">
+                        <div class="card-header bg-primary text-white">
+                            <h5 class="mb-0">📊 Status do Sistema</h5>
+                        </div>
+                        <div class="card-body">
+                            <div class="row">
+                                <div class="col-md-3">
+                                    <div class="card bg-light">
+                                        <div class="card-body text-center">
+                                            <h6>🔄 Banco de Dados</h6>
+                                            <% 
+                                            let dbStatusClass = 'status-error';
+                                            if (dbStatus.includes('✅')) {
+                                                dbStatusClass = 'status-ok';
+                                            } else if (dbStatus.includes('⚠️')) {
+                                                dbStatusClass = 'status-warning';
+                                            }
+                                            %>
+                                            <span class="status-badge <%= dbStatusClass %>">
+                                                <%= dbStatus %>
+                                            </span>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-md-3">
+                                    <div class="card bg-light">
+                                        <div class="card-body text-center">
+                                            <h6>📅 Total de Demandas</h6>
+                                            <h3><%= totalDemandas %></h3>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-md-3">
+                                    <div class="card bg-light">
+                                        <div class="card-body text-center">
+                                            <h6>⏰ Hora do Servidor</h6>
+                                            <h5><%= infoSistema.horaServidor %></h5>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-md-3">
+                                    <div class="card bg-light">
+                                        <div class="card-body text-center">
+                                            <h6>🌐 Timezone</h6>
+                                            <h6>BRT: <%= infoSistema.timezoneBRT %></h6>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- DEMANDAS COM PRAZOS PRÓXIMOS -->
+                    <div class="card card-debug mb-4 
+                        <% if (demandasComPrazo.length > 0) { %>card-success<% } else { %>card-warning<% } %>">
+                        <div class="card-header">
+                            <h5 class="mb-0">
+                                📅 Demandas com Prazos Próximos (3 dias)
+                                <span class="badge 
+                                    <% if (demandasComPrazo.length > 0) { %>bg-success<% } else { %>bg-warning<% } %>">
+                                    <%= demandasComPrazo.length %> encontradas
+                                </span>
+                            </h5>
+                        </div>
+                        <div class="card-body">
+                            <% if (demandasComPrazo.length > 0) { %>
+                                <div class="alert alert-success">
+                                    ✅ O agendador <strong>deveria encontrar</strong> <%= demandasComPrazo.length %> demanda(s) para notificar!
+                                </div>
+                                
+                                <div class="table-responsive">
+                                    <table class="table table-sm table-hover">
+                                        <thead>
+                                            <tr>
+                                                <th>Título</th>
+                                                <th>Prazo</th>
+                                                <th>Dias Restantes</th>
+                                                <th>Status</th>
+                                                <th>Criador</th>
+                                                <th>Responsável</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            <% demandasComPrazo.forEach(function(demanda) { 
+                                                let classeLinha = '';
+                                                if (demanda.diasRestantes === 0) {
+                                                    classeLinha = 'table-warning';
+                                                }
+                                                if (demanda.diasRestantes < 0) {
+                                                    classeLinha = 'table-danger';
+                                                }
+                                            %>
+                                            <tr class="<%= classeLinha %>">
+                                                <td><%= demanda.titulo %></td>
+                                                <td><%= demanda.prazoFormatado %></td>
+                                                <td>
+                                                    <% 
+                                                    let badgeClass = 'bg-success';
+                                                    let badgeText = demanda.diasRestantes + ' dias';
+                                                    
+                                                    if (demanda.diasRestantes === 0) {
+                                                        badgeClass = 'bg-warning';
+                                                        badgeText = 'HOJE';
+                                                    } else if (demanda.diasRestantes === 1) {
+                                                        badgeClass = 'bg-info';
+                                                        badgeText = 'AMANHÃ';
+                                                    } else if (demanda.diasRestantes < 0) {
+                                                        badgeClass = 'bg-danger';
+                                                        badgeText = 'ATRASADA';
+                                                    }
+                                                    %>
+                                                    <span class="badge <%= badgeClass %>">
+                                                        <%= badgeText %>
+                                                    </span>
+                                                </td>
+                                                <td><%= demanda.status %></td>
+                                                <td><%= demanda.criadorEmail %></td>
+                                                <td><%= demanda.responsavelEmail || 'Não atribuído' %></td>
+                                            </tr>
+                                            <% }); %>
+                                        </tbody>
+                                    </table>
+                                </div>
+                            <% } else { %>
+                                <div class="alert alert-warning">
+                                    ⚠️ Nenhuma demanda encontrada com prazo nos próximos 3 dias.
+                                    <br><small>Isso pode ser normal se não houver demandas próximas do vencimento.</small>
+                                </div>
+                            <% } %>
+                        </div>
+                    </div>
+
+                    <!-- DEMANDAS QUE VENCEM HOJE -->
+                    <div class="card card-debug mb-4 
+                        <% if (demandasHoje.length > 0) { %>card-warning<% } else { %>card-success<% } %>">
+                        <div class="card-header">
+                            <h5 class="mb-0">
+                                ⚠️ Demandas que Vencem HOJE
+                                <span class="badge 
+                                    <% if (demandasHoje.length > 0) { %>bg-warning<% } else { %>bg-success<% } %>">
+                                    <%= demandasHoje.length %>
+                                </span>
+                            </h5>
+                        </div>
+                        <div class="card-body">
+                            <% if (demandasHoje.length > 0) { %>
+                                <div class="alert alert-warning">
+                                    ⚠️ <strong>URGENTE:</strong> <%= demandasHoje.length %> demanda(s) vencem hoje!
+                                </div>
+                                <ul class="list-group">
+                                    <% demandasHoje.forEach(function(demanda) { %>
+                                    <li class="list-group-item list-group-item-warning">
+                                        <strong><%= demanda.titulo %></strong> - 
+                                        Prazo: <%= demanda.prazoConclusao ? moment(demanda.prazoConclusao).format('DD/MM/YYYY HH:mm') : 'Sem prazo' %> -
+                                        Status: <%= demanda.status %>
+                                    </li>
+                                    <% }); %>
+                                </ul>
+                            <% } else { %>
+                                <div class="alert alert-success">
+                                    ✅ Nenhuma demanda vence hoje.
+                                </div>
+                            <% } %>
+                        </div>
+                    </div>
+
+                    <!-- ÚLTIMAS DEMANDAS (PARA REFERÊNCIA) -->
+                    <div class="card card-debug mb-4">
+                        <div class="card-header">
+                            <h5 class="mb-0">📋 Últimas 10 Demandas (para referência)</h5>
+                        </div>
+                        <div class="card-body">
+                            <div class="table-responsive">
+                                <table class="table table-sm table-striped">
+                                    <thead>
+                                        <tr>
+                                            <th>Título</th>
+                                            <th>Prazo</th>
+                                            <th>Status</th>
+                                            <th>Criador</th>
+                                            <th>Responsável</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <% todasDemandas.forEach(function(demanda) { %>
+                                        <tr>
+                                            <td><%= demanda.titulo %></td>
+                                            <td><%= demanda.prazoConclusao ? moment(demanda.prazoConclusao).format('DD/MM/YYYY') : 'Sem prazo' %></td>
+                                            <td><span class="badge bg-secondary"><%= demanda.status %></span></td>
+                                            <td><small><%= demanda.criadorEmail || 'Desconhecido' %></small></td>
+                                            <td><small><%= demanda.responsavelEmail || 'Não atribuído' %></small></td>
+                                        </tr>
+                                        <% }); %>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- INFORMAÇÕES DO SISTEMA -->
+                    <div class="card card-debug mb-4">
+                        <div class="card-header">
+                            <h5 class="mb-0">⚙️ Informações do Sistema</h5>
+                        </div>
+                        <div class="card-body">
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <ul class="list-group">
+                                        <li class="list-group-item d-flex justify-content-between">
+                                            <span>Node.js Version:</span>
+                                            <span><%= infoSistema.nodeVersion %></span>
+                                        </li>
+                                        <li class="list-group-item d-flex justify-content-between">
+                                            <span>Plataforma:</span>
+                                            <span><%= infoSistema.platform %></span>
+                                        </li>
+                                        <li class="list-group-item d-flex justify-content-between">
+                                            <span>Uso de Memória:</span>
+                                            <span><%= infoSistema.memoryUsage %></span>
+                                        </li>
+                                    </ul>
+                                </div>
+                                <div class="col-md-6">
+                                    <ul class="list-group">
+                                        <li class="list-group-item d-flex justify-content-between">
+                                            <span>Timezone Detectado:</span>
+                                            <span><%= infoSistema.timezone %></span>
+                                        </li>
+                                        <li class="list-group-item d-flex justify-content-between">
+                                            <span>Timezone Configurado:</span>
+                                            <span><%= infoSistema.timezoneBRT %></span>
+                                        </li>
+                                        <li class="list-group-item">
+                                            <a href="/api/debug/cron" target="_blank" class="btn btn-sm btn-outline-info w-100">
+                                                ⏰ Ver Configuração do Cron
+                                            </a>
+                                        </li>
+                                    </ul>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- LOGS DO SISTEMA -->
+                    <div class="card card-debug">
+                        <div class="card-header">
+                            <h5 class="mb-0">📝 Logs do Sistema</h5>
+                        </div>
+                        <div class="card-body">
+                            <div class="logs-container" style="max-height: 200px; overflow-y: auto; background-color: #f8f9fa; padding: 10px; border-radius: 5px;">
+                                <% logs.forEach(function(log) { %>
+                                <div class="log-item"><%= log %></div>
+                                <% }); %>
+                            </div>
+                            <div class="mt-3">
+                                <button class="btn btn-sm btn-outline-secondary" onclick="limparLogs()">
+                                    🗑️ Limpar Console (local)
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- AÇÕES DE TESTE -->
+                    <div class="card card-debug mt-4">
+                        <div class="card-header">
+                            <h5 class="mb-0">🔧 Ações de Teste</h5>
+                        </div>
+                        <div class="card-body">
+                            <div class="row">
+                                <div class="col-md-4">
+                                    <button class="btn btn-warning w-100 mb-2" onclick="testarQueryMongoDB()">
+                                        🗄️ Testar Query MongoDB
+                                    </button>
+                                </div>
+                                <div class="col-md-4">
+                                    <button class="btn btn-info w-100 mb-2" onclick="verificarTimezones()">
+                                        🌐 Verificar Timezones
+                                    </button>
+                                </div>
+                                <div class="col-md-4">
+                                    <button class="btn btn-success w-100 mb-2" onclick="criarDemandaTeste()">
+                                        📝 Criar Demanda Teste
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </main>
+        </div>
+    </div>
+
+            <script>
+            // Função para executar teste manual do agendador
+            function executarTeste() {
+                fetch('/debug/api/teste-agendador')
+                    .then(response => response.json())
+                    .then(data => {
+                        alert(`✅ Teste executado!\n\nResultado: ${data.message}\n\nVerifique os logs do servidor.`);
+                        console.log('Resultado do teste:', data);
+                    })
+                    .catch(error => {
+                        alert('❌ Erro ao executar teste: ' + error.message);
+                    });
+            }
+
+            // Função para testar query MongoDB
+            function testarQueryMongoDB() {
+                fetch('/api/debug/demandas?dias=5')
+                    .then(response => response.json())
+                    .then(data => {
+                        alert(`📊 Resultado da Query:\n\nTotal: ${data.total} demandas\n\nVer console para detalhes.`);
+                        console.log('Resultado da query MongoDB:', data);
+                    })
+                    .catch(error => {
+                        alert('❌ Erro na query: ' + error.message);
+                    });
+            }
+
+            // Função para verificar timezones
+            function verificarTimezones() {
+                const now = new Date();
+                const info = `
+                🕐 Informações de Tempo:
+
+                Hora Local (Browser): ${now.toLocaleString('pt-BR')}
+                Timezone Browser: ${Intl.DateTimeFormat().resolvedOptions().timeZone}
+                UTC: ${now.toUTCString()}
+                ISO: ${now.toISOString()}
+                
+                ⚠️ O servidor usa: America/Sao_Paulo (BRT)
+                `;
+                
+                alert(info);
+                console.log('Timezone info:', {
+                    local: now.toLocaleString('pt-BR'),
+                    timezone: Intl.DateTimeFormat().resolvedOptions().timeZone,
+                    utc: now.toUTCString(),
+                    iso: now.toISOString()
+                });
+            }
+
+            // Função para criar demanda de teste
+            function criarDemandaTeste() {
+                if (confirm('Deseja criar uma demanda de teste com prazo para amanhã?')) {
+                    fetch('/api/demandas', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json'
+                        },
+                        body: JSON.stringify({
+                            titulo: 'Demanda de Teste - Agendador',
+                            descricao: 'Esta é uma demanda de teste criada para verificar o agendador automático.',
+                            escola: 'EEEFM Domingos Perim',
+                            departamento: 'Secretaria',
+                            prioridade: 'Média',
+                            prazo: new Date(Date.now() + 86400000).toISOString().split('T')[0] // Amanhã
+                        })
+                    })
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data.success) {
+                            alert(`✅ Demanda de teste criada!\n\nID: ${data.data._id}\nTítulo: ${data.data.titulo}\nPrazo: ${data.data.prazo}`);
+                            console.log('Demanda de teste criada:', data);
+                            setTimeout(() => location.reload(), 2000);
+                        } else {
+                            alert('❌ Erro ao criar demanda: ' + data.message);
+                        }
+                    })
+                    .catch(error => {
+                        alert('❌ Erro na requisição: ' + error.message);
+                    });
+                }
+            }
+
+            // Função para atualizar a página
+            function atualizarPagina() {
+                location.reload();
+            }
+
+            // Função para limpar logs (apenas no frontend)
+            function limparLogs() {
+                if (confirm('Limpar logs do console do navegador?')) {
+                    console.clear();
+                    alert('Console limpo! (apenas no seu navegador)');
+                }
+            }
+
+            // Log inicial
+            console.log('🔍 Página de diagnóstico do agendador carregada');
+            console.log('Hora do servidor:', '<%= infoSistema.horaServidor %>');
+            console.log('Demandas próximas:', '<%= demandasComPrazo.length %>');
+        </script>
+</body>
+</html>

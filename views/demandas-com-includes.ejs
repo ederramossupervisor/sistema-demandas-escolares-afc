@@ -3,20 +3,307 @@
 <head>
     <!-- INCLUI o cabeçalho completo -->
     <%- include('partials/head') %>
+    <style>
+/* Estilos para o modal de detalhes */
+#detalhesDescricao {
+    line-height: 1.6;
+    font-size: 1rem;
+}
+
+#detalhesDescricao::-webkit-scrollbar {
+    width: 8px;
+}
+
+#datalhesDescricao::-webkit-scrollbar-track {
+    background: #f1f1f1;
+    border-radius: 4px;
+}
+
+#detalhesDescricao::-webkit-scrollbar-thumb {
+    background: #888;
+    border-radius: 4px;
+}
+
+#detalhesDescricao::-webkit-scrollbar-thumb:hover {
+    background: #555;
+}
+
+/* Cards dentro do modal */
+#modalDetalhesDemanda .card {
+    border: 1px solid #e0e0e0;
+    border-radius: 10px;
+    transition: transform 0.2s;
+}
+
+#modalDetalhesDemanda .card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+}
+
+/* Badges */
+#modalDetalhesDemanda .badge {
+    font-size: 0.9rem;
+    padding: 0.5em 0.8em;
+}
+
+/* Responsividade */
+@media (max-width: 768px) {
+    #modalDetalhesDemanda .modal-dialog {
+        margin: 0.5rem;
+    }
+    
+    #modalDetalhesDemanda .row {
+        flex-direction: column;
+    }
+}
+/* ==================== */
+/* RESPONSIVIDADE MOBILE - GERENCIAR DEMANDAS */
+/* ==================== */
+@media (max-width: 768px) {
+    /* CABEÇALHO DA PÁGINA */
+    .text-gradient {
+        font-size: 1.4rem !important;
+    }
+    
+    .lead {
+        font-size: 0.9rem !important;
+    }
+    
+    /* FILTROS - MUDAR PARA 1 COLUNA E MAIORES */
+    .row.g-3.mb-4 {
+        margin-left: -5px !important;
+        margin-right: -5px !important;
+    }
+    
+    .row.g-3.mb-4 .col-md-3 {
+        width: 100% !important;
+        margin-bottom: 15px !important;
+    }
+    
+    .form-label.fw-bold {
+        font-size: 1rem !important;
+        margin-bottom: 8px !important;
+    }
+    
+    .form-select {
+        padding: 16px 15px !important;
+        font-size: 16px !important;
+        min-height: 52px;
+        border-radius: 10px;
+    }
+    
+    /* BOTÃO NOVA DEMANDA - MAIOR */
+    .btn-primary {
+        padding: 14px 20px !important;
+        font-size: 16px !important;
+        min-height: 50px;
+        min-width: 140px; /* Largura mínima para toque */
+    }
+    
+    /* ==================== */
+    /* MODAIS - OTIMIZAÇÃO PARA MOBILE */
+    /* ==================== */
+    
+    /* MODAL NOVA DEMANDA */
+    #novaDemandaModal .modal-dialog,
+    #modalEditarDemanda .modal-dialog,
+    #modalDetalhesDemanda .modal-dialog {
+        margin: 0.5rem !important;
+        max-height: 90vh !important;
+    }
+    
+    #novaDemandaModal .modal-content,
+    #modalEditarDemanda .modal-content,
+    #modalDetalhesDemanda .modal-content {
+        max-height: 90vh !important;
+        overflow-y: auto !important;
+    }
+    
+    /* CONTEÚDO DOS MODAIS - 1 COLUNA */
+    .modal-body .row.g-3 .col-md-6 {
+        width: 100% !important;
+        margin-bottom: 15px !important;
+    }
+    
+    /* INPUTS NOS MODAIS - MAIORES */
+    .modal-body .form-control,
+    .modal-body .form-select,
+    .modal-body .form-control-lg,
+    .modal-body .form-select-lg {
+        padding: 16px 15px !important;
+        font-size: 16px !important;
+        min-height: 52px;
+    }
+    
+    /* TEXTAREA MAIOR */
+    .modal-body textarea {
+        min-height: 120px !important;
+        font-size: 16px !important;
+        padding: 15px !important;
+    }
+    
+    /* LABELS NOS MODAIS */
+    .modal-body .form-label.fw-bold {
+        font-size: 1rem !important;
+        margin-bottom: 10px !important;
+    }
+    
+    /* BOTÕES DOS MODAIS - MAIORES */
+    .modal-footer .btn {
+        padding: 14px 20px !important;
+        font-size: 16px !important;
+        min-height: 50px;
+        flex: 1; /* Distribui espaço igual */
+        margin: 2px !important;
+    }
+    
+    /* BOTÕES EM LINHA - REORGANIZAR */
+    .modal-footer {
+        flex-wrap: wrap;
+        gap: 10px;
+    }
+    
+    /* TABELA DE DEMANDAS - MAIS LEGÍVEL */
+    .table-responsive {
+        font-size: 0.9rem;
+    }
+    
+    .table th, .table td {
+        padding: 10px 5px;
+    }
+    
+    /* BOTÕES DE AÇÃO NA TABELA - MAIORES */
+    .btn-group-sm .btn {
+        padding: 8px 12px !important;
+        min-width: 40px;
+    }
+    
+    /* REMOVER HOVER EM TOUCH */
+    .btn:hover {
+        transform: none !important;
+    }
+    
+    /* MODAL DE DETALHES - REORGANIZAR */
+    #modalDetalhesDemanda .row .col-md-6 {
+        width: 100% !important;
+        margin-bottom: 20px !important;
+    }
+    
+    /* CARDS NOS DETALHES */
+    #modalDetalhesDemanda .card {
+        margin-bottom: 15px !important;
+    }
+    
+    /* BADGES MAIORES */
+    .badge {
+        font-size: 0.85rem !important;
+        padding: 0.6em 1em !important;
+    }
+}
+
+/* ==================== */
+/* CELULARES MUITO PEQUENOS (375px) */
+/* ==================== */
+@media (max-width: 375px) {
+    /* FILTROS COMPACTOS */
+    .row.g-3.mb-4 .col-md-3 {
+        margin-bottom: 12px !important;
+    }
+    
+    .form-select {
+        padding: 14px 12px !important;
+        min-height: 48px;
+    }
+    
+    /* MODAIS COMPACTOS */
+    #novaDemandaModal .modal-dialog,
+    #modalEditarDemanda .modal-dialog {
+        margin: 0.2rem !important;
+    }
+    
+    .modal-body {
+        padding: 1rem !important;
+    }
+    
+    /* BOTÕES AINDA MAIS COMPACTOS */
+    .modal-footer .btn {
+        padding: 12px 15px !important;
+        font-size: 15px !important;
+        min-height: 46px;
+    }
+    
+    /* HEADER DOS MODAIS */
+    .modal-header h5 {
+        font-size: 1.1rem !important;
+    }
+    
+    /* TEXTO PEQUENO */
+    small.form-text {
+        font-size: 0.8rem !important;
+    }
+}
+
+/* ==================== */
+/* PREVENÇÃO DE ZOOM iOS NOS MODAIS */
+/* ==================== */
+@media screen and (-webkit-min-device-pixel-ratio: 0) {
+    .modal-body input[type="text"],
+    .modal-body input[type="email"],
+    .modal-body input[type="date"],
+    .modal-body select,
+    .modal-body textarea {
+        font-size: 16px !important;
+    }
+}
+
+/* ==================== */
+/* MELHORIAS VISUAIS GERAIS */
+/* ==================== */
+/* Destaque para campos obrigatórios nos modais */
+.modal-body .form-label.fw-bold::after {
+    content: " *";
+    color: #dc3545;
+    font-weight: bold;
+}
+
+/* Foco melhor nos inputs dos modais */
+.modal-body .form-control:focus,
+.modal-body .form-select:focus {
+    border-color: #667eea !important;
+    box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.2) !important;
+}
+
+/* Textarea com resize vertical */
+.modal-body textarea {
+    resize: vertical;
+    min-height: 100px;
+    max-height: 300px;
+}
+
+/* Labels mais espaçados */
+.modal-body .form-group {
+    margin-bottom: 1.5rem !important;
+}
+</style>
 </head>
 <body>
     <!-- INCLUI a navbar -->
-    <%- include('partials/navbar') %>
+    <%- include('partials/navbar', {currentPage: 'demandas', user: user}) %>
 
     <div class="container-fluid mt-4">
         <div class="row">
-            <!-- INCLUI a sidebar -->
-            <%- include('partials/sidebar', {
-                currentPage: 'demandas',
-                escolas: escolas,
-                user: user
-            }) %>
-
+            <!-- Sidebar Unificada - Visível apenas no desktop -->
+            <div class="col-md-3 d-none d-md-block">
+                <div class="card border-0 shadow-sm mb-4">
+                    <div class="card-body p-3">
+                        <%- include('partials/sidebar', { 
+                            currentPage: 'demandas', 
+                            user: user,
+                            escolas: escolas || []
+                        }); %>
+                    </div>
+                </div>
+            </div>
             <!-- Conteúdo Principal -->
             <div class="col-md-9">
                 <!-- Cabeçalho da Página -->
@@ -80,13 +367,21 @@
                             <div class="col-md-3">
                                 <label class="form-label fw-bold"><i class="fas fa-building me-1"></i> Departamento</label>
                                 <select class="form-select">
-                                    <option value="">Todos os Departamentos</option>
+                                    <option value="">🌐 Todos os Departamentos</option>
+                                    <option value="Gestão">🏫 Gestão</option>
                                     <option value="Pedagogico">🎓 Pedagógico</option>
-                                    <option value="Administrativo">📊 Administrativo</option>
-                                    <option value="Manutenção">🔧 Manutenção</option>
-                                    <option value="Recursos Humanos">👥 RH</option>
+                                    <option value="Secretaria">📁 Secretaria</option>
+                                    <option value="Supervisao">🔍 Supervisão</option>
                                 </select>
                             </div>
+                        </div>
+                        <div class="col-md-3">
+                            <label class="form-label fw-bold"><i class="fas fa-user me-1"></i> Minhas Demandas</label>
+                            <select class="form-select" id="filtroMinhas">
+                                <option value="">Todas as Demandas</option>
+                                <option value="criadas">📝 Criadas por Mim</option>
+                                <option value="atribuidas">🎯 Atribuídas a Mim</option>
+                            </select>
                         </div>
 
                         <!-- Tabela de Demandas -->
@@ -124,7 +419,7 @@
     <!-- Modal para Nova Demanda -->
     <div class="modal fade" id="novaDemandaModal" tabindex="-1">
         <div class="modal-dialog modal-lg">
-            <div class="modal-content border-0 shadow">
+            <div class="modal-content border-0 shadow" style="max-height: 90vh; overflow-y: auto;">
                 <div class="modal-header">
                     <h5 class="modal-title text-white">
                         <i class="fas fa-plus-circle me-2"></i> Criar Nova Demanda
@@ -161,13 +456,11 @@
                                 </label>
                                 <select class="form-select form-select-lg" name="departamento" required>
                                     <option value="" selected disabled>Selecione um departamento</option>
+                                    <option value="Gestão">🏫 Gestão</option>
                                     <option value="Pedagogico">🎓 Pedagógico</option>
-                                    <option value="Administrativo">📊 Administrativo</option>
-                                    <option value="Manutenção">🔧 Manutenção</option>
-                                    <option value="Recursos Humanos">👥 Recursos Humanos</option>
-                                    <option value="Alimentação">🍎 Alimentação</option>
-                                    <option value="Transporte">🚌 Transporte</option>
-                                    <option value="Outros">📦 Outros</option>
+                                    <option value="Secretaria">📁 Secretaria</option>
+                                    <option value="Supervisao">🔍 Supervisão</option>
+                                    
                                 </select>
                             </div>
                             
@@ -223,7 +516,204 @@
             </div>
         </div>
     </div>
-
+    <!-- Modal para Editar Demanda -->
+    <div class="modal fade" id="modalEditarDemanda" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content border-0 shadow">
+                <div class="modal-header">
+                    <h5 class="modal-title text-white">
+                        <i class="fas fa-edit me-2"></i> Editar Demanda
+                    </h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body p-4">
+                    <form id="formEditarDemanda">
+                        <!-- Campo oculto para ID -->
+                        <input type="hidden" id="editarDemandaId" name="id">
+                        
+                        <div class="row g-3">
+                            <div class="col-md-6">
+                                <label class="form-label fw-bold">
+                                    <i class="fas fa-heading me-1"></i> Título *
+                                </label>
+                                <input type="text" class="form-control form-control-lg" id="editarTitulo" name="titulo" required 
+                                    placeholder="Título da demanda">
+                            </div>
+                            
+                            <div class="col-md-6">
+                                <label class="form-label fw-bold">
+                                    <i class="fas fa-school me-1"></i> Escola *
+                                </label>
+                                <select class="form-select form-select-lg" id="editarEscola" name="escola" required>
+                                    <option value="" selected disabled>Selecione uma escola</option>
+                                    <% escolas.forEach(function(escola) { %>
+                                        <option value="<%= escola %>"><%= escola %></option>
+                                    <% }); %>
+                                </select>
+                            </div>
+                            
+                            <div class="col-md-6">
+                                <label class="form-label fw-bold">
+                                    <i class="fas fa-building me-1"></i> Departamento *
+                                </label>
+                                <select class="form-select form-select-lg" id="editarDepartamento" name="departamento" required>
+                                    <option value="" selected disabled>Selecione um departamento</option>
+                                    <option value="">🌐 Todos os Departamentos</option>
+                                    <option value="Gestão">🏫 Gestão</option>
+                                    <option value="Pedagogico">🎓 Pedagógico</option>
+                                    <option value="Secretaria">📁 Secretaria</option>
+                                    <option value="Supervisao">🔍 Supervisão</option>
+                                </select>
+                            </div>
+                            
+                            <div class="col-md-6">
+                                <label class="form-label fw-bold">
+                                    <i class="fas fa-exclamation-triangle me-1"></i> Prioridade
+                                </label>
+                                <select class="form-select form-select-lg" id="editarPrioridade" name="prioridade">
+                                    <option value="Média">📘 Média</option>
+                                    <option value="Baixa">📗 Baixa</option>
+                                    <option value="Alta">📙 Alta</option>
+                                    <option value="Urgente">📕 Urgente</option>
+                                </select>
+                            </div>
+                            
+                            <div class="col-md-6">
+                                <label class="form-label fw-bold">
+                                    <i class="fas fa-flag me-1"></i> Status
+                                </label>
+                                <select class="form-select form-select-lg" id="editarStatus" name="status">
+                                    <option value="pendente">⏳ Pendente</option>
+                                    <option value="em_andamento">🔄 Em Andamento</option>
+                                    <option value="concluida">✅ Concluída</option>
+                                    <option value="cancelada">❌ Cancelada</option>
+                                </select>
+                            </div>
+                            
+                            <div class="col-md-6">
+                                <label class="form-label fw-bold">
+                                    <i class="fas fa-calendar-alt me-1"></i> Prazo *
+                                </label>
+                                <input type="date" class="form-control form-control-lg" id="editarPrazo" name="prazo" required>
+                                <small class="form-text text-muted">Data limite para conclusão</small>
+                            </div>
+                            
+                            <div class="col-12">
+                                <label class="form-label fw-bold">
+                                    <i class="fas fa-align-left me-1"></i> Descrição Detalhada *
+                                </label>
+                                <textarea class="form-control" id="editarDescricao" name="descricao" rows="4" required 
+                                        placeholder="Descreva detalhadamente a demanda..."></textarea>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+                        <i class="fas fa-times me-1"></i> Cancelar
+                    </button>
+                    <button type="button" class="btn btn-warning btn-lg" onclick="salvarEdicaoDemanda()">
+                        <i class="fas fa-save me-1"></i> Salvar Alterações
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- Modal para Ver Detalhes da Demanda -->
+    <div class="modal fade" id="modalDetalhesDemanda" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content border-0 shadow">
+                <div class="modal-header">
+                    <h5 class="modal-title text-white">
+                        <i class="fas fa-info-circle me-2"></i> Detalhes da Demanda
+                    </h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body p-4">
+                    <div class="row mb-4">
+                        <div class="col-12">
+                            <h3 id="detalhesTitulo" class="mb-2 text-primary"></h3>
+                            <div class="d-flex flex-wrap gap-2 mb-3">
+                                <span id="detalhesStatus" class="badge"></span>
+                                <span id="detalhesPrioridade" class="badge"></span>
+                                <span id="detalhesDepartamento" class="badge bg-light text-dark"></span>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="card mb-3">
+                                <div class="card-header bg-light">
+                                    <h6 class="mb-0"><i class="fas fa-school me-1"></i> Informações da Escola</h6>
+                                </div>
+                                <div class="card-body">
+                                    <p class="mb-1"><strong>Escola:</strong></p>
+                                    <p id="detalhesEscola" class="mb-3"></p>
+                                    
+                                    <p class="mb-1"><strong>Criado por:</strong></p>
+                                    <p id="detalhesCriadoPor" class="mb-3"></p>
+                                </div>
+                            </div>
+                            
+                            <div class="card mb-3">
+                                <div class="card-header bg-light">
+                                    <h6 class="mb-0"><i class="fas fa-calendar me-1"></i> Datas</h6>
+                                </div>
+                                <div class="card-body">
+                                    <p class="mb-1"><strong>Criado em:</strong></p>
+                                    <p id="detalhesCriadoEm" class="mb-3"></p>
+                                    
+                                    <p class="mb-1"><strong>Prazo para conclusão:</strong></p>
+                                    <p id="detalhesPrazo" class="mb-0"></p>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="col-md-6">
+                            <div class="card mb-3">
+                                <div class="card-header bg-light">
+                                    <h6 class="mb-0"><i class="fas fa-align-left me-1"></i> Descrição Completa</h6>
+                                </div>
+                                <div class="card-body">
+                                    <div id="detalhesDescricao" style="max-height: 200px; overflow-y: auto;">
+                                        <!-- A descrição será inserida aqui -->
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="card">
+                                <div class="card-header bg-light">
+                                    <h6 class="mb-0"><i class="fas fa-history me-1"></i> Histórico</h6>
+                                </div>
+                                <div class="card-body">
+                                    <div id="detalhesHistorico">
+                                        <p class="text-muted mb-0">
+                                            <i class="fas fa-info-circle me-1"></i>
+                                            Histórico de alterações será implementado em breve
+                                        </p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="alert alert-info mt-3">
+                        <i class="fas fa-id-card me-2"></i>
+                        <strong>ID da Demanda:</strong> <code id="detalhesId"></code>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+                        <i class="fas fa-times me-1"></i> Fechar
+                    </button>
+                    <button type="button" class="btn btn-primary" onclick="editarDemanda(document.getElementById('detalhesId').innerText)">
+                        <i class="fas fa-edit me-1"></i> Editar esta Demanda
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
     <!-- INCLUI o rodapé -->
     <%- include('partials/footer', {
         user: user,
@@ -237,14 +727,1574 @@
     <%- include('partials/scripts') %>
 
     <!-- Scripts específicos da página -->
-    <script>
-    document.addEventListener('DOMContentLoaded', function() {
-        console.log('✅ Página de demandas carregada');
-    });
+<!-- Scripts específicos da página -->
+<script>
+// Variáveis globais
+let todasDemandas = [];
 
-    function criarDemanda() {
-        alert('Funcionalidade será implementada em breve!');
+// Função para formatar data
+function formatarData(dataString) {
+    if (!dataString) return 'N/A';
+    try {
+        const data = new Date(dataString);
+        return data.toLocaleDateString('pt-BR');
+    } catch {
+        return 'Data inválida';
     }
-    </script>
+}
+
+// Função para obter badge de prioridade
+function getBadgePrioridade(prioridade) {
+    const badges = {
+        'Baixa': 'badge bg-success',
+        'Média': 'badge bg-primary', 
+        'Alta': 'badge bg-warning',
+        'Urgente': 'badge bg-danger'
+    };
+    return badges[prioridade] || 'badge bg-secondary';
+}
+
+// Função para obter badge de status (retorna HTML)
+function getBadgeStatusHTML(status) {
+    const badges = {
+        'pendente': 'badge bg-warning',
+        'em_andamento': 'badge bg-info',
+        'concluida': 'badge bg-success',
+        'cancelada': 'badge bg-secondary'
+    };
+    const textos = {
+        'pendente': 'Pendente',
+        'em_andamento': 'Em Andamento',
+        'concluida': 'Concluída',
+        'cancelada': 'Cancelada'
+    };
+    return `<span class="${badges[status] || 'badge bg-secondary'}">${textos[status] || status}</span>`;
+}
+
+// Função para obter apenas a classe CSS do badge (para uso no modal)
+function getBadgeStatus(status) {
+    const badges = {
+        'pendente': 'badge bg-warning',
+        'em_andamento': 'badge bg-info',
+        'concluida': 'badge bg-success',
+        'cancelada': 'badge bg-secondary'
+    };
+    return badges[status] || 'badge bg-secondary';
+}
+
+// Função para criar demanda (conectada com a API)
+async function criarDemanda() {
+    const form = document.getElementById('formNovaDemanda');
+    const botao = document.querySelector('#novaDemandaModal .btn-primary');
+    
+    if (!form || !botao) {
+        alert('Erro: Formulário não encontrado');
+        return;
+    }
+    
+    // Validar formulário
+    if (!form.checkValidity()) {
+        form.reportValidity();
+        return;
+    }
+    
+    // Coletar dados do formulário
+    const formData = new FormData(form);
+    const dados = Object.fromEntries(formData.entries());
+    
+    // Salvar texto original do botão
+    const textoOriginal = botao.innerHTML;
+    
+    // Mostrar loading
+    botao.innerHTML = '<i class="fas fa-spinner fa-spin me-1"></i> Criando...';
+    botao.disabled = true; // ✅ CORRIGIDO: estava "botando"
+    
+    try {
+        console.log('📤 Enviando demanda:', dados);
+        
+        // Enviar para API
+        const response = await fetch('/api/demandas', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(dados)
+        });
+        
+        const resultado = await response.json();
+        
+        if (resultado.success) {
+            // Sucesso!
+            if (typeof Swal !== 'undefined') {
+                Swal.fire({
+                    icon: 'success',
+                    title: '✅ Demanda Criada!',
+                    text: 'A demanda foi criada com sucesso e já está disponível no sistema.',
+                    confirmButtonColor: '#3085d6',
+                    confirmButtonText: 'OK'
+                });
+            } else {
+                alert('✅ Demanda criada com sucesso!');
+            }
+            
+            // Fechar modal
+            const modalElement = document.getElementById('novaDemandaModal');
+            const modal = bootstrap.Modal.getInstance(modalElement);
+            if (modal) {
+                modal.hide();
+            }
+            
+            // Limpar formulário
+            form.reset();
+            
+            // Atualizar lista de demandas
+            await carregarDemandas();
+            
+        } else {
+            // Erro
+            let mensagemErro = resultado.message || 'Erro ao criar demanda';
+            
+            if (resultado.campos_faltando) {
+                mensagemErro += '\n\nCampos faltando:';
+                Object.keys(resultado.campos_faltando).forEach(campo => {
+                    if (resultado.campos_faltando[campo]) {
+                        mensagemErro += `\n• ${campo.charAt(0).toUpperCase() + campo.slice(1)}`;
+                    }
+                });
+            }
+            
+            if (typeof Swal !== 'undefined') {
+                Swal.fire({
+                    icon: 'error',
+                    title: '❌ Erro ao Criar',
+                    html: mensagemErro.replace(/\n/g, '<br>'),
+                    confirmButtonColor: '#d33',
+                    confirmButtonText: 'Corrigir'
+                });
+            } else {
+                alert('❌ Erro: ' + mensagemErro);
+            }
+        }
+        
+    } catch (error) {
+        console.error('❌ Erro na requisição:', error);
+        
+        if (typeof Swal !== 'undefined') {
+            Swal.fire({
+                icon: 'error',
+                title: '❌ Erro de Conexão',
+                text: 'Não foi possível conectar ao servidor. Verifique sua conexão e tente novamente.',
+                confirmButtonColor: '#d33',
+                confirmButtonText: 'OK'
+            });
+        } else {
+            alert('❌ Erro de conexão com o servidor');
+        }
+    } finally {
+        // Restaurar botão
+        botao.innerHTML = textoOriginal;
+        botao.disabled = false;
+    }
+}
+
+// Função para carregar todas as demandas
+async function carregarDemandas() {
+    const tabela = document.getElementById('tabelaDemandas');
+    
+    if (!tabela) {
+        console.error('Tabela não encontrada');
+        return;
+    }
+    
+    // Mostrar loading
+    tabela.innerHTML = `
+        <tr>
+            <td colspan="7" class="text-center py-5">
+                <div class="spinner-border text-primary" role="status">
+                    <span class="visually-hidden">Carregando...</span>
+                </div>
+                <p class="mt-3 text-muted">Carregando demandas...</p>
+            </td>
+        </tr>
+    `;
+    
+    try {
+        // Buscar demandas da API
+        const response = await fetch('/api/demandas');
+        
+        if (!response.ok) {
+            throw new Error(`Erro HTTP: ${response.status}`);
+        }
+        
+        const resultado = await response.json();
+        
+        if (resultado.success && resultado.data) {
+            todasDemandas = resultado.data;
+            renderizarTabela(todasDemandas);
+            console.log(`✅ ${todasDemandas.length} demandas carregadas`);
+        } else {
+            throw new Error('Formato de resposta inválido');
+        }
+        
+    } catch (error) {
+        console.error('❌ Erro ao carregar demandas:', error);
+        tabela.innerHTML = `
+            <tr>
+                <td colspan="7" class="text-center py-5">
+                    <div class="alert alert-danger">
+                        <i class="fas fa-exclamation-triangle me-2"></i>
+                        <strong>Erro ao carregar demandas</strong>
+                        <p class="mb-0 mt-2">${error.message}</p>
+                        <button class="btn btn-sm btn-primary mt-3" onclick="carregarDemandas()">
+                            <i class="fas fa-redo me-1"></i> Tentar Novamente
+                        </button>
+                    </div>
+                </td>
+            </tr>
+        `;
+    }
+}
+
+// Função para renderizar a tabela
+function renderizarTabela(demandas) {
+    const tabela = document.getElementById('tabelaDemandas');
+    
+    if (!tabela) return;
+    
+    if (!demandas || demandas.length === 0) {
+        tabela.innerHTML = `
+            <tr>
+                <td colspan="7" class="text-center py-5">
+                    <div class="alert alert-info">
+                        <i class="fas fa-info-circle me-2"></i>
+                        <strong>Nenhuma demanda encontrada</strong>
+                        <p class="mb-0 mt-2">Clique em "Nova Demanda" para criar a primeira demanda do sistema.</p>
+                    </div>
+                </td>
+            </tr>
+        `;
+        return;
+    }
+    
+    // Ordenar por data mais recente
+    demandas.sort((a, b) => new Date(b.criadoEm || 0) - new Date(a.criadoEm || 0));
+    
+    // Criar linhas da tabela
+    let html = '';
+    
+    demandas.forEach((demanda, index) => {
+        const descricao = demanda.descricao || '';
+        const escola = demanda.escola || '';
+        const departamento = demanda.departamento || '';
+        const prioridade = demanda.prioridade || 'Média';
+        const status = demanda.status || 'pendente';
+        
+        html += `
+            <tr>
+                <td>
+                    <strong>${demanda.titulo || 'Sem título'}</strong>
+                    <br>
+                    <small class="text-muted">${descricao.substring(0, 50)}${descricao.length > 50 ? '...' : ''}</small>
+                </td>
+                <td>
+                    <i class="fas fa-school me-1"></i>
+                    <small>${escola.substring(0, 20)}${escola.length > 20 ? '...' : ''}</small>
+                </td>
+                <td>
+                    <span class="badge bg-light text-dark">
+                        ${departamento}
+                    </span>
+                </td>
+                <td>
+                    <span class="${getBadgePrioridade(prioridade)}">
+                        ${prioridade}
+                    </span>
+                </td>
+                <td>
+                    ${getBadgeStatusHTML(status)}
+                </td>
+                <td>
+                    <small>${formatarData(demanda.prazo)}</small>
+                </td>
+                <td class="text-center">
+                    <div class="btn-group btn-group-sm">
+                        <button class="btn btn-outline-primary" title="Ver Detalhes" onclick="verDetalhes('${demanda._id}')">
+                            <i class="fas fa-eye"></i>
+                        </button>
+                        <button class="btn btn-outline-warning" title="Editar" onclick="editarDemanda('${demanda._id}')">
+                            <i class="fas fa-edit"></i>
+                        <button class="btn btn-outline-danger" title="Excluir" onclick="excluirDemandaComNotificacao('${demanda._id}')">
+                            <i class="fas fa-trash"></i>
+                        </button>
+                    </div>
+                </td>
+            </tr>
+        `;
+    });
+    
+    tabela.innerHTML = html;
+}
+
+// Função para filtrar demandas
+function filtrarDemandas() {
+    try {
+        // ✅ CORRIGIDO: Seletores mais específicos
+        const selects = document.querySelectorAll('.card-body .form-select');
+        if (selects.length < 4) {
+            console.warn('Filtros não encontrados');
+            return;
+        }
+        
+        const status = selects[0].value;
+        const escola = selects[1].value;
+        const prioridade = selects[2].value;
+        const departamento = selects[3].value;
+        
+        let filtradas = todasDemandas;
+        
+        if (status) {
+            filtradas = filtradas.filter(d => d.status === status);
+        }
+        
+        if (escola) {
+            filtradas = filtradas.filter(d => d.escola === escola);
+        }
+        
+        if (prioridade) {
+            filtradas = filtradas.filter(d => d.prioridade === prioridade);
+        }
+        
+        if (departamento) {
+            filtradas = filtradas.filter(d => d.departamento === departamento);
+        }
+        
+        renderizarTabela(filtradas);
+    } catch (error) {
+        console.error('Erro ao filtrar:', error);
+    }
+}
+
+// Função para ver detalhes
+// Função para ver detalhes da demanda
+async function verDetalhes(id) {
+    try {
+        console.log('🔍 Buscando detalhes da demanda:', id);
+        
+        // Mostrar loading
+        if (typeof Swal !== 'undefined') {
+            Swal.fire({
+                title: 'Carregando...',
+                text: 'Buscando informações detalhadas',
+                allowOutsideClick: false,
+                showConfirmButton: false,
+                didOpen: () => {
+                    Swal.showLoading();
+                }
+            });
+        }
+        
+        // Buscar dados da demanda
+        const response = await fetch(`/api/demandas/${id}`);
+        
+        if (!response.ok) {
+            throw new Error(`Erro HTTP: ${response.status}`);
+        }
+        
+        const resultado = await response.json();
+        
+        if (!resultado.success) {
+            throw new Error(resultado.message || 'Erro ao buscar detalhes');
+        }
+        
+        // Fechar loading
+        if (typeof Swal !== 'undefined') {
+            Swal.close();
+        }
+        
+        const demanda = resultado.data;
+        console.log('✅ Detalhes carregados:', demanda);
+        
+        // Preencher os campos do modal de detalhes
+        
+        // 1. Título
+        document.getElementById('detalhesTitulo').textContent = demanda.titulo || 'Sem título';
+        
+        // 2. Status com badge colorido
+        const statusElement = document.getElementById('detalhesStatus');
+        statusElement.className = getBadgeStatus(demanda.status || 'pendente');
+        statusElement.textContent = {
+            'pendente': '⏳ Pendente',
+            'em_andamento': '🔄 Em Andamento',
+            'concluida': '✅ Concluída',
+            'cancelada': '❌ Cancelada'
+        }[demanda.status] || demanda.status;
+        
+        // 3. Prioridade com badge colorido
+        const prioridadeElement = document.getElementById('detalhesPrioridade');
+        prioridadeElement.className = getBadgePrioridade(demanda.prioridade || 'Média');
+        prioridadeElement.textContent = demanda.prioridade || 'Média';
+        
+        // 4. Departamento
+        document.getElementById('detalhesDepartamento').textContent = demanda.departamento || 'Não informado';
+        
+        // 5. Escola
+        document.getElementById('detalhesEscola').textContent = demanda.escola || 'Não informada';
+        
+        // 6. Criado por
+        document.getElementById('detalhesCriadoPor').textContent = demanda.criadoPor || 'Sistema';
+        
+        // 7. Data de criação
+        if (demanda.criadoEm) {
+            const dataCriacao = new Date(demanda.criadoEm);
+            document.getElementById('detalhesCriadoEm').textContent = 
+                dataCriacao.toLocaleDateString('pt-BR') + ' ' + 
+                dataCriacao.toLocaleTimeString('pt-BR');
+        } else {
+            document.getElementById('detalhesCriadoEm').textContent = 'Não registrada';
+        }
+        
+        // 8. Prazo
+        if (demanda.prazo) {
+            const dataPrazo = new Date(demanda.prazo);
+            const hoje = new Date();
+            const diasRestantes = Math.ceil((dataPrazo - hoje) / (1000 * 60 * 60 * 24));
+            
+            let prazoTexto = dataPrazo.toLocaleDateString('pt-BR');
+            
+            if (diasRestantes < 0) {
+                prazoTexto += ` <span class="badge bg-danger ms-2">Atrasado ${Math.abs(diasRestantes)} dias</span>`;
+            } else if (diasRestantes === 0) {
+                prazoTexto += ` <span class="badge bg-warning ms-2">Vence hoje</span>`;
+            } else if (diasRestantes <= 3) {
+                prazoTexto += ` <span class="badge bg-warning ms-2">Vence em ${diasRestantes} dias</span>`;
+            } else if (diasRestantes <= 7) {
+                prazoTexto += ` <span class="badge bg-info ms-2">Vence em ${diasRestantes} dias</span>`;
+            } else {
+                prazoTexto += ` <span class="badge bg-success ms-2">Vence em ${diasRestantes} dias</span>`;
+            }
+            
+            document.getElementById('detalhesPrazo').innerHTML = prazoTexto;
+        } else {
+            document.getElementById('detalhesPrazo').textContent = 'Não definido';
+        }
+        
+        // 9. Descrição
+        const descricaoElement = document.getElementById('detalhesDescricao');
+        if (demanda.descricao) {
+            // Substituir quebras de linha por <br> para manter formatação
+            const descricaoFormatada = (demanda.descricao || '')
+                .replace(/\n/g, '<br>')
+                .replace(/  /g, ' &nbsp;');
+            descricaoElement.innerHTML = descricaoFormatada;
+        } else {
+            descricaoElement.innerHTML = '<p class="text-muted fst-italic">Sem descrição detalhada</p>';
+        }
+        
+        // 10. ID
+        document.getElementById('detalhesId').textContent = demanda._id;
+        
+        // Mostrar o modal
+        const modal = new bootstrap.Modal(document.getElementById('modalDetalhesDemanda'));
+        modal.show();
+        
+    } catch (error) {
+        console.error('❌ Erro ao carregar detalhes:', error);
+        
+        if (typeof Swal !== 'undefined') {
+            Swal.fire({
+                title: '❌ Erro!',
+                text: 'Não foi possível carregar os detalhes da demanda: ' + error.message,
+                icon: 'error',
+                confirmButtonText: 'OK'
+            });
+        } else {
+            alert('Erro: ' + error.message);
+        }
+    }
+}
+
+// Função para editar demanda
+async function editarDemanda(id) {
+    try {
+        console.log('📝 Carregando demanda para edição:', id);
+        
+        // Mostrar loading
+        if (typeof Swal !== 'undefined') {
+            Swal.fire({
+                title: 'Carregando...',
+                text: 'Buscando dados da demanda',
+                allowOutsideClick: false,
+                showConfirmButton: false,
+                didOpen: () => {
+                    Swal.showLoading();
+                }
+            });
+        }
+        
+        // Buscar dados da demanda
+        const response = await fetch(`/api/demandas/${id}`);
+        
+        if (!response.ok) {
+            throw new Error(`Erro HTTP: ${response.status}`);
+        }
+        
+        const resultado = await response.json();
+        
+        if (!resultado.success) {
+            throw new Error(resultado.message || 'Erro ao buscar demanda');
+        }
+        
+        // Fechar loading
+        if (typeof Swal !== 'undefined') {
+            Swal.close();
+        }
+        
+        const demanda = resultado.data;
+        console.log('✅ Dados carregados:', demanda);
+        
+        // Preencher o formulário de edição
+        document.getElementById('editarDemandaId').value = demanda._id;
+        document.getElementById('editarTitulo').value = demanda.titulo || '';
+        document.getElementById('editarDescricao').value = demanda.descricao || '';
+        document.getElementById('editarEscola').value = demanda.escola || '';
+        document.getElementById('editarDepartamento').value = demanda.departamento || '';
+        document.getElementById('editarPrioridade').value = demanda.prioridade || 'Média';
+        document.getElementById('editarStatus').value = demanda.status || 'pendente';
+        
+        // Formatar data para o input date
+        if (demanda.prazo) {
+            const dataPrazo = new Date(demanda.prazo);
+            document.getElementById('editarPrazo').value = dataPrazo.toISOString().split('T')[0];
+        }
+        
+        // Mostrar o modal
+        const modal = new bootstrap.Modal(document.getElementById('modalEditarDemanda'));
+        modal.show();
+        
+    } catch (error) {
+        console.error('❌ Erro ao carregar demanda para edição:', error);
+        
+        if (typeof Swal !== 'undefined') {
+            Swal.fire({
+                title: '❌ Erro!',
+                text: 'Não foi possível carregar os dados da demanda: ' + error.message,
+                icon: 'error',
+                confirmButtonText: 'OK'
+            });
+        } else {
+            alert('Erro: ' + error.message);
+        }
+    }
+}
+
+// Função para excluir demanda
+// Função para excluir demanda
+async function excluirDemanda(id) {
+    if (typeof Swal !== 'undefined') {
+        Swal.fire({
+            title: '⚠️ Excluir Demanda?',
+            html: `
+                <div class="text-center">
+                    <i class="fas fa-exclamation-triangle fa-3x text-warning mb-3"></i>
+                    <p class="mb-2"><strong>Esta ação não pode ser desfeita!</strong></p>
+                    <p class="text-muted">A demanda será removida permanentemente do sistema.</p>
+                </div>
+            `,
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonColor: '#d33',
+            cancelButtonColor: '#3085d6',
+            confirmButtonText: '<i class="fas fa-trash me-1"></i> Sim, excluir!',
+            cancelButtonText: '<i class="fas fa-times me-1"></i> Cancelar'
+        }).then(async (result) => {
+            if (result.isConfirmed) {
+                try {
+                    // Mostrar loading
+                    Swal.fire({
+                        title: 'Excluindo...',
+                        text: 'Removendo demanda do sistema',
+                        allowOutsideClick: false,
+                        showConfirmButton: false,
+                        didOpen: () => {
+                            Swal.showLoading();
+                        }
+                    });
+                    
+                    // Chamar API DELETE
+                    const response = await fetch(`/api/demandas/${id}`, {
+                        method: 'DELETE'
+                    });
+                    
+                    const resultado = await response.json();
+                    
+                    if (resultado.success) {
+                        // Atualizar lista local
+                        todasDemandas = todasDemandas.filter(d => d._id !== id);
+                        renderizarTabela(todasDemandas);
+                        
+                        Swal.fire({
+                            icon: 'success',
+                            title: '✅ Excluída!',
+                            text: 'A demanda foi excluída com sucesso.',
+                            confirmButtonColor: '#3085d6',
+                            confirmButtonText: 'OK'
+                        });
+                    } else {
+                        throw new Error(resultado.message || 'Erro ao excluir demanda');
+                    }
+                    
+                } catch (error) {
+                    console.error('❌ Erro ao excluir demanda:', error);
+                    
+                    Swal.fire({
+                        icon: 'error',
+                        title: '❌ Erro!',
+                        text: 'Não foi possível excluir a demanda: ' + error.message,
+                        confirmButtonColor: '#d33',
+                        confirmButtonText: 'OK'
+                    });
+                }
+            }
+        });
+    } else {
+        if (confirm('Excluir esta demanda permanentemente?')) {
+            try {
+                // Chamar API DELETE
+                const response = await fetch(`/api/demandas/${id}`, {
+                    method: 'DELETE'
+                });
+                
+                const resultado = await response.json();
+                
+                if (resultado.success) {
+                    todasDemandas = todasDemandas.filter(d => d._id !== id);
+                    renderizarTabela(todasDemandas);
+                    alert('✅ Demanda excluída com sucesso!');
+                } else {
+                    alert('❌ Erro: ' + resultado.message);
+                }
+                
+            } catch (error) {
+                console.error('Erro:', error);
+                alert('❌ Erro ao excluir demanda');
+            }
+        }
+    }
+}
+// Função para salvar as alterações da demanda
+async function salvarEdicaoDemanda() {
+    const form = document.getElementById('formEditarDemanda');
+    const botao = document.querySelector('#modalEditarDemanda .btn-warning');
+    const id = document.getElementById('editarDemandaId').value;
+    
+    if (!form || !botao || !id) {
+        alert('Erro: Dados incompletos para edição');
+        return;
+    }
+    
+    // Validar formulário
+    if (!form.checkValidity()) {
+        form.reportValidity();
+        return;
+    }
+    
+    // Coletar dados do formulário
+    const formData = new FormData(form);
+    const dados = Object.fromEntries(formData.entries());
+    
+    // Remover o campo 'id' dos dados (não vai no body do PUT)
+    const idDemanda = dados.id;
+    delete dados.id;
+    
+    // Salvar texto original do botão
+    const textoOriginal = botao.innerHTML;
+    
+    // Mostrar loading
+    botao.innerHTML = '<i class="fas fa-spinner fa-spin me-1"></i> Salvando...';
+    botao.disabled = true;
+    
+    try {
+        console.log('📤 Enviando atualização:', idDemanda, dados);
+        
+        // Enviar para API (PUT)
+        const response = await fetch(`/api/demandas/${idDemanda}`, {
+            method: 'PUT',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(dados)
+        });
+        
+        const resultado = await response.json();
+        
+        if (resultado.success) {
+            // Sucesso!
+            if (typeof Swal !== 'undefined') {
+                Swal.fire({
+                    icon: 'success',
+                    title: '✅ Demanda Atualizada!',
+                    text: 'As alterações foram salvas com sucesso.',
+                    confirmButtonColor: '#3085d6',
+                    confirmButtonText: 'OK'
+                }).then(() => {
+                    // Fechar modal
+                    const modalElement = document.getElementById('modalEditarDemanda');
+                    const modal = bootstrap.Modal.getInstance(modalElement);
+                    if (modal) {
+                        modal.hide();
+                    }
+                    
+                    // Atualizar lista de demandas
+                    carregarDemandas();
+                });
+            } else {
+                alert('✅ Demanda atualizada com sucesso!');
+                
+                // Fechar modal
+                const modalElement = document.getElementById('modalEditarDemanda');
+                const modal = bootstrap.Modal.getInstance(modalElement);
+                if (modal) {
+                    modal.hide();
+                }
+                
+                // Atualizar lista de demandas
+                carregarDemandas();
+            }
+            
+        } else {
+            // Erro
+            let mensagemErro = resultado.message || 'Erro ao atualizar demanda';
+            
+            if (typeof Swal !== 'undefined') {
+                Swal.fire({
+                    icon: 'error',
+                    title: '❌ Erro ao Salvar',
+                    html: mensagemErro.replace(/\n/g, '<br>'),
+                    confirmButtonColor: '#d33',
+                    confirmButtonText: 'Corrigir'
+                });
+            } else {
+                alert('❌ Erro: ' + mensagemErro);
+            }
+        }
+        
+    } catch (error) {
+        console.error('❌ Erro na requisição:', error);
+        
+        if (typeof Swal !== 'undefined') {
+            Swal.fire({
+                icon: 'error',
+                title: '❌ Erro de Conexão',
+                text: 'Não foi possível conectar ao servidor. Verifique sua conexão e tente novamente.',
+                confirmButtonColor: '#d33',
+                confirmButtonText: 'OK'
+            });
+        } else {
+            alert('❌ Erro de conexão com o servidor');
+        }
+    } finally {
+        // Restaurar botão
+        botao.innerHTML = textoOriginal;
+        botao.disabled = false;
+    }
+}
+// Adicionar eventos aos filtros
+function configurarFiltros() {
+    try {
+        const selects = document.querySelectorAll('.card-body .form-select');
+        selects.forEach(select => {
+            select.addEventListener('change', filtrarDemandas);
+        });
+        console.log(`✅ ${selects.length} filtros configurados`);
+    } catch (error) {
+        console.error('Erro ao configurar filtros:', error);
+    }
+}
+
+// Adicionar validação de data no formulário
+function configurarValidacaoData() {
+    const inputData = document.querySelector('input[name="prazo"]');
+    if (inputData) {
+        // Definir data mínima como amanhã
+        const amanha = new Date();
+        amanha.setDate(amanha.getDate() + 1);
+        inputData.min = amanha.toISOString().split('T')[0];
+        console.log('✅ Validação de data configurada');
+    }
+}
+
+// Adicionar evento ao botão "Limpar Filtros"
+function adicionarBotaoLimparFiltros() {
+    const filtrosContainer = document.querySelector('.row.g-3.mb-4');
+    if (!filtrosContainer) return;
+    
+    const botaoLimpar = document.createElement('button');
+    botaoLimpar.className = 'btn btn-outline-secondary btn-sm';
+    botaoLimpar.innerHTML = '<i class="fas fa-filter-circle-xmark me-1"></i> Limpar Filtros';
+    botaoLimpar.onclick = function() {
+        const selects = document.querySelectorAll('.card-body .form-select');
+        selects.forEach(select => {
+            select.value = '';
+        });
+        renderizarTabela(todasDemandas);
+    };
+    
+    filtrosContainer.parentNode.insertBefore(botaoLimpar, filtrosContainer.nextSibling);
+}
+
+// Inicializar quando a página carregar
+document.addEventListener('DOMContentLoaded', async function() {
+    console.log('✅ Página de demandas inicializada');
+    
+    // Configurar componentes
+    configurarFiltros();
+    configurarValidacaoData();
+    adicionarBotaoLimparFiltros();
+    
+    // Carregar demandas
+    await carregarDemandas();
+    
+    // Configurar eventos do modal
+    const modal = document.getElementById('novaDemandaModal');
+    if (modal) {
+        modal.addEventListener('hidden.bs.modal', function() {
+            const form = document.getElementById('formNovaDemanda');
+            if (form) form.reset();
+        });
+    }
+});
+
+// Permitir submit do formulário com Enter
+document.addEventListener('keypress', function(e) {
+    if (e.key === 'Enter') {
+        const modal = document.getElementById('novaDemandaModal');
+        if (modal && modal.classList.contains('show')) {
+            const activeElement = document.activeElement;
+            if (activeElement && activeElement.tagName === 'INPUT') {
+                e.preventDefault();
+                criarDemanda();
+            }
+        }
+    }
+});
+/* ============================================
+   🔔 SISTEMA DE NOTIFICAÇÕES - INTEGRAÇÃO
+   ============================================ */
+
+// 1️⃣ NOTIFICAÇÃO AO CARREGAR A PÁGINA
+document.addEventListener('DOMContentLoaded', function() {
+    // Aguardar 500ms para a página carregar completamente
+    setTimeout(() => {
+        if (typeof showInfo === 'function') {
+            showInfo('Sistema de Demandas', 'Carregando todas as demandas...', 2000);
+        }
+    }, 500);
+});
+
+// 2️⃣ NOTIFICAÇÃO AO EXCLUIR COM SUCESSO
+async function excluirDemandaComNotificacao(id) {
+    if (typeof Swal !== 'undefined') {
+        Swal.fire({
+            title: '⚠️ Excluir Demanda?',
+            html: `
+                <div class="text-center">
+                    <i class="fas fa-exclamation-triangle fa-3x text-warning mb-3"></i>
+                    <p class="mb-2"><strong>Esta ação não pode ser desfeita!</strong></p>
+                    <p class="text-muted">A demanda será removida permanentemente do sistema.</p>
+                </div>
+            `,
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonColor: '#d33',
+            cancelButtonColor: '#3085d6',
+            confirmButtonText: '<i class="fas fa-trash me-1"></i> Sim, excluir!',
+            cancelButtonText: '<i class="fas fa-times me-1"></i> Cancelar'
+        }).then(async (result) => {
+            if (result.isConfirmed) {
+                try {
+                    // Mostrar loading
+                    Swal.fire({
+                        title: 'Excluindo...',
+                        text: 'Removendo demanda do sistema',
+                        allowOutsideClick: false,
+                        showConfirmButton: false,
+                        didOpen: () => {
+                            Swal.showLoading();
+                        }
+                    });
+                    
+                    // Chamar API DELETE
+                    const response = await fetch(`/api/demandas/${id}`, {
+                        method: 'DELETE'
+                    });
+                    
+                    const resultado = await response.json();
+                    
+                    if (resultado.success) {
+                        // Atualizar lista local
+                        todasDemandas = todasDemandas.filter(d => d._id !== id);
+                        renderizarTabela(todasDemandas);
+                        
+                        // Fechar SweetAlert
+                        Swal.close();
+                        
+                        // MOSTRAR NOTIFICAÇÃO PERSONALIZADA
+                        if (typeof showSuccess === 'function') {
+                            showSuccess('✅ Excluída!', 'A demanda foi removida com sucesso.', 3000);
+                        } else {
+                            // Fallback se as notificações não carregarem
+                            Swal.fire({
+                                icon: 'success',
+                                title: '✅ Excluída!',
+                                text: 'A demanda foi excluída com sucesso.',
+                                confirmButtonColor: '#3085d6',
+                                confirmButtonText: 'OK',
+                                timer: 3000,
+                                timerProgressBar: true
+                            });
+                        }
+                    } else {
+                        throw new Error(resultado.message || 'Erro ao excluir demanda');
+                    }
+                    
+                } catch (error) {
+                    console.error('❌ Erro ao excluir demanda:', error);
+                    
+                    // Fechar loading
+                    Swal.close();
+                    
+                    // MOSTRAR NOTIFICAÇÃO DE ERRO
+                    if (typeof showError === 'function') {
+                        showError('❌ Erro!', 'Não foi possível excluir a demanda: ' + error.message, 5000);
+                    } else {
+                        Swal.fire({
+                            icon: 'error',
+                            title: '❌ Erro!',
+                            text: 'Não foi possível excluir a demanda: ' + error.message,
+                            confirmButtonColor: '#d33',
+                            confirmButtonText: 'OK'
+                        });
+                    }
+                }
+            }
+        });
+    } else {
+        // Fallback sem SweetAlert
+        if (confirm('Excluir esta demanda permanentemente?')) {
+            try {
+                // Chamar API DELETE
+                const response = await fetch(`/api/demandas/${id}`, {
+                    method: 'DELETE'
+                });
+                
+                const resultado = await response.json();
+                
+                if (resultado.success) {
+                    todasDemandas = todasDemandas.filter(d => d._id !== id);
+                    renderizarTabela(todasDemandas);
+                    
+                    // MOSTRAR NOTIFICAÇÃO
+                    if (typeof showSuccess === 'function') {
+                        showSuccess('✅ Excluída!', 'Demanda removida com sucesso!', 3000);
+                    } else {
+                        alert('✅ Demanda excluída com sucesso!');
+                    }
+                } else {
+                    // MOSTRAR NOTIFICAÇÃO DE ERRO
+                    if (typeof showError === 'function') {
+                        showError('❌ Erro!', resultado.message, 5000);
+                    } else {
+                        alert('❌ Erro: ' + resultado.message);
+                    }
+                }
+                
+            } catch (error) {
+                console.error('Erro:', error);
+                if (typeof showError === 'function') {
+                    showError('❌ Erro!', 'Erro ao excluir demanda', 5000);
+                } else {
+                    alert('❌ Erro ao excluir demanda');
+                }
+            }
+        }
+    }
+}
+
+// 3️⃣ NOTIFICAÇÃO AO CRIAR DEMANDA COM SUCESSO
+async function criarDemandaComNotificacao() {
+    const form = document.getElementById('formNovaDemanda');
+    const botao = document.querySelector('#novaDemandaModal .btn-primary');
+    
+    if (!form || !botao) {
+        if (typeof showError === 'function') {
+            showError('❌ Erro!', 'Formulário não encontrado', 3000);
+        }
+        return;
+    }
+    
+    // Validar formulário
+    if (!form.checkValidity()) {
+        form.reportValidity();
+        return;
+    }
+    
+    // Coletar dados do formulário
+    const formData = new FormData(form);
+    const dados = Object.fromEntries(formData.entries());
+    
+    // Salvar texto original do botão
+    const textoOriginal = botao.innerHTML;
+    
+    // Mostrar loading
+    botao.innerHTML = '<i class="fas fa-spinner fa-spin me-1"></i> Criando...';
+    botao.disabled = true;
+    
+    try {
+        console.log('📤 Enviando demanda:', dados);
+        
+        // Enviar para API
+        const response = await fetch('/api/demandas', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(dados)
+        });
+        
+        const resultado = await response.json();
+        
+        if (resultado.success) {
+            // Sucesso!
+            
+            // Fechar modal
+            const modalElement = document.getElementById('novaDemandaModal');
+            const modal = bootstrap.Modal.getInstance(modalElement);
+            if (modal) {
+                modal.hide();
+            }
+            
+            // Limpar formulário
+            form.reset();
+            
+            // Atualizar lista de demandas
+            await carregarDemandas();
+            
+            // MOSTRAR NOTIFICAÇÃO PERSONALIZADA
+            if (typeof showSuccess === 'function') {
+                showSuccess('🎉 Demanda Criada!', 'A demanda foi criada com sucesso e já está disponível no sistema.', 4000);
+            } else if (typeof Swal !== 'undefined') {
+                Swal.fire({
+                    icon: 'success',
+                    title: '✅ Demanda Criada!',
+                    text: 'A demanda foi criada com sucesso e já está disponível no sistema.',
+                    confirmButtonColor: '#3085d6',
+                    confirmButtonText: 'OK',
+                    timer: 3000,
+                    timerProgressBar: true
+                });
+            } else {
+                alert('✅ Demanda criada com sucesso!');
+            }
+            
+        } else {
+            // Erro
+            let mensagemErro = resultado.message || 'Erro ao criar demanda';
+            
+            if (typeof showError === 'function') {
+                showError('❌ Erro ao Criar', mensagemErro, 5000);
+            } else if (typeof Swal !== 'undefined') {
+                Swal.fire({
+                    icon: 'error',
+                    title: '❌ Erro ao Criar',
+                    html: mensagemErro.replace(/\n/g, '<br>'),
+                    confirmButtonColor: '#d33',
+                    confirmButtonText: 'Corrigir'
+                });
+            } else {
+                alert('❌ Erro: ' + mensagemErro);
+            }
+        }
+        
+    } catch (error) {
+        console.error('❌ Erro na requisição:', error);
+        
+        if (typeof showError === 'function') {
+            showError('❌ Erro de Conexão', 'Não foi possível conectar ao servidor. Verifique sua conexão.', 5000);
+        } else if (typeof Swal !== 'undefined') {
+            Swal.fire({
+                icon: 'error',
+                title: '❌ Erro de Conexão',
+                text: 'Não foi possível conectar ao servidor. Verifique sua conexão e tente novamente.',
+                confirmButtonColor: '#d33',
+                confirmButtonText: 'OK'
+            });
+        } else {
+            alert('❌ Erro de conexão com o servidor');
+        }
+    } finally {
+        // Restaurar botão
+        botao.innerHTML = textoOriginal;
+        botao.disabled = false;
+    }
+}
+
+// 4️⃣ NOTIFICAÇÃO AO EDITAR COM SUCESSO
+async function salvarEdicaoComNotificacao() {
+    const form = document.getElementById('formEditarDemanda');
+    const botao = document.querySelector('#modalEditarDemanda .btn-warning');
+    const id = document.getElementById('editarDemandaId').value;
+    
+    if (!form || !botao || !id) {
+        if (typeof showError === 'function') {
+            showError('❌ Erro!', 'Dados incompletos para edição', 3000);
+        }
+        return;
+    }
+    
+    // Validar formulário
+    if (!form.checkValidity()) {
+        form.reportValidity();
+        return;
+    }
+    
+    // Coletar dados do formulário
+    const formData = new FormData(form);
+    const dados = Object.fromEntries(formData.entries());
+    
+    // Remover o campo 'id' dos dados
+    const idDemanda = dados.id;
+    delete dados.id;
+    
+    // Salvar texto original do botão
+    const textoOriginal = botao.innerHTML;
+    
+    // Mostrar loading
+    botao.innerHTML = '<i class="fas fa-spinner fa-spin me-1"></i> Salvando...';
+    botao.disabled = true;
+    
+    try {
+        console.log('📤 Enviando atualização:', idDemanda, dados);
+        
+        // Enviar para API (PUT)
+        const response = await fetch(`/api/demandas/${idDemanda}`, {
+            method: 'PUT',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(dados)
+        });
+        
+        const resultado = await response.json();
+        
+        if (resultado.success) {
+            // Sucesso!
+            
+            // Fechar modal
+            const modalElement = document.getElementById('modalEditarDemanda');
+            const modal = bootstrap.Modal.getInstance(modalElement);
+            if (modal) {
+                modal.hide();
+            }
+            
+            // Atualizar lista de demandas
+            await carregarDemandas();
+            
+            // MOSTRAR NOTIFICAÇÃO PERSONALIZADA
+            if (typeof showSuccess === 'function') {
+                showSuccess('📝 Atualizada!', 'As alterações foram salvas com sucesso.', 3000);
+            } else if (typeof Swal !== 'undefined') {
+                Swal.fire({
+                    icon: 'success',
+                    title: '✅ Demanda Atualizada!',
+                    text: 'As alterações foram salvas com sucesso.',
+                    confirmButtonColor: '#3085d6',
+                    confirmButtonText: 'OK',
+                    timer: 3000,
+                    timerProgressBar: true
+                });
+            } else {
+                alert('✅ Demanda atualizada com sucesso!');
+            }
+            
+        } else {
+            // Erro
+            let mensagemErro = resultado.message || 'Erro ao atualizar demanda';
+            
+            if (typeof showError === 'function') {
+                showError('❌ Erro ao Salvar', mensagemErro, 5000);
+            } else if (typeof Swal !== 'undefined') {
+                Swal.fire({
+                    icon: 'error',
+                    title: '❌ Erro ao Salvar',
+                    html: mensagemErro.replace(/\n/g, '<br>'),
+                    confirmButtonColor: '#d33',
+                    confirmButtonText: 'Corrigir'
+                });
+            } else {
+                alert('❌ Erro: ' + mensagemErro);
+            }
+        }
+        
+    } catch (error) {
+        console.error('❌ Erro na requisição:', error);
+        
+        if (typeof showError === 'function') {
+            showError('❌ Erro de Conexão', 'Não foi possível conectar ao servidor.', 5000);
+        } else if (typeof Swal !== 'undefined') {
+            Swal.fire({
+                icon: 'error',
+                title: '❌ Erro de Conexão',
+                text: 'Não foi possível conectar ao servidor. Verifique sua conexão e tente novamente.',
+                confirmButtonColor: '#d33',
+                confirmButtonText: 'OK'
+            });
+        } else {
+            alert('❌ Erro de conexão com o servidor');
+        }
+    } finally {
+        // Restaurar botão
+        botao.innerHTML = textoOriginal;
+        botao.disabled = false;
+    }
+}
+
+// 5️⃣ NOTIFICAÇÃO QUANDO A LISTA É CARREGADA
+async function carregarDemandasComNotificacao() {
+    const tabela = document.getElementById('tabelaDemandas');
+    
+    if (!tabela) {
+        console.error('Tabela não encontrada');
+        return;
+    }
+    
+    // Mostrar loading
+    tabela.innerHTML = `
+        <tr>
+            <td colspan="7" class="text-center py-5">
+                <div class="spinner-border text-primary" role="status">
+                    <span class="visually-hidden">Carregando...</span>
+                </div>
+                <p class="mt-3 text-muted">Carregando demandas...</p>
+            </td>
+        </tr>
+    `;
+    
+    try {
+        // Buscar demandas da API
+        const response = await fetch('/api/demandas');
+        
+        if (!response.ok) {
+            throw new Error(`Erro HTTP: ${response.status}`);
+        }
+        
+        const resultado = await response.json();
+        
+        if (resultado.success && resultado.data) {
+            todasDemandas = resultado.data;
+            renderizarTabela(todasDemandas);
+            console.log(`✅ ${todasDemandas.length} demandas carregadas`);
+            
+            // MOSTRAR NOTIFICAÇÃO SUTIL
+            if (todasDemandas.length > 0) {
+                if (typeof showInfo === 'function') {
+                    showInfo('📊 Demandas Carregadas', `${todasDemandas.length} demandas encontradas`, 2000);
+                }
+            }
+        } else {
+            throw new Error('Formato de resposta inválido');
+        }
+        
+    } catch (error) {
+        console.error('❌ Erro ao carregar demandas:', error);
+        tabela.innerHTML = `
+            <tr>
+                <td colspan="7" class="text-center py-5">
+                    <div class="alert alert-danger">
+                        <i class="fas fa-exclamation-triangle me-2"></i>
+                        <strong>Erro ao carregar demandas</strong>
+                        <p class="mb-0 mt-2">${error.message}</p>
+                        <button class="btn btn-sm btn-primary mt-3" onclick="carregarDemandasComNotificacao()">
+                            <i class="fas fa-redo me-1"></i> Tentar Novamente
+                        </button>
+                    </div>
+                </td>
+            </tr>
+        `;
+        
+        // NOTIFICAÇÃO DE ERRO
+        if (typeof showError === 'function') {
+            showError('❌ Erro ao Carregar', 'Não foi possível carregar as demandas: ' + error.message, 5000);
+        }
+    }
+}
+
+// 6️⃣ ATUALIZAR AS FUNÇÕES ORIGINAIS PARA USAR NOTIFICAÇÕES
+// Substituir as funções originais pelas novas
+window.criarDemanda = criarDemandaComNotificacao;
+window.salvarEdicaoDemanda = salvarEdicaoComNotificacao;
+
+// Encontrar e substituir a função excluirDemanda no HTML dos botões
+document.addEventListener('DOMContentLoaded', function() {
+    // Esta parte será executada depois que a página carregar
+    setTimeout(() => {
+        // Substituir todos os botões de excluir para usar a nova função
+        document.addEventListener('click', function(e) {
+            if (e.target.closest('.btn-outline-danger')) {
+                const button = e.target.closest('.btn-outline-danger');
+                const row = button.closest('tr');
+                if (row) {
+                    // Encontrar o ID da demanda (isso precisa ser adaptado ao seu HTML)
+                    // Vamos precisar ajustar isso depois que a tabela for renderizada
+                }
+            }
+        });
+        
+        console.log('🔔 Sistema de notificações integrado na lista de demandas!');
+    }, 1000);
+});
+
+// 7️⃣ NOTIFICAÇÃO DE BOAS-VINDAS
+window.addEventListener('load', function() {
+    setTimeout(() => {
+        if (typeof showInfo === 'function') {
+            showInfo('👋 Bem-vindo!', 'Sistema de Demandas Escolares carregado com sucesso!', 3000);
+        }
+    }, 1000);
+});
+/* ============================================
+   📱 CORREÇÃO COMPLETA DOS MODAIS
+   ============================================ */
+
+// 1️⃣ FUNÇÃO SEGURA PARA ABRIR MODAL
+function abrirModalSeguro(modalId) {
+    console.log(`🔓 Abrindo modal: ${modalId}`);
+    
+    // Fechar qualquer modal aberto primeiro (prevenir múltiplos)
+    const modaisAbertos = document.querySelectorAll('.modal.show');
+    modaisAbertos.forEach(modal => {
+        const modalInstance = bootstrap.Modal.getInstance(modal);
+        if (modalInstance) {
+            modalInstance.hide();
+        }
+    });
+    
+    // Pequeno delay para garantir que modais anteriores fechem
+    setTimeout(() => {
+        const modalElement = document.getElementById(modalId);
+        if (!modalElement) {
+            console.error(`❌ Modal ${modalId} não encontrado`);
+            return;
+        }
+        
+        // Criar nova instância do modal
+        const modal = new bootstrap.Modal(modalElement, {
+            backdrop: true, // Fundo escuro
+            keyboard: true, // Fechar com ESC
+            focus: true     // Focar no modal
+        });
+        
+        // Configurar eventos para limpeza segura
+        modalElement.addEventListener('hidden.bs.modal', function limparModal() {
+            console.log(`🔒 Fechando modal: ${modalId}`);
+            
+            // Remover backdrop manualmente se necessário
+            const backdrops = document.querySelectorAll('.modal-backdrop');
+            backdrops.forEach(backdrop => {
+                backdrop.remove();
+            });
+            
+            // Remover classes do body
+            document.body.classList.remove('modal-open');
+            document.body.style.overflow = '';
+            document.body.style.paddingRight = '';
+            
+            // Remover este event listener para evitar duplicação
+            modalElement.removeEventListener('hidden.bs.modal', limparModal);
+        }, { once: true }); // Executar apenas uma vez
+        
+        // Mostrar o modal
+        modal.show();
+        
+    }, 50); // Pequeno delay
+}
+
+// 2️⃣ FUNÇÃO PARA FECHAR TODOS OS MODAIS
+function fecharTodosModais() {
+    console.log('🔒 Fechando todos os modais');
+    
+    // Fechar todas as instâncias Bootstrap
+    const modais = document.querySelectorAll('.modal');
+    modais.forEach(modalElement => {
+        const modal = bootstrap.Modal.getInstance(modalElement);
+        if (modal) {
+            modal.hide();
+        }
+    });
+    
+    // Limpeza manual garantida
+    setTimeout(() => {
+        // Remover backdrops
+        const backdrops = document.querySelectorAll('.modal-backdrop');
+        backdrops.forEach(backdrop => {
+            backdrop.remove();
+        });
+        
+        // Limpar classes do body
+        document.body.classList.remove('modal-open');
+        document.body.style.overflow = '';
+        document.body.style.paddingRight = '';
+        
+        console.log('✅ Todos os modais fechados e limpos');
+    }, 100);
+}
+
+// 3️⃣ CSS PARA MODAIS FUNCIONAIS
+const modalCSS = `
+    /* CORREÇÃO PARA MODAIS QUE NÃO FECHAM */
+    .modal-backdrop {
+        z-index: 1040 !important;
+    }
+    
+    .modal {
+        z-index: 1050 !important;
+    }
+    
+    /* Garantir que o modal feche completamente */
+    body.modal-open {
+        overflow: auto !important;
+        padding-right: 0 !important;
+    }
+    
+    /* Botões do modal sempre visíveis */
+    .modal-footer {
+        background: white;
+        position: sticky;
+        bottom: 0;
+        z-index: 10;
+        border-top: 1px solid #dee2e6 !important;
+        padding: 1rem !important;
+    }
+    
+    /* Modal scrollável */
+    .modal-dialog-scrollable .modal-body {
+        max-height: 60vh;
+        overflow-y: auto;
+    }
+    
+    /* Em mobile */
+    @media (max-width: 768px) {
+        .modal-dialog {
+            margin: 0.5rem !important;
+            max-height: 90vh !important;
+        }
+        
+        .modal-content {
+            max-height: 90vh !important;
+        }
+        
+        .modal-body {
+            max-height: 70vh !important;
+            overflow-y: auto !important;
+        }
+    }
+    
+    /* Animar abertura/fechamento */
+    .modal.fade .modal-dialog {
+        transition: transform 0.3s ease-out;
+    }
+`;
+
+// Adicionar CSS ao documento
+if (!document.querySelector('#modal-fixes-css')) {
+    const style = document.createElement('style');
+    style.id = 'modal-fixes-css';
+    style.textContent = modalCSS;
+    document.head.appendChild(style);
+}
+
+// 4️⃣ CONFIGURAR TODOS OS BOTÕES DE MODAL
+document.addEventListener('DOMContentLoaded', function() {
+    console.log('🔧 Configurando modais...');
+    
+    // Configurar botão "Nova Demanda"
+    const btnNovaDemanda = document.querySelector('[data-bs-target="#novaDemandaModal"]');
+    if (btnNovaDemanda) {
+        btnNovaDemanda.addEventListener('click', function(e) {
+            e.preventDefault();
+            abrirModalSeguro('novaDemandaModal');
+        });
+        console.log('✅ Botão "Nova Demanda" configurado');
+    }
+    
+    // Configurar botões "Cancelar" dos modais
+    document.querySelectorAll('.btn-secondary[data-bs-dismiss="modal"]').forEach(btn => {
+        btn.addEventListener('click', function() {
+            // Pequeno delay antes de fechar para evitar conflitos
+            setTimeout(() => {
+                fecharTodosModais();
+            }, 10);
+        });
+    });
+    
+    // Configurar botão de fechar (X)
+    document.querySelectorAll('.btn-close[data-bs-dismiss="modal"]').forEach(btn => {
+        btn.addEventListener('click', function() {
+            setTimeout(() => {
+                fecharTodosModais();
+            }, 10);
+        });
+    });
+    
+    // Configurar clique fora do modal (backdrop)
+    document.querySelectorAll('.modal').forEach(modal => {
+        modal.addEventListener('click', function(e) {
+            if (e.target === this) {
+                setTimeout(() => {
+                    fecharTodosModais();
+                }, 10);
+            }
+        });
+    });
+    
+    // Botão de emergência para limpar tudo
+    const limparBtn = document.createElement('button');
+    limparBtn.innerHTML = '🔄 Limpar Modais';
+    limparBtn.className = 'btn btn-sm btn-warning d-none';
+    limparBtn.id = 'btn-limpar-modais';
+    limparBtn.onclick = fecharTodosModais;
+    document.body.appendChild(limparBtn);
+    
+    console.log('✅ Sistema de modais configurado com segurança');
+});
+
+// 5️⃣ LIMPEZA GLOBAL - Executar se algo der errado
+function limparEstadoModal() {
+    console.log('🧹 Limpeza de emergência dos modais');
+    
+    // Remover todos os backdrops
+    document.querySelectorAll('.modal-backdrop').forEach(el => el.remove());
+    
+    // Remover classes do body
+    document.body.classList.remove('modal-open');
+    document.body.style.cssText = '';
+    
+    // Esconder todos os modais
+    document.querySelectorAll('.modal').forEach(modal => {
+        modal.classList.remove('show');
+        modal.style.cssText = '';
+        modal.style.display = 'none';
+    });
+    
+    // Forçar redraw
+    document.body.offsetHeight;
+    
+    console.log('✅ Estado dos modais limpo');
+}
+
+// 6️⃣ EXPOR FUNÇÕES GLOBAIS
+window.abrirModalSeguro = abrirModalSeguro;
+window.fecharTodosModais = fecharTodosModais;
+window.limparEstadoModal = limparEstadoModal;
+</script>
 </body>
 </html>

@@ -1,0 +1,1061 @@
+<!-- views/admin/backup.ejs -->
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <style>
+    /* Melhorias para tabela de backups */
+    .table-backups tr:hover {
+        background-color: rgba(0, 123, 255, 0.05);
+    }
+    
+    .backup-actions .btn {
+        min-width: 40px;
+    }
+    
+    /* Badges personalizados */
+    .badge-database { background-color: #0d6efd; }
+    .badge-logs { background-color: #ffc107; color: #000; }
+    .badge-reports { background-color: #17a2b8; }
+    
+    /* Progresso de download */
+    .download-progress {
+        width: 100px;
+        display: inline-block;
+        margin-right: 10px;
+        vertical-align: middle;
+    }
+    
+    /* Status dos backups */
+    .status-completo { color: #198754; }
+    .status-falha { color: #dc3545; }
+    .status-processando { color: #0dcaf0; }
+    
+    /* ============================================
+       🎯 CORREÇÃO SIMPLIFICADA PARA MODAL
+       ============================================ */
+    
+    /* Garantir que o modal fique visível */
+    #modalNovoBackup {
+        display: none; /* Bootstrap controla isso */
+        z-index: 1060;
+    }
+    
+    #modalNovoBackup.show {
+        display: block !important;
+    }
+    
+    /* Centralizar o modal */
+    #modalNovoBackup .modal-dialog {
+        max-width: 500px;
+        margin: 1.75rem auto;
+    }
+    
+    /* Prevenir flash de scrollbar */
+    .modal {
+        overflow: hidden !important;
+    }
+    
+    /* Garantir que o conteúdo do modal tenha altura fixa */
+    #modalNovoBackup .modal-content {
+        max-height: 80vh;
+        overflow-y: auto;
+    }
+    
+    /* Manter footer visível */
+    #modalNovoBackup .modal-footer {
+        position: sticky;
+        bottom: 0;
+        background: white;
+        border-top: 1px solid #dee2e6;
+        z-index: 1;
+    }
+    
+    /* Backdrop correto */
+    .modal-backdrop.show {
+        opacity: 0.5;
+        z-index: 1050;
+    }
+    
+    /* Responsividade */
+    @media (max-width: 576px) {
+        #modalNovoBackup .modal-dialog {
+            margin: 0.5rem;
+            max-width: calc(100% - 1rem);
+        }
+    }
+    
+    /* Estilo para modal de progresso */
+    #modalProgresso .modal-dialog {
+        max-width: 400px;
+    }
+    
+    .progress {
+        height: 25px;
+    }
+    </style>
+    <%- include('../partials/head', { title: 'Gerenciamento de Backups' }) %>
+</head>
+<body>
+    <!-- Verificar se usuário está logado -->
+    <% if (user) { %>
+        <!-- NAVBAR -->
+        <%- include('../partials/navbar', { currentPage: 'admin-backups' }) %>
+        
+        <div class="container-fluid">
+            <div class="row">
+                <!-- SIDEBAR -->
+                <div class="col-lg-3 col-md-4 d-none d-md-block">
+                    <%- include('../partials/sidebar', { currentPage: 'admin-backups' }) %>
+                </div>
+                
+                <!-- CONTEÚDO PRINCIPAL -->
+                <div class="col-lg-9 col-md-8 col-12">
+                    <main class="container-fluid py-3">
+                        <!-- ========== CONTEÚDO DA PÁGINA BACKUP ========== -->
+                        
+                        <!-- TÍTULO -->
+                        <div class="d-flex justify-content-between align-items-center mb-4">
+                            <div>
+                                <h1 class="h3 mb-0">
+                                    <i class="fas fa-database me-2 text-primary"></i>Backups do Sistema
+                                </h1>
+                                <p class="text-muted mb-0">Gerencie e execute backups do banco de dados</p>
+                            </div>
+                            <button class="btn btn-primary" onclick="executarBackupManual()">
+                                <i class="fas fa-plus-circle me-2"></i>Novo Backup
+                            </button>
+                        </div>
+
+                        <!-- FILTROS RÁPIDOS (opcional) -->
+                        <div class="d-flex gap-2 mb-3">
+                            <button class="btn btn-sm btn-outline-primary" onclick="filtrarPorTipo('todos')">
+                                Todos
+                            </button>
+                            <button class="btn btn-sm btn-outline-primary" onclick="filtrarPorTipo('database')">
+                                Banco de Dados
+                            </button>
+                            <button class="btn btn-sm btn-outline-warning" onclick="filtrarPorTipo('logs')">
+                                Logs
+                            </button>
+                            <button class="btn btn-sm btn-outline-info" onclick="filtrarPorTipo('reports')">
+                                Relatórios
+                            </button>
+                        </div>
+
+                        <!-- CARDS DE ESTATÍSTICAS -->
+                        <div class="row mb-4" id="cardsEstatisticas">
+                            <!-- Card 1: Total Backups -->
+                            <div class="col-xl-3 col-lg-6 mb-3">
+                                <div class="card bg-primary bg-gradient text-white h-100">
+                                    <div class="card-body">
+                                        <div class="d-flex justify-content-between align-items-center">
+                                            <div>
+                                                <h6 class="card-title mb-2">Total de Backups</h6>
+                                                <h2 id="totalBackups" class="mb-0">0</h2>
+                                            </div>
+                                            <i class="fas fa-database fa-3x opacity-50"></i>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Card 2: Espaço Usado -->
+                            <div class="col-xl-3 col-lg-6 mb-3">
+                                <div class="card bg-success bg-gradient text-white h-100">
+                                    <div class="card-body">
+                                        <div class="d-flex justify-content-between align-items-center">
+                                            <div>
+                                                <h6 class="card-title mb-2">Espaço Usado</h6>
+                                                <h2 id="espacoTotal" class="mb-0">0 MB</h2>
+                                            </div>
+                                            <i class="fas fa-hdd fa-3x opacity-50"></i>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Card 3: Último Backup -->
+                            <div class="col-xl-3 col-lg-6 mb-3">
+                                <div class="card bg-warning bg-gradient text-white h-100">
+                                    <div class="card-body">
+                                        <div class="d-flex justify-content-between align-items-center">
+                                            <div>
+                                                <h6 class="card-title mb-2">Último Backup</h6>
+                                                <h2 id="ultimoBackup" class="mb-0">-</h2>
+                                                <small id="tempoUltimoBackup" class="opacity-75">Nenhum backup</small>
+                                            </div>
+                                            <i class="fas fa-history fa-3x opacity-50"></i>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Card 4: Próximo Backup -->
+                            <div class="col-xl-3 col-lg-6 mb-3">
+                                <div class="card bg-info bg-gradient text-white h-100">
+                                    <div class="card-body">
+                                        <div class="d-flex justify-content-between align-items-center">
+                                            <div>
+                                                <h6 class="card-title mb-2">Próximo Backup</h6>
+                                                <h2 id="proximoBackup" class="mb-0">02:00</h2>
+                                                <small class="opacity-75">Agendado diário</small>
+                                            </div>
+                                            <i class="fas fa-clock fa-3x opacity-50"></i>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- TABELA DE BACKUPS -->
+                        <div class="card shadow-sm">
+                            <div class="card-header bg-white d-flex justify-content-between align-items-center py-3">
+                                <h5 class="mb-0">
+                                    <i class="fas fa-list me-2 text-primary"></i>Backups Disponíveis
+                                </h5>
+                                <div>
+                                    <button class="btn btn-sm btn-outline-secondary me-2" onclick="atualizarTudo()" title="Atualizar">
+                                        <i class="fas fa-sync-alt"></i>
+                                    </button>
+                                    <button class="btn btn-sm btn-danger d-none" id="btnExcluirVarios" onclick="excluirSelecionados()">
+                                        <i class="fas fa-trash me-1"></i>Excluir Selecionados
+                                    </button>
+                                </div>
+                            </div>
+                            <div class="card-body">
+                                <div class="table-responsive">
+                                    <table class="table table-hover table-striped">
+                                        <thead class="table-light">
+                                            <tr>
+                                                <th width="50">
+                                                    <input type="checkbox" id="checkTodos" class="form-check-input" 
+                                                           onchange="selecionarTodos(this.checked)">
+                                                </th>
+                                                <th>Nome do Arquivo</th>
+                                                <th>Tipo</th>
+                                                <th>Data de Criação</th>
+                                                <th>Tamanho</th>
+                                                <th width="120">Ações</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody id="tabelaBackups">
+                                            <!-- LINHA DE CARREGAMENTO -->
+                                            <tr id="loadingRow">
+                                                <td colspan="6" class="text-center py-5">
+                                                    <div class="spinner-border text-primary" role="status">
+                                                        <span class="visually-hidden">Carregando...</span>
+                                                    </div>
+                                                    <p class="mt-2 text-muted">Carregando backups...</p>
+                                                </td>
+                                            </tr>
+                                        </tbody>
+                                    </table>
+                                </div>
+                                
+                                <!-- MENSAGEM SEM BACKUPS -->
+                                <div id="semBackups" class="text-center py-4 d-none">
+                                    <i class="fas fa-inbox fa-3x text-muted mb-3"></i>
+                                    <h5 class="text-muted">Nenhum backup encontrado</h5>
+                                    <p class="text-muted">Execute seu primeiro backup clicando no botão "Novo Backup"</p>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- INFORMAÇÕES DO SISTEMA -->
+                        <div class="card shadow-sm mt-4">
+                            <div class="card-header bg-white py-3">
+                                <h5 class="mb-0">
+                                    <i class="fas fa-info-circle me-2 text-info"></i>Informações do Sistema
+                                </h5>
+                            </div>
+                            <div class="card-body">
+                                <div class="row">
+                                    <div class="col-md-6">
+                                        <h6 class="mb-3">Agendamento Automático</h6>
+                                        <p><i class="fas fa-clock text-info me-2"></i>Backups automáticos: <strong>Diariamente às 02:00</strong></p>
+                                        <p><i class="fas fa-folder text-success me-2"></i>Pasta de backup: <code>/backups/</code></p>
+                                        <p><i class="fas fa-calendar-alt text-warning me-2"></i>Retenção: <strong>30 dias</strong></p>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <h6 class="mb-3">Recomendações</h6>
+                                        <ul class="mb-0">
+                                            <li>Mantenha pelo menos os últimos 7 dias de backup</li>
+                                            <li>Faça backup manual antes de atualizações importantes</li>
+                                            <li>Verifique regularmente o espaço em disco</li>
+                                            <li>Armazene backups externamente para segurança</li>
+                                        </ul>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <!-- ========== FIM CONTEÚDO ========== -->
+                    </main>
+                </div>
+            </div>
+        </div>
+        
+        <!-- FOOTER -->
+        <%- include('../partials/footer') %>
+        
+    <% } else { %>
+        <!-- SE NÃO ESTIVER LOGADO -->
+        <div class="container mt-5">
+            <div class="alert alert-danger text-center">
+                <i class="fas fa-exclamation-triangle fa-2x mb-3"></i>
+                <h4>Acesso Negado</h4>
+                <p>Você precisa estar logado para acessar esta página.</p>
+                <a href="/login" class="btn btn-primary">Fazer Login</a>
+            </div>
+        </div>
+    <% } %>
+    
+    <!-- MODAIS -->
+    
+    <!-- MODAL CONFIRMAR EXCLUSÃO -->
+    <div class="modal fade" id="modalExcluir" tabindex="-1" aria-labelledby="modalExcluirLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="modalExcluirLabel">
+                        <i class="fas fa-trash-alt text-danger me-2"></i>Confirmar Exclusão
+                    </h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <p>Tem certeza que deseja excluir o backup <strong id="nomeBackupExcluir" class="text-danger">[NOME]</strong>?</p>
+                    <div class="alert alert-warning">
+                        <i class="fas fa-exclamation-triangle me-2"></i>
+                        Esta ação não pode ser desfeita. O arquivo será permanentemente excluído.
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+                        <i class="fas fa-times me-1"></i>Cancelar
+                    </button>
+                    <button type="button" class="btn btn-danger" onclick="confirmarExclusao()">
+                        <i class="fas fa-trash me-1"></i>Excluir Permanentemente
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- MODAL NOVO BACKUP (VERSÃO SIMPLIFICADA) -->
+    <div class="modal fade" id="modalNovoBackup" tabindex="-1" aria-labelledby="modalNovoBackupLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="modalNovoBackupLabel">
+                        <i class="fas fa-database text-primary me-2"></i>Executar Backup Manual
+                    </h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                
+                <div class="modal-body">
+                    <div class="mb-3">
+                        <label for="nomeBackup" class="form-label">Nome do Backup (opcional)</label>
+                        <input type="text" class="form-control" id="nomeBackup" placeholder="backup_emergencial_2024">
+                        <small class="form-text text-muted">Deixe em branco para usar data/hora automática</small>
+                    </div>
+                    <div class="mb-3">
+                        <label for="descricaoBackup" class="form-label">Descrição (opcional)</label>
+                        <textarea class="form-control" id="descricaoBackup" rows="3" 
+                                placeholder="Ex: Backup antes da atualização do sistema..."></textarea>
+                    </div>
+                    <div class="alert alert-info">
+                        <i class="fas fa-info-circle me-2"></i>
+                        <strong>Atenção:</strong> O backup pode levar alguns minutos dependendo do tamanho do banco de dados.
+                    </div>
+                </div>
+                
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+                        <i class="fas fa-times me-1"></i>Cancelar
+                    </button>
+                    <button type="button" class="btn btn-primary" onclick="iniciarBackup()">
+                        <i class="fas fa-play-circle me-1"></i>Executar Backup
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- MODAL DE PROGRESSO -->
+    <div class="modal fade" id="modalProgresso" tabindex="-1" aria-labelledby="modalProgressoLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="modalProgressoLabel">
+                        <i class="fas fa-cog fa-spin text-primary me-2"></i>Criando Backup
+                    </h5>
+                </div>
+                <div class="modal-body text-center">
+                    <div class="progress mb-3">
+                        <div id="barraProgresso" class="progress-bar progress-bar-striped progress-bar-animated" 
+                             role="progressbar" style="width: 0%"></div>
+                    </div>
+                    <p id="mensagemProgresso" class="mb-0">Iniciando processo de backup...</p>
+                </div>
+                <div class="modal-footer justify-content-center">
+                    <button type="button" class="btn btn-warning" onclick="cancelarBackup()">
+                        <i class="fas fa-stop-circle me-1"></i>Cancelar
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- SCRIPTS -->
+    <%- include('../partials/scripts') %>
+    
+    <!-- JAVASCRIPT ESPECÍFICO PARA BACKUP -->
+    <script>
+        // ============================================
+        // VARIÁVEIS GLOBAIS
+        // ============================================
+        let backupsSelecionados = [];
+        let backupAtualParaExcluir = null;
+        let processoBackupAtivo = false;
+
+        // ============================================
+        // FUNÇÕES AUXILIARES
+        // ============================================
+        // FILTRAR POR TIPO
+        function filtrarPorTipo(tipo) {
+            const linhas = document.querySelectorAll('#tabelaBackups tr');
+            
+            linhas.forEach(linha => {
+                if (tipo === 'todos') {
+                    linha.style.display = '';
+                } else {
+                    const tipoLinha = linha.querySelector('.badge').textContent.toLowerCase();
+                    if (tipoLinha.includes(tipo)) {
+                        linha.style.display = '';
+                    } else {
+                        linha.style.display = 'none';
+                    }
+                }
+            });
+            
+            mostrarNotificacao(`Mostrando backups do tipo: ${tipo}`, 'info');
+        }
+        
+        // FORMATAR TAMANHO EM BYTES
+        function formatarTamanho(bytes) {
+            if (bytes === 0 || !bytes) return '0 Bytes';
+            const k = 1024;
+            const sizes = ['Bytes', 'KB', 'MB', 'GB', 'TB'];
+            const i = Math.floor(Math.log(bytes) / Math.log(k));
+            return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
+        }
+
+        // FORMATAR DATA
+        function formatarData(dataString) {
+            if (!dataString) return '-';
+            try {
+                const data = new Date(dataString);
+                return data.toLocaleDateString('pt-BR') + ' ' + 
+                       data.toLocaleTimeString('pt-BR').substring(0, 5);
+            } catch {
+                return dataString;
+            }
+        }
+
+        // CALCULAR TEMPO RELATIVO
+        function tempoRelativo(dataString) {
+            if (!dataString) return '-';
+            try {
+                const agora = new Date();
+                const data = new Date(dataString);
+                const diff = agora - data;
+                const minutos = Math.floor(diff / 60000);
+                const horas = Math.floor(minutos / 60);
+                const dias = Math.floor(horas / 24);
+                
+                if (dias > 0) return `${dias} dia${dias > 1 ? 's' : ''} atrás`;
+                if (horas > 0) return `${horas} hora${horas > 1 ? 's' : ''} atrás`;
+                if (minutos > 0) return `${minutos} minuto${minutos > 1 ? 's' : ''} atrás`;
+                return 'agora mesmo';
+            } catch {
+                return '-';
+            }
+        }
+
+        // MOSTRAR NOTIFICAÇÃO
+        function mostrarNotificacao(mensagem, tipo = 'info') {
+            if (typeof showToast === 'function') {
+                showToast(mensagem, tipo);
+            } else if (typeof mostrarNotificacaoFlash === 'function') {
+                mostrarNotificacaoFlash(mensagem, tipo);
+            } else {
+                // Fallback simples
+                const alertDiv = document.createElement('div');
+                alertDiv.className = `alert alert-${tipo} alert-dismissible fade show position-fixed top-0 end-0 m-3`;
+                alertDiv.style.zIndex = '9999';
+                alertDiv.innerHTML = `
+                    ${mensagem}
+                    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                `;
+                document.body.appendChild(alertDiv);
+                setTimeout(() => alertDiv.remove(), 3000);
+            }
+        }
+        
+        // ============================================
+        // FUNÇÕES PRINCIPAIS
+        // ============================================
+
+        // CARREGAR ESTATÍSTICAS - VERSÃO ATUALIZADA
+        async function carregarEstatisticas() {
+            try {
+                const resposta = await fetch('/api/backup/estatisticas');
+                if (!resposta.ok) throw new Error('Erro na requisição');
+                
+                const dados = await resposta.json();
+                if (dados.success) {
+                    const stats = dados.estatisticas;
+                    
+                    // Se vierem estatísticas da API de listar também
+                    if (dados.estatisticas) {
+                        atualizarCardsComEstatisticas(dados.estatisticas);
+                    } else {
+                        // Usar as da rota /estatisticas
+                        atualizarCardsComEstatisticas(stats);
+                    }
+                }
+            } catch (erro) {
+                console.error('Erro ao carregar estatísticas:', erro);
+                // Manter valores padrão
+            }
+        }
+
+        // FUNÇÃO PARA ATUALIZAR OS CARDS
+        function atualizarCardsComEstatisticas(stats) {
+            // Card 1: Total Backups
+            if (stats.totalBackups !== undefined) {
+                document.getElementById('totalBackups').textContent = stats.totalBackups;
+            }
+            
+            // Card 2: Espaço Total
+            if (stats.espacoTotal) {
+                document.getElementById('espacoTotal').textContent = stats.espacoTotal;
+            } else if (stats.totalSize) {
+                document.getElementById('espacoTotal').textContent = formatarTamanho(stats.totalSize);
+            }
+            
+            // Card 3: Último Backup
+            if (stats.ultimoBackup) {
+                const dataUltimo = stats.ultimoBackup.dataCriacao || stats.ultimoBackup;
+                if (dataUltimo) {
+                    document.getElementById('ultimoBackup').textContent = formatarData(dataUltimo).split(' ')[0];
+                    document.getElementById('tempoUltimoBackup').textContent = tempoRelativo(dataUltimo);
+                }
+            }
+        }
+
+        // CARREGAR LISTA DE BACKUPS - VERSÃO FINAL OTIMIZADA
+        async function carregarBackups() {
+            console.log('🔄 Carregando lista de backups...');
+            
+            try {
+                const resposta = await fetch('/api/backup/listar');
+                console.log('📡 Status:', resposta.status);
+                
+                if (!resposta.ok) throw new Error(`HTTP ${resposta.status}`);
+                
+                const dados = await resposta.json();
+                console.log('📦 API response:', dados);
+                
+                if (dados.success && dados.backups) {
+                    // Juntar todos os backups de todos os tipos
+                    let todosBackups = [];
+                    
+                    for (const tipo in dados.backups) {
+                        if (Array.isArray(dados.backups[tipo]) && dados.backups[tipo].length > 0) {
+                            console.log(`📂 ${tipo}: ${dados.backups[tipo].length} backup(s)`);
+                            
+                            // Adicionar tipo a cada backup
+                            const backupsComTipo = dados.backups[tipo].map(backup => ({
+                                ...backup,
+                                tipo: tipo
+                            }));
+                            
+                            todosBackups = todosBackups.concat(backupsComTipo);
+                        }
+                    }
+                    
+                    console.log(`✅ Total: ${todosBackups.length} backup(s)`);
+                    mostrarBackups(todosBackups);
+                    
+                    // Se vierem estatísticas, atualizar também
+                    if (dados.estatisticas) {
+                        atualizarCardsComEstatisticas(dados.estatisticas);
+                    }
+                    
+                } else {
+                    throw new Error(dados.message || 'Erro na API');
+                }
+            } catch (erro) {
+                console.error('❌ Erro ao carregar backups:', erro);
+                
+                const tbody = document.getElementById('tabelaBackups');
+                const loadingRow = document.getElementById('loadingRow');
+                
+                if (loadingRow) loadingRow.remove();
+                
+                tbody.innerHTML = `
+                    <tr>
+                        <td colspan="6" class="text-center py-5">
+                            <div class="alert alert-warning">
+                                <i class="fas fa-exclamation-triangle fa-2x mb-3"></i>
+                                <h6>Não foi possível carregar os backups</h6>
+                                <p class="small mb-3">${erro.message}</p>
+                                <button class="btn btn-sm btn-primary" onclick="carregarBackups()">
+                                    <i class="fas fa-redo me-1"></i>Tentar novamente
+                                </button>
+                            </div>
+                        </td>
+                    </tr>
+                `;
+            }
+        }
+
+        // MOSTRAR BACKUPS NA TABELA - VERSÃO SIMPLIFICADA
+        function mostrarBackups(backups) {
+            console.log('📊 MostrarBackups chamada com:', backups);
+            console.log('Quantidade:', backups.length);
+            
+            const tbody = document.getElementById('tabelaBackups');
+            const loadingRow = document.getElementById('loadingRow');
+            const semBackupsDiv = document.getElementById('semBackups');
+            
+            // Remover loading
+            if (loadingRow) loadingRow.remove();
+            
+            // Verificar se há backups
+            if (!backups || !Array.isArray(backups) || backups.length === 0) {
+                console.log('📭 Nenhum backup para mostrar');
+                tbody.innerHTML = '';
+                semBackupsDiv.classList.remove('d-none');
+                document.getElementById('btnExcluirVarios').classList.add('d-none');
+                return;
+            }
+            
+            console.log(`✅ Mostrando ${backups.length} backup(s)`);
+            
+            // Esconder mensagem "sem backups"
+            semBackupsDiv.classList.add('d-none');
+            
+            // Gerar linhas da tabela
+            let html = '';
+            backups.forEach((backup, index) => {
+                console.log(`Backup ${index}:`, backup);
+                
+                const nomeArquivo = backup.arquivo || backup.nome || `backup_${index + 1}`;
+                const tipo = backup.tipo || 'desconhecido';
+                const dataCriacao = backup.dataCriacao || backup.data || backup.createdAt || new Date().toISOString();
+                const tamanho = backup.tamanho || backup.size ? formatarTamanho(backup.tamanho || backup.size) : 'N/A';
+                const descricao = backup.descricao || backup.description || '';
+                
+                const estaSelecionado = backupsSelecionados.includes(nomeArquivo);
+                
+                // Cor do badge baseado no tipo
+                let badgeCor = 'bg-secondary';
+                let tipoDisplay = tipo;
+                
+                if (tipo === 'database' || tipo.includes('database')) {
+                    badgeCor = 'bg-primary';
+                    tipoDisplay = 'Banco de Dados';
+                } else if (tipo === 'logs' || tipo.includes('log')) {
+                    badgeCor = 'bg-warning';
+                    tipoDisplay = 'Logs';
+                } else if (tipo === 'reports' || tipo.includes('report')) {
+                    badgeCor = 'bg-info';
+                    tipoDisplay = 'Relatórios';
+                }
+                
+                html += `
+                    <tr>
+                        <td>
+                            <input type="checkbox" class="form-check-input checkBackup" 
+                                value="${nomeArquivo}"
+                                data-tipo="${tipo}"
+                                ${estaSelecionado ? 'checked' : ''}
+                                onchange="toggleSelecao('${nomeArquivo}')">
+                        </td>
+                        <td>
+                            <div class="fw-bold text-truncate" style="max-width: 250px;" 
+                                title="${nomeArquivo}">
+                                ${nomeArquivo}
+                            </div>
+                            ${descricao ? `<small class="text-muted d-block mt-1">${descricao}</small>` : ''}
+                        </td>
+                        <td>
+                            <span class="badge ${badgeCor}">${tipoDisplay}</span>
+                        </td>
+                        <td>
+                            <div>${formatarData(dataCriacao)}</div>
+                            <small class="text-muted">${tempoRelativo(dataCriacao)}</small>
+                        </td>
+                        <td><span class="badge bg-secondary">${tamanho}</span></td>
+                        <td>
+                            <div class="btn-group btn-group-sm" role="group">
+                                <button class="btn btn-outline-primary" 
+                                        onclick="baixarBackup('${tipo}', '${nomeArquivo}')"
+                                        title="Baixar">
+                                    <i class="fas fa-download"></i>
+                                </button>
+                                <button class="btn btn-outline-danger" 
+                                        onclick="solicitarExclusao('${tipo}', '${nomeArquivo}')"
+                                        title="Excluir">
+                                    <i class="fas fa-trash"></i>
+                                </button>
+                            </div>
+                        </td>
+                    </tr>
+                `;
+            });
+            
+            tbody.innerHTML = html;
+            console.log('✅ Tabela atualizada com sucesso');
+        }
+
+        // FUNÇÃO AUXILIAR PARA MOSTRAR "SEM BACKUPS"
+        function mostrarSemBackups() {
+            const tbody = document.getElementById('tabelaBackups');
+            const semBackupsDiv = document.getElementById('semBackups');
+            
+            tbody.innerHTML = '';
+            semBackupsDiv.classList.remove('d-none');
+            document.getElementById('btnExcluirVarios').classList.add('d-none');
+        }
+
+        // SELECIONAR/DESELECIONAR BACKUP
+        function toggleSelecao(nome) {
+            const index = backupsSelecionados.indexOf(nome);
+            if (index === -1) {
+                backupsSelecionados.push(nome);
+            } else {
+                backupsSelecionados.splice(index, 1);
+            }
+            atualizarBotaoExcluir();
+        }
+
+        // SELECIONAR TODOS OS BACKUPS
+        function selecionarTodos(selecionar) {
+            const checkboxes = document.querySelectorAll('.checkBackup');
+            backupsSelecionados = [];
+            
+            checkboxes.forEach(checkbox => {
+                checkbox.checked = selecionar;
+                if (selecionar) {
+                    backupsSelecionados.push(checkbox.value);
+                }
+            });
+            
+            atualizarBotaoExcluir();
+        }
+
+        // ATUALIZAR BOTÃO DE EXCLUIR VÁRIOS
+        function atualizarBotaoExcluir() {
+            const btn = document.getElementById('btnExcluirVarios');
+            if (backupsSelecionados.length > 0) {
+                btn.classList.remove('d-none');
+                btn.innerHTML = `<i class="fas fa-trash me-1"></i>Excluir (${backupsSelecionados.length})`;
+            } else {
+                btn.classList.add('d-none');
+            }
+            
+            // Atualizar checkbox "Selecionar Todos"
+            const checkTodos = document.getElementById('checkTodos');
+            const checkboxes = document.querySelectorAll('.checkBackup');
+            const total = checkboxes.length;
+            const selecionados = document.querySelectorAll('.checkBackup:checked').length;
+            
+            if (selecionados === 0) {
+                checkTodos.checked = false;
+                checkTodos.indeterminate = false;
+            } else if (selecionados === total) {
+                checkTodos.checked = true;
+                checkTodos.indeterminate = false;
+            } else {
+                checkTodos.checked = false;
+                checkTodos.indeterminate = true;
+            }
+        }
+
+        // ============================================
+        // FUNÇÕES DO MODAL (VERSÃO SIMPLIFICADA)
+        // ============================================
+
+        // EXECUTAR BACKUP MANUAL - VERSÃO SIMPLES QUE FUNCIONA
+        function executarBackupManual() {
+            console.log('🎯 Abrindo modal de backup...');
+            
+            // Verificar se o modal existe
+            const modalElement = document.getElementById('modalNovoBackup');
+            if (!modalElement) {
+                console.error('❌ Modal não encontrado!');
+                mostrarNotificacao('Erro: Modal não encontrado', 'danger');
+                return;
+            }
+            
+            console.log('✅ Modal encontrado, criando instância...');
+            
+            // Criar instância do modal Bootstrap
+            const modal = new bootstrap.Modal(modalElement, {
+                backdrop: true,
+                keyboard: true,
+                focus: true
+            });
+            
+            // Mostrar o modal
+            modal.show();
+            
+            console.log('✅ Modal mostrado com sucesso');
+            
+            // Focar no campo após o modal ser exibido
+            setTimeout(() => {
+                const nomeInput = document.getElementById('nomeBackup');
+                if (nomeInput) {
+                    nomeInput.focus();
+                }
+            }, 300);
+        }
+
+        // INICIAR BACKUP (CONFIRMAR E EXECUTAR)
+        async function iniciarBackup() {
+            // Obter dados do formulário
+            const nome = document.getElementById('nomeBackup').value.trim();
+            const descricao = document.getElementById('descricaoBackup').value.trim();
+            
+            // Fechar modal de configuração
+            const modalConfigElement = document.getElementById('modalNovoBackup');
+            if (modalConfigElement) {
+                const modalConfig = bootstrap.Modal.getInstance(modalConfigElement);
+                if (modalConfig) modalConfig.hide();
+            }
+            
+            // Limpar formulário
+            document.getElementById('nomeBackup').value = '';
+            document.getElementById('descricaoBackup').value = '';
+            
+            // Abrir modal de progresso
+            const modalProgressoElement = document.getElementById('modalProgresso');
+            if (modalProgressoElement) {
+                const modalProgresso = new bootstrap.Modal(modalProgressoElement);
+                modalProgresso.show();
+            }
+            
+            // Configurar variável de controle
+            processoBackupAtivo = true;
+            
+            try {
+                // Preparar dados para envio
+                const dados = {};
+                if (nome) dados.nome = nome;
+                if (descricao) dados.descricao = descricao;
+                
+                // Fazer requisição
+                const resposta = await fetch('/api/backup/executar-manual', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: Object.keys(dados).length > 0 ? JSON.stringify(dados) : null
+                });
+                
+                if (!resposta.ok) {
+                    const erro = await resposta.json();
+                    throw new Error(erro.message || 'Erro ao executar backup');
+                }
+                
+                const resultado = await resposta.json();
+                
+                // Atualizar progresso
+                let progresso = 0;
+                const intervalo = setInterval(() => {
+                    if (!processoBackupAtivo) {
+                        clearInterval(intervalo);
+                        return;
+                    }
+                    
+                    progresso += 10;
+                    const barraProgresso = document.getElementById('barraProgresso');
+                    if (barraProgresso) barraProgresso.style.width = progresso + '%';
+                    
+                    const mensagemProgresso = document.getElementById('mensagemProgresso');
+                    if (mensagemProgresso) {
+                        if (progresso >= 30) {
+                            mensagemProgresso.textContent = 'Exportando banco de dados...';
+                        }
+                        if (progresso >= 60) {
+                            mensagemProgresso.textContent = 'Compactando arquivos...';
+                        }
+                        if (progresso >= 90) {
+                            mensagemProgresso.textContent = 'Finalizando backup...';
+                        }
+                    }
+                    
+                    if (progresso >= 100) {
+                        clearInterval(intervalo);
+                        setTimeout(() => {
+                            if (processoBackupAtivo) {
+                                const modalProgresso = bootstrap.Modal.getInstance(document.getElementById('modalProgresso'));
+                                if (modalProgresso) modalProgresso.hide();
+                                mostrarNotificacao('Backup criado com sucesso!', 'success');
+                                carregarTudo();
+                                processoBackupAtivo = false;
+                            }
+                        }, 500);
+                    }
+                }, 500);
+                
+            } catch (erro) {
+                console.error('Erro ao criar backup:', erro);
+                const modalProgresso = bootstrap.Modal.getInstance(document.getElementById('modalProgresso'));
+                if (modalProgresso) modalProgresso.hide();
+                mostrarNotificacao(erro.message || 'Erro ao criar backup', 'danger');
+                processoBackupAtivo = false;
+            }
+        }
+
+        // CANCELAR BACKUP EM ANDAMENTO
+        function cancelarBackup() {
+            processoBackupAtivo = false;
+            const modalProgresso = bootstrap.Modal.getInstance(document.getElementById('modalProgresso'));
+            if (modalProgresso) modalProgresso.hide();
+            mostrarNotificacao('Backup cancelado pelo usuário', 'warning');
+        }
+
+        // SOLICITAR EXCLUSÃO DE UM BACKUP
+        function solicitarExclusao(tipo, arquivo) {
+            backupAtualParaExcluir = { tipo, arquivo };
+            document.getElementById('nomeBackupExcluir').textContent = arquivo;
+            const modal = new bootstrap.Modal(document.getElementById('modalExcluir'));
+            modal.show();
+        }
+
+        // CONFIRMAR EXCLUSÃO
+        async function confirmarExclusao() {
+            if (!backupAtualParaExcluir) return;
+            
+            const { tipo, arquivo } = backupAtualParaExcluir;
+            
+            try {
+                const resposta = await fetch(`/api/backup/excluir/${tipo}/${encodeURIComponent(arquivo)}`, {
+                    method: 'DELETE'
+                });
+                
+                const resultado = await resposta.json();
+                
+                if (resultado.success) {
+                    const modal = bootstrap.Modal.getInstance(document.getElementById('modalExcluir'));
+                    if (modal) modal.hide();
+                    
+                    mostrarNotificacao(resultado.message || 'Backup excluído com sucesso!', 'success');
+                    carregarTudo();
+                } else {
+                    mostrarNotificacao(resultado.message || 'Erro ao excluir backup', 'danger');
+                }
+            } catch (erro) {
+                console.error('Erro ao excluir backup:', erro);
+                mostrarNotificacao('Erro de conexão ao excluir backup', 'danger');
+            } finally {
+                backupAtualParaExcluir = null;
+            }
+        }
+
+        // EXCLUIR BACKUPS SELECIONADOS - VERSÃO ATUALIZADA COM TIPOS
+        async function excluirSelecionados() {
+            if (backupsSelecionados.length === 0) return;
+            
+            if (!confirm(`Deseja excluir ${backupsSelecionados.length} backup(s) selecionado(s)?\n\nEsta ação não pode ser desfeita.`)) {
+                return;
+            }
+            
+            try {
+                let sucessos = 0;
+                let erros = 0;
+                
+                // Para cada backup selecionado
+                for (const nomeBackup of backupsSelecionados) {
+                    try {
+                        // Encontrar o checkbox para obter o tipo
+                        const checkbox = document.querySelector(`.checkBackup[value="${nomeBackup}"]`);
+                        const tipo = checkbox ? checkbox.getAttribute('data-tipo') : 'database';
+                        
+                        const resposta = await fetch(`/api/backup/excluir/${tipo}/${encodeURIComponent(nomeBackup)}`, {
+                            method: 'DELETE'
+                        });
+                        
+                        if (resposta.ok) {
+                            sucessos++;
+                        } else {
+                            erros++;
+                        }
+                    } catch {
+                        erros++;
+                    }
+                }
+                
+                // Mostrar resultado
+                let mensagem = `${sucessos} backup(s) excluído(s) com sucesso.`;
+                if (erros > 0) {
+                    mensagem += ` ${erros} erro(s) ocorreram.`;
+                }
+                
+                mostrarNotificacao(mensagem, sucessos > 0 ? 'success' : 'warning');
+                
+                // Limpar seleção e recarregar
+                backupsSelecionados = [];
+                atualizarBotaoExcluir();
+                carregarTudo();
+                
+            } catch (erro) {
+                console.error('Erro ao excluir backups:', erro);
+                mostrarNotificacao('Erro ao excluir backups selecionados', 'danger');
+            }
+        }
+
+        // BAIXAR BACKUP
+        function baixarBackup(tipo, arquivo) {
+            // Abrir em nova aba para download
+            window.open(`/api/backup/download/${tipo}/${encodeURIComponent(arquivo)}`, '_blank');
+        }
+
+        // CARREGAR TUDO (ESTATÍSTICAS + BACKUPS)
+        function carregarTudo() {
+            carregarEstatisticas();
+            carregarBackups();
+        }
+
+        // ATUALIZAR TUDO (BOTÃO)
+        function atualizarTudo() {
+            mostrarNotificacao('Atualizando lista de backups...', 'info');
+            carregarTudo();
+        }
+
+        // ============================================
+        // INICIALIZAÇÃO DA PÁGINA
+        // ============================================
+
+        // INICIALIZAÇÃO DA PÁGINA
+        document.addEventListener('DOMContentLoaded', function() {
+            console.log('📊 Página de Backups inicializada');
+            
+            // Carregar dados reais da API
+            carregarTudo();
+            
+            // Atualizar estatísticas a cada 30 segundos
+            setInterval(carregarEstatisticas, 30000);
+            
+            // Adicionar evento para atualizar ao focar na página
+            window.addEventListener('focus', function() {
+                console.log('🔄 Página em foco, atualizando dados...');
+                carregarEstatisticas();
+            });
+        });
+    </script>
+</body>
+</html>

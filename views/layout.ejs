@@ -35,61 +35,71 @@
     <title><%= title || 'Sistema de Demandas Escolares' %></title>
 </head>
 <body>
-    <% if (typeof user !== 'undefined' && user) { %>
-    <nav class="navbar navbar-expand-lg navbar-dark bg-primary">
-        <div class="container">
-            <a class="navbar-brand" href="/dashboard">
-                <i class="fas fa-tasks me-2"></i>Demandas Escolares
-            </a>
-            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
-                <span class="navbar-toggler-icon"></span>
-            </button>
-            <div class="collapse navbar-collapse" id="navbarNav">
-                <ul class="navbar-nav ms-auto">
-                    <li class="nav-item">
-                        <a class="nav-link" href="/dashboard">
-                            <i class="fas fa-home"></i> Dashboard
-                        </a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="/demandas">
-                            <i class="fas fa-list"></i> Demandas
-                        </a>
-                    </li>
-                    <% if (user.tipo === 'administrador') { %>
-                    <li class="nav-item">
-                        <a class="nav-link" href="/cadastro">
-                            <i class="fas fa-user-plus"></i> Cadastrar
-                        </a>
-                    </li>
+        <% if (typeof user !== 'undefined' && user) { %>
+    <!-- ============================================
+         🎯 LAYOUT COMPLETO COM NAVBAR + SIDEBAR
+         ============================================ -->
+    
+    <!-- NAVBAR (partial) -->
+    <%- include('partials/navbar') %>
+    
+    <!-- CONTEÚDO PRINCIPAL COM LAYOUT 3+9 -->
+    <div class="container-fluid">
+        <div class="row">
+            <!-- 📊 SIDEBAR (3 colunas) - SOMENTE DESKTOP -->
+            <div class="col-lg-3 col-md-4 d-none d-md-block">
+                <%- include('partials/sidebar') %>
+            </div>
+            
+            <!-- 🎯 CONTEÚDO PRINCIPAL (9 colunas no desktop, 12 no mobile) -->
+            <div class="col-lg-9 col-md-8 col-12">
+                <main class="container-fluid py-3">
+                    <% if (typeof content !== 'undefined') { %>
+                        <%- content %>
+                    <% } else if (typeof body !== 'undefined') { %>
+                        <%- body %>
                     <% } %>
-                    <li class="nav-item dropdown">
-                        <a class="nav-link dropdown-toggle" href="#" data-bs-toggle="dropdown">
-                            <i class="fas fa-user"></i> <%= user.nome.split(' ')[0] %>
-                        </a>
-                        <ul class="dropdown-menu">
-                            <li><a class="dropdown-item" href="#">
-                                <i class="fas fa-user-tag"></i> <%= user.tipo %>
-                            </a></li>
-                            <li><hr class="dropdown-divider"></li>
-                            <li><a class="dropdown-item text-danger" href="/logout">
-                                <i class="fas fa-sign-out-alt"></i> Sair
-                            </a></li>
-                        </ul>
-                    </li>
-                </ul>
+                </main>
             </div>
         </div>
-    </nav>
+    </div>
+    
+    <% } else { %>
+    
+    <!-- CONTEÚDO PRINCIPAL COM LAYOUT 3+9 -->
+    <div class="container-fluid">
+        <div class="row">
+            <!-- 📊 SIDEBAR (3 colunas) - SOMENTE DESKTOP -->
+            <div class="col-lg-3 col-md-4 d-none d-md-block">
+                <%- include('partials/sidebar') %>
+            </div>
+            
+            <!-- 🎯 CONTEÚDO PRINCIPAL (9 colunas no desktop, 12 no mobile) -->
+            <div class="col-lg-9 col-md-8 col-12">
+                <main class="container-fluid py-3">
+                    <% if (typeof content !== 'undefined') { %>
+                        <%- content %>
+                    <% } else if (typeof body !== 'undefined') { %>
+                        <%- body %>
+                    <% } %>
+                </main>
+            </div>
+        </div>
+    </div>
+    
+    <% } else { %>
+        <!-- SE NÃO ESTIVER LOGADO, MOSTRA APENAS O CONTEÚDO -->
+        <main class="container mt-4">
+            <% if (typeof content !== 'undefined') { %>
+                <%- content %>
+            <% } else if (typeof body !== 'undefined') { %>
+                <%- body %>
+            <% } %>
+        </main>
     <% } %>
     
-    <main class="container mt-4">
-    <% if (typeof content !== 'undefined') { %>
-        <%- body %>
-    <% } else if (typeof body !== 'undefined') { %>
-        <%- body %>
-    <% } %>
-    </main>
+    <!-- Container para Notificações Flash -->
+    <div id="notifications-container"></div>
     
     <!-- Botão para instalar como App -->
     <div id="installPWA" class="position-fixed bottom-0 end-0 p-3" style="z-index: 1000; display: none;">
@@ -111,6 +121,8 @@
     
     <!-- Bootstrap JS -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
+    <!-- Sistema de Notificações - DEVE SER O ÚLTIMO SCRIPT -->
+    <script src="/notifications.js"></script>
     
     <script>
         // Registrar Service Worker para PWA
@@ -170,6 +182,41 @@
         if (isPWAInstalled()) {
             document.getElementById('installPWA').style.display = 'none';
         }
+        
+        // ============================================
+        // 🎯 MELHORIAS PARA MOBILE
+        // ============================================
+        document.addEventListener('DOMContentLoaded', function() {
+            console.log('📱 Sistema carregado - Layout responsivo');
+            
+            // Melhorar experiência touch no mobile
+            if (window.innerWidth <= 768) {
+                // Botões maiores para touch
+                document.querySelectorAll('.btn, .list-group-item, .nav-link').forEach(element => {
+                    element.style.minHeight = '44px';
+                    element.style.display = 'flex';
+                    element.style.alignItems = 'center';
+                });
+                
+                // Inputs maiores (evita zoom no iOS)
+                document.querySelectorAll('input, select, textarea').forEach(input => {
+                    input.style.fontSize = '16px';
+                });
+            }
+            
+            // Fechar menu mobile ao clicar em um link
+            document.querySelectorAll('.navbar-nav .nav-link').forEach(link => {
+                link.addEventListener('click', function() {
+                    if (window.innerWidth <= 768) {
+                        const navbarCollapse = document.getElementById('navbarComplete');
+                        if (navbarCollapse.classList.contains('show')) {
+                            const toggleBtn = document.querySelector('.navbar-toggler');
+                            toggleBtn.click(); // Fecha o menu
+                        }
+                    }
+                });
+            });
+        });
     </script>
 </body>
 </html>

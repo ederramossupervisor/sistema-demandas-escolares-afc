@@ -1,29 +1,126 @@
-<!-- views/partials/sidebar.ejs -->
-<!-- Sidebar -->
-<div class="col-md-3 mb-4">
-    <div class="card">
-        <div class="card-body">
-            <h6 class="text-muted mb-3"><i class="fas fa-bars"></i> Menu Principal</h6>
-            <div class="list-group">
-                <a href="/dashboard" class="list-group-item list-group-item-action <%= currentPage === 'dashboard' ? 'active' : '' %>">
-                    <i class="fas fa-tachometer-alt me-2"></i> Dashboard
-                </a>
-                <a href="/demandas" class="list-group-item list-group-item-action <%= currentPage === 'demandas' ? 'active' : '' %>">
-                    <i class="fas fa-list me-2"></i> Gerenciar Demandas
-                </a>
-                <a href="/cadastro" class="list-group-item list-group-item-action <%= currentPage === 'cadastro' ? 'active' : '' %>">
-                    <i class="fas fa-user-plus me-2"></i> Cadastrar Usuário
-                </a>
-            </div>
-            
-            <h6 class="text-muted mt-4 mb-3"><i class="fas fa-school"></i> Escolas</h6>
-            <div style="max-height: 200px; overflow-y: auto;">
-                <% escolas.slice(0, 5).forEach(function(escola) { %>
-                    <small class="d-block text-muted mb-2">
-                        <i class="fas fa-building me-1"></i> <%= escola.substring(0, 25) %>...
-                    </small>
-                <% }); %>
-            </div>
+<!-- ============================================
+     📊 SIDEBAR UNIFICADA - TODAS AS PÁGINAS
+     ============================================ -->
+<div class="list-group">
+    <!-- Dashboard -->
+    <a href="/dashboard" class="list-group-item list-group-item-action <%= currentPage === 'dashboard' ? 'active' : '' %>">
+        <i class="fas fa-tachometer-alt me-2"></i> Dashboard
+    </a>
+    
+    <!-- Meu Perfil -->
+    <a href="/perfil" class="list-group-item list-group-item-action <%= currentPage === 'perfil' ? 'active' : '' %>">
+        <i class="fas fa-user-circle me-2"></i> Meu Perfil
+    </a>
+    
+    <!-- Gerenciar Demandas -->
+    <a href="/demandas" class="list-group-item list-group-item-action <%= currentPage === 'demandas' ? 'active' : '' %>">
+        <i class="fas fa-list me-2"></i> Gerenciar Demandas
+    </a>
+    
+    <!-- Atribuir Demandas -->
+    <a href="/atribuir" class="list-group-item list-group-item-action <%= currentPage === 'atribuir' ? 'active' : '' %>">
+        <i class="fas fa-user-check me-2"></i> Atribuir Demandas
+    </a>
+    
+    <!-- Cadastrar Usuário (apenas admin) -->
+    <% if (user && user.tipo === 'administrador') { %>
+    <a href="/cadastro" class="list-group-item list-group-item-action <%= currentPage === 'cadastro' ? 'active' : '' %>">
+        <i class="fas fa-user-plus me-2"></i> Cadastrar Usuário
+    </a>
+    <% } %>
+    
+    <!-- Usuários (apenas admin) -->
+    <% if (user && user.tipo === 'administrador') { %>
+    <a href="/usuarios" class="list-group-item list-group-item-action <%= currentPage === 'usuarios' ? 'active' : '' %>">
+        <i class="fas fa-users me-2"></i> Usuários
+        <span class="badge bg-danger rounded-pill ms-auto">Admin</span>
+    </a>
+    <% } %>
+    
+    <!-- Solicitações de Cadastro (apenas admin) -->
+    <% if (user && user.tipo === 'administrador') { %>
+    <a href="/admin/solicitacoes" class="list-group-item list-group-item-action <%= currentPage === 'admin-solicitacoes' ? 'active' : '' %>">
+        <i class="fas fa-user-clock me-2"></i> Solicitações de Cadastro
+        <span class="badge bg-warning text-dark rounded-pill ms-auto" id="badge-solicitacoes">0</span>
+    </a>
+    <% } %>
+    
+    <!-- Configurações -->
+    <a href="/configuracoes" class="list-group-item list-group-item-action <%= currentPage === 'configuracoes' ? 'active' : '' %>">
+        <i class="fas fa-cog me-2"></i> Configurações
+    </a>
+    
+    <!-- Relatórios -->
+    <a href="/relatorios" class="list-group-item list-group-item-action <%= currentPage === 'relatorios' ? 'active' : '' %>">
+        <i class="fas fa-chart-bar me-2"></i> Relatórios
+    </a>
+    <!-- Backups (apenas admin) -->
+    <% if (user && user.tipo === 'administrador') { %>
+    <a href="/api/backup/pagina" class="list-group-item list-group-item-action <%= currentPage === 'admin-backups' ? 'active' : '' %>">
+        <i class="fas fa-database me-2 text-primary"></i> Backups
+        <span class="badge bg-primary rounded-pill ms-auto">Admin</span>
+    </a>
+    <% } %>
+    <!-- Sair -->
+    <a href="/logout" class="list-group-item list-group-item-action text-danger">
+        <i class="fas fa-sign-out-alt me-2"></i> Sair
+    </a>
+</div>
+
+<!-- Seção Escolas (opcional - só se todas páginas tiverem esta variável) -->
+<% if (typeof escolas !== 'undefined' && escolas.length > 0) { %>
+<div class="card mt-3">
+    <div class="card-body p-3">
+        <h6 class="text-muted mb-3">
+            <i class="fas fa-school me-1"></i> Escolas
+        </h6>
+        <div style="max-height: 150px; overflow-y: auto;">
+            <% escolas.slice(0, 5).forEach(function(escola) { %>
+                <div class="d-flex align-items-center mb-2">
+                    <i class="fas fa-building text-muted me-2" style="font-size: 0.8rem;"></i>
+                    <small class="text-muted"><%= escola.substring(0, 25) %>...</small>
+                </div>
+            <% }); %>
         </div>
     </div>
 </div>
+<% } %>
+
+<!-- Script para atualizar badge de solicitações (apenas para admin) -->
+<% if (user && user.tipo === 'administrador') { %>
+<script>
+    // Função para carregar contador de solicitações pendentes
+    async function carregarContadorSolicitacoes() {
+        try {
+            const response = await fetch('/admin/solicitacoes/contador');
+            if (!response.ok) return;
+            
+            const data = await response.json();
+            if (data.success && data.contador > 0) {
+                const badge = document.getElementById('badge-solicitacoes');
+                if (badge) {
+                    badge.textContent = data.contador;
+                    badge.classList.remove('bg-warning');
+                    badge.classList.add('bg-danger');
+                }
+            }
+        } catch (error) {
+            console.log('Não foi possível carregar contador de solicitações');
+        }
+    }
+    
+    // Carregar quando a página carregar
+    document.addEventListener('DOMContentLoaded', carregarContadorSolicitacoes);
+    
+    // Configurar Socket.io para atualizar em tempo real
+    if (typeof io !== 'undefined') {
+        const socket = io();
+        socket.on('nova-solicitacao', () => {
+            carregarContadorSolicitacoes();
+        });
+        socket.on('solicitacao-atualizada', () => {
+            carregarContadorSolicitacoes();
+        });
+    }
+</script>
+<% } %>

@@ -75,6 +75,206 @@
             display: block;
             animation: fadeIn 0.5s;
         }
+        /* ==================== */
+/* RESPONSIVIDADE MOBILE - CADASTRO */
+/* ==================== */
+@media (max-width: 768px) {
+    /* CONTAINER PRINCIPAL */
+    .container-fluid {
+        padding-left: 10px;
+        padding-right: 10px;
+    }
+    
+    /* CABEÇALHO */
+    .text-gradient {
+        font-size: 1.5rem !important;
+    }
+    
+    .lead {
+        font-size: 0.95rem !important;
+    }
+    
+    /* INDICADOR DE PASSOS - MUDAR PARA VERTICAL OU SCROLL */
+    .step-indicator {
+        flex-wrap: wrap;
+        justify-content: center;
+        gap: 10px;
+        margin-bottom: 1.5rem;
+    }
+    
+    .step-indicator::before {
+        display: none; /* Remove linha em mobile */
+    }
+    
+    .step {
+        width: 70px;
+        flex-shrink: 0;
+    }
+    
+    .step-circle {
+        width: 35px;
+        height: 35px;
+        font-size: 16px;
+    }
+    
+    /* FORMULÁRIO - MUDAR PARA 1 COLUNA */
+    .row.g-3 {
+        margin-left: 0;
+        margin-right: 0;
+    }
+    
+    .col-md-6 {
+        width: 100% !important; /* Força 1 coluna */
+        margin-bottom: 15px;
+    }
+    
+    /* LABELS MAIORES */
+    .form-label {
+        font-size: 1rem !important;
+        margin-bottom: 8px !important;
+    }
+    
+    /* INPUTS MAIORES PARA DEDO */
+    .form-control,
+    .form-select {
+        padding: 16px 15px !important;
+        font-size: 16px !important;
+        min-height: 52px;
+        border-radius: 10px;
+    }
+    
+    /* CHECKBOXES MAIORES */
+    .form-check-input {
+        width: 20px !important;
+        height: 20px !important;
+        margin-top: 0.3em;
+    }
+    
+    .form-check-label {
+        font-size: 0.95rem;
+        padding-left: 8px;
+    }
+    
+    /* ÁREAS DE CHECKBOX COM SCROLL */
+    div[style*="max-height: 200px"] {
+        max-height: 150px !important;
+        padding: 15px !important;
+    }
+    
+    /* BOTÕES DE NAVEGAÇÃO */
+    .btn {
+        padding: 14px 20px !important;
+        font-size: 16px !important;
+        min-height: 50px;
+    }
+    
+    .btn-primary, .btn-secondary, .btn-success {
+        min-width: 120px; /* Largura mínima para toque */
+    }
+    
+    /* TABELA DE RESUMO */
+    .table-sm td, .table-sm th {
+        padding: 10px 5px;
+        font-size: 0.9rem;
+    }
+    
+    /* ALERTAS */
+    .alert {
+        padding: 15px;
+        font-size: 0.95rem;
+    }
+    
+    /* MODAL (se houver) */
+    .modal-dialog {
+        margin: 10px;
+    }
+    
+    /* REMOVER HOVER EFFECTS EM TOUCH */
+    .btn:hover {
+        transform: none !important;
+    }
+}
+
+/* ==================== */
+/* CELULARES MUITO PEQUENOS */
+/* ==================== */
+@media (max-width: 375px) {
+    .step {
+        width: 60px;
+    }
+    
+    .step-circle {
+        width: 30px;
+        height: 30px;
+        font-size: 14px;
+    }
+    
+    .form-control,
+    .form-select {
+        padding: 14px 12px !important;
+        min-height: 48px;
+    }
+    
+    .btn {
+        padding: 12px 16px !important;
+        min-height: 46px;
+        font-size: 15px !important;
+    }
+    
+    /* BOTÕES EM LINHA ÚNICA */
+    .d-flex.justify-content-between {
+        flex-direction: column;
+        gap: 10px;
+    }
+    
+    .d-flex.justify-content-between button {
+        width: 100%;
+        margin: 2px 0;
+    }
+}
+
+/* ==================== */
+/* PREVENÇÃO DE ZOOM iOS */
+/* ==================== */
+@media screen and (-webkit-min-device-pixel-ratio: 0) {
+    input[type="text"],
+    input[type="email"],
+    input[type="password"],
+    input[type="tel"],
+    input[type="date"],
+    select,
+    textarea {
+        font-size: 16px !important;
+    }
+}
+
+/* ==================== */
+/* MELHORIAS ESPECÍFICAS PARA FORMULÁRIOS */
+/* ==================== */
+/* Dica visual para campos obrigatórios */
+.form-label.fw-bold::after {
+    content: " *";
+    color: #dc3545;
+}
+
+/* Foco visual melhorado */
+.form-control:focus,
+.form-select:focus {
+    border-color: #667eea;
+    box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.15) !important;
+}
+
+/* Checkboxes com melhor contraste */
+.form-check-input:checked {
+    background-color: #667eea;
+    border-color: #667eea;
+}
+
+/* Select com seta maior */
+.form-select {
+    background-size: 20px 20px;
+    padding-right: 40px !important;
+}
     </style>
 </head>
 <body>
@@ -83,13 +283,18 @@
 
     <div class="container-fluid mt-4">
         <div class="row">
-            <!-- INCLUI a sidebar -->
-            <%- include('partials/sidebar', {
-                currentPage: 'cadastro',
-                escolas: escolas,
-                user: user
-            }) %>
-
+            <!-- Sidebar Unificada - Visível apenas no desktop -->
+            <div class="col-md-3 d-none d-md-block">
+                <div class="card border-0 shadow-sm mb-4">
+                    <div class="card-body p-3">
+                        <%- include('partials/sidebar', { 
+                            currentPage: 'cadastro', 
+                            user: user,
+                            escolas: escolas || []
+                        }); %>
+                    </div>
+                </div>
+            </div>
             <!-- Conteúdo Principal -->
             <div class="col-md-9">
                 <!-- Cabeçalho da Página -->
@@ -106,8 +311,35 @@
                 </div>
 
                 <!-- Conteúdo da Página -->
-                <div class="card border-0 shadow-lg">
-                    <div class="card-header">
+                <% if (!user || (user.tipo !== 'administrador' && user.tipo !== 'supervisor')) { %>
+                    <!-- MENSAGEM DE ACESSO NEGADO -->
+                    <div class="row">
+                        <div class="col-12">
+                            <div class="alert alert-danger mt-5" style="max-width: 800px; margin: 0 auto;">
+                                <div class="text-center">
+                                    <i class="fas fa-ban fa-3x text-danger mb-3"></i>
+                                    <h3 class="alert-heading">Acesso Restrito</h3>
+                                    <p class="lead">Você não tem permissão para acessar esta funcionalidade.</p>
+                                    <hr>
+                                    <p class="mb-3">
+                                        <strong>Apenas Administradores e Supervisores</strong> podem cadastrar novos usuários no sistema.
+                                    </p>
+                                    <div class="mt-4">
+                                        <a href="/dashboard" class="btn btn-primary btn-lg">
+                                            <i class="fas fa-home me-2"></i> Voltar ao Dashboard
+                                        </a>
+                                        <a href="/perfil" class="btn btn-outline-primary btn-lg ms-2">
+                                            <i class="fas fa-user me-2"></i> Ver Meu Perfil
+                                        </a>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                <% } else { %>
+                    <!-- CARD COM FORMULÁRIO DE CADASTRO (SÓ ADMIN/SUPERVISOR VÊ) -->
+                    <div class="card border-0 shadow-lg">
+                        <div class="card-header">
                         <h5 class="mb-0 text-white">
                             <i class="fas fa-id-card me-2"></i> Formulário de Cadastro
                         </h5>
@@ -157,7 +389,7 @@
                                             <i class="fas fa-envelope me-1"></i> Email Institucional *
                                         </label>
                                         <input type="email" class="form-control" name="email" required 
-                                               placeholder="Ex: maria.silva@escola.gov.br">
+                                               placeholder="Ex: maria.silva@educador.edu.es.gov.br">
                                         <small class="form-text text-muted">Use email institucional da secretaria</small>
                                     </div>
                                     
@@ -425,6 +657,7 @@
                             </div>
                         </form>
                     </div>
+                <% } %> <!-- Fecha o else (final da verificação de permissão) -->
                 </div>
             </div>
         </div>
@@ -601,45 +834,218 @@
             document.querySelector('select[name="departamento"]').value;
     }
     
-    // Submissão do formulário
-    document.getElementById('formCadastroUsuario').addEventListener('submit', function(e) {
+        // Submissão do formulário - VERSÃO REAL
+    document.getElementById('formCadastroUsuario').addEventListener('submit', async function(e) {
         e.preventDefault();
         
         if (!document.getElementById('confirmacao').checked) {
-            alert('Você precisa confirmar que as informações estão corretas!');
+            mostrarAlerta('Você precisa confirmar que as informações estão corretas!', 'warning');
             return;
         }
         
-        // Coletar dados do formulário
-        const formData = new FormData(this);
-        const data = Object.fromEntries(formData.entries());
-        
-        // Coletar checkboxes (escolas vinculadas e permissões)
-        data.escolasVinculadas = Array.from(document.querySelectorAll('input[name="escolasVinculadas"]:checked'))
-            .map(cb => cb.value);
-        data.permissoes = Array.from(document.querySelectorAll('input[name="permissoes"]:checked'))
-            .map(cb => cb.value);
-        
-        console.log('Dados para cadastro:', data);
-        
-        // Simular envio (substituir por fetch real depois)
-        alert('✅ Usuário cadastrado com sucesso!\n\nFuncionalidade completa será implementada na próxima fase.');
-        
-        // Resetar formulário
-        this.reset();
-        passoAtual = 1;
-        
-        // Resetar indicadores
-        document.querySelectorAll('.step').forEach(step => {
-            step.classList.remove('active', 'completed');
-        });
-        document.getElementById('step1').classList.add('active');
-        
-        document.querySelectorAll('.form-section').forEach(section => {
-            section.classList.remove('active');
-        });
-        document.getElementById('section1').classList.add('active');
+        try {
+            // Mostrar loading
+            const btnSubmit = this.querySelector('button[type="submit"]');
+            const originalText = btnSubmit.innerHTML;
+            btnSubmit.innerHTML = '<i class="fas fa-spinner fa-spin me-1"></i> Cadastrando...';
+            btnSubmit.disabled = true;
+            
+            // Coletar dados do formulário
+            const formData = new FormData(this);
+            const data = {
+                nome: formData.get('nome'),
+                email: formData.get('email').toLowerCase(),
+                senha: formData.get('senha'),
+                tipo: formData.get('tipo'),
+                cargo: formData.get('cargo'),
+                telefone: formData.get('telefone') || '',
+                cpf: formData.get('cpf') || '',
+                lotacao: formData.get('lotacao'),
+                departamento: formData.get('departamento'),
+                dataAdmissao: formData.get('dataAdmissao') || new Date().toISOString().split('T')[0],
+                enviarEmail: document.getElementById('enviarCredenciais').checked
+            };
+            
+            // Coletar escolas vinculadas
+            const escolasCheckboxes = document.querySelectorAll('input[name="escolasVinculadas"]:checked');
+            data.escolas = Array.from(escolasCheckboxes).map(cb => cb.value);
+            
+            // Se não selecionou nenhuma escola, usa a lotação
+            if (data.escolas.length === 0) {
+                data.escolas = [data.lotacao];
+            }
+            
+            console.log('📤 Enviando dados para cadastro:', data);
+            
+            // Enviar para a API
+            const response = await fetch('/api/emergency-register', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(data)
+            });
+            
+            const resultado = await response.json();
+            
+            if (resultado.success) {
+                mostrarAlerta('✅ Usuário cadastrado com sucesso!', 'success');
+                
+                // Resetar formulário
+                this.reset();
+                passoAtual = 1;
+                
+                // Resetar indicadores
+                document.querySelectorAll('.step').forEach(step => {
+                    step.classList.remove('active', 'completed');
+                });
+                document.getElementById('step1').classList.add('active');
+                
+                document.querySelectorAll('.form-section').forEach(section => {
+                    section.classList.remove('active');
+                });
+                document.getElementById('section1').classList.add('active');
+                
+                // Redefinir checkboxes de escolas
+                document.querySelectorAll('input[name="escolasVinculadas"]').forEach((cb, index) => {
+                    cb.checked = index < 3;
+                });
+                
+                // Mostrar detalhes do usuário criado
+                setTimeout(() => {
+                    mostrarModalSucesso(resultado.usuario);
+                }, 1000);
+                
+            } else {
+                mostrarAlerta(`❌ Erro: ${resultado.message}`, 'error');
+            }
+            
+        } catch (error) {
+            console.error('❌ Erro no cadastro:', error);
+            mostrarAlerta('❌ Erro ao conectar com o servidor. Tente novamente.', 'error');
+        } finally {
+            // Restaurar botão
+            const btnSubmit = document.querySelector('#formCadastroUsuario button[type="submit"]');
+            btnSubmit.innerHTML = '<i class="fas fa-save me-1"></i> Confirmar Cadastro';
+            btnSubmit.disabled = false;
+        }
     });
+    
+    // Função para mostrar alertas
+    function mostrarAlerta(mensagem, tipo = 'info') {
+        // Remover alertas anteriores
+        const alertasAnteriores = document.querySelectorAll('.alert-flutuante');
+        alertasAnteriores.forEach(alerta => alerta.remove());
+        
+        // Criar novo alerta
+        const alerta = document.createElement('div');
+        alerta.className = `alert alert-${tipo === 'error' ? 'danger' : tipo} alert-flutuante`;
+        alerta.innerHTML = `
+            <div class="d-flex align-items-center">
+                <i class="fas fa-${tipo === 'success' ? 'check-circle' : tipo === 'warning' ? 'exclamation-triangle' : 'info-circle'} me-2"></i>
+                <div>${mensagem}</div>
+            </div>
+            <button type="button" class="btn-close" onclick="this.parentElement.remove()"></button>
+        `;
+        
+        // Estilos
+        Object.assign(alerta.style, {
+            position: 'fixed',
+            top: '20px',
+            right: '20px',
+            zIndex: '9999',
+            minWidth: '300px',
+            maxWidth: '500px',
+            boxShadow: '0 4px 12px rgba(0,0,0,0.15)'
+        });
+        
+        document.body.appendChild(alerta);
+        
+        // Auto-remover após 5 segundos (exceto erros)
+        if (tipo !== 'error') {
+            setTimeout(() => alerta.remove(), 5000);
+        }
+    }
+    
+    // Função para mostrar modal de sucesso
+    function mostrarModalSucesso(usuario) {
+        const modalHTML = `
+            <div class="modal fade" id="modalSucesso" tabindex="-1" aria-labelledby="modalSucessoLabel" aria-hidden="true">
+                <div class="modal-dialog modal-dialog-centered">
+                    <div class="modal-content">
+                        <div class="modal-header bg-success text-white">
+                            <h5 class="modal-title" id="modalSucessoLabel">
+                                <i class="fas fa-check-circle me-2"></i>Usuário Cadastrado
+                            </h5>
+                            <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+                        </div>
+                        <div class="modal-body">
+                            <div class="text-center mb-4">
+                                <div class="avatar-lg bg-success bg-opacity-10 text-success rounded-circle d-flex align-items-center justify-content-center mx-auto mb-3" style="width: 80px; height: 80px;">
+                                    <i class="fas fa-user-check fa-2x"></i>
+                                </div>
+                                <h4 class="text-success">Cadastro realizado com sucesso!</h4>
+                            </div>
+                            
+                            <div class="card mb-3">
+                                <div class="card-header bg-light">
+                                    <strong>Resumo do Usuário</strong>
+                                </div>
+                                <div class="card-body">
+                                    <div class="row">
+                                        <div class="col-md-6">
+                                            <p><strong>Nome:</strong><br>${usuario.nome}</p>
+                                            <p><strong>Email:</strong><br>${usuario.email}</p>
+                                            <p><strong>Tipo:</strong><br>${usuario.tipo}</p>
+                                        </div>
+                                        <div class="col-md-6">
+                                            <p><strong>Departamento:</strong><br>${usuario.departamento}</p>
+                                            <p><strong>Escolas:</strong><br>${usuario.escolas.slice(0, 3).join(', ')}${usuario.escolas.length > 3 ? '...' : ''}</p>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="alert alert-info">
+                                <i class="fas fa-info-circle me-2"></i>
+                                <strong>Próximos passos:</strong>
+                                <ul class="mb-0 mt-2">
+                                    <li>As credenciais foram salvas no sistema</li>
+                                    <li>O usuário já pode fazer login</li>
+                                    <li>Verifique o usuário na lista de usuários</li>
+                                </ul>
+                            </div>
+                        </div>
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+                                <i class="fas fa-times me-1"></i> Fechar
+                            </button>
+                            <a href="/usuarios" class="btn btn-primary">
+                                <i class="fas fa-users me-1"></i> Ver Lista de Usuários
+                            </a>
+                            <button type="button" class="btn btn-success" onclick="window.location.reload()">
+                                <i class="fas fa-plus me-1"></i> Novo Cadastro
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        `;
+        
+        // Adicionar modal ao DOM
+        const modalContainer = document.createElement('div');
+        modalContainer.innerHTML = modalHTML;
+        document.body.appendChild(modalContainer);
+        
+        // Mostrar modal
+        const modal = new bootstrap.Modal(document.getElementById('modalSucesso'));
+        modal.show();
+        
+        // Remover modal do DOM quando fechar
+        document.getElementById('modalSucesso').addEventListener('hidden.bs.modal', function () {
+            modalContainer.remove();
+        });
+    }
     
     console.log('✅ Página de cadastro carregada com sucesso!');
     </script>

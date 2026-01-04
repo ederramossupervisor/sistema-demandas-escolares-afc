@@ -1,0 +1,1585 @@
+/* ============================================
+   🎨 TEMA GRADIENTE CINZA + AZUL #0096E1
+   ============================================ */
+
+:root {
+  /* 🎨 PALETA PRINCIPAL - GRADIENTE CINZA/AZUL */
+  --azul-principal: #0096E1;        /* Azul principal */
+  --azul-hover: #0077b3;            /* Azul mais escuro */
+  --azul-claro: #4db8ff;            /* Azul claro */
+  
+  /* 🏔️ ESCALA DE CINZAS PARA GRADIENTES */
+  --cinza-50: #f9fafb;             /* Cinza muito claro */
+  --cinza-100: #f3f4f6;            /* Cinza claro */
+  --cinza-200: #e5e7eb;            /* Cinza médio claro */
+  --cinza-300: #d1d5db;            /* Cinza médio */
+  --cinza-400: #9ca3af;            /* Cinza */
+  --cinza-500: #6b7280;            /* Cinza escuro */
+  --cinza-600: #4b5563;            /* Cinza muito escuro */
+  --cinza-700: #374151;            /* Cinza quase preto */
+  --cinza-800: #1f2937;            /* Preto acinzentado */
+  
+  /* 🎨 CORES DE DESTAQUE */
+  --destaque-rosa: #FFAEC8;        /* Rosa para pequenos destaques */
+  --sucesso: #10b981;              /* Verde sucesso */
+  --alerta: #f59e0b;               /* Amarelo alerta */
+  --perigo: #ef4444;               /* Vermelho perigo */
+  
+  /* 🌈 CORES DE TEXTO */
+  --texto-escuro: var(--cinza-800);
+  --texto-medio: var(--cinza-600);
+  --texto-claro: var(--cinza-400);
+  --texto-branco: #ffffff;
+}
+
+/* ============================================
+   🌈 APLICAR TEMA - FUNDOS GRADIENTES
+   ============================================ */
+
+/* 🎨 FUNDO DA PÁGINA - GRADIENTE CINZA SUAVE */
+body {
+  background: linear-gradient(135deg, var(--cinza-50) 0%, var(--cinza-100) 100%) !important;
+  color: var(--texto-escuro) !important;
+  font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+  line-height: 1.6;
+  min-height: 100vh;
+}
+
+/* ============================================
+   🎀 NAVBAR - GRADIENTE CINZA/AZUL
+   ============================================ */
+
+.navbar {
+  background: linear-gradient(135deg, var(--cinza-700) 0%, var(--azul-principal) 100%) !important;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1) !important;
+  padding: 0.8rem 1.5rem;
+  border-bottom: 3px solid var(--azul-claro) !important;
+}
+
+.navbar-brand {
+  color: white !important;
+  font-weight: 700;
+  font-size: 1.6rem;
+  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+  background: linear-gradient(90deg, white, var(--azul-claro));
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.navbar-nav .nav-link {
+  color: rgba(255, 255, 255, 0.9) !important;
+  font-weight: 500;
+  padding: 0.5rem 1rem;
+  border-radius: 6px;
+  margin: 0 0.2rem;
+  transition: all 0.3s;
+}
+
+.navbar-nav .nav-link:hover {
+  color: white !important;
+  background: rgba(255, 255, 255, 0.15);
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(255, 255, 255, 0.1);
+}
+
+/* ☰ BOTÃO SANDUÍCHE */
+.navbar-toggler {
+  border-color: rgba(255, 255, 255, 0.3) !important;
+}
+
+.navbar-toggler-icon {
+  background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 30 30'%3e%3cpath stroke='rgba%28255, 255, 255, 0.9%29' stroke-linecap='round' stroke-miterlimit='10' stroke-width='2' d='M4 7h22M4 15h22M4 23h22'/%3e%3c/svg%3e") !important;
+}
+
+/* ============================================
+   🎯 TÍTULOS - CONTRASTE PERFEITO
+   ============================================ */
+
+h1, h2, h3, h4, h5, h6 {
+  color: var(--cinza-800) !important;
+  font-weight: 600 !important;
+}
+
+h1 { 
+  background: linear-gradient(90deg, var(--azul-principal), var(--cinza-700));
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  font-weight: 800 !important;
+  padding-bottom: 0.5rem;
+  border-bottom: 3px solid transparent;
+  border-image: linear-gradient(90deg, var(--azul-principal), var(--cinza-400)) 1;
+}
+
+/* ============================================
+   📊 CARDS - GRADIENTES E ELEVAÇÃO
+   ============================================ */
+
+.card {
+  background: linear-gradient(135deg, white 0%, var(--cinza-50) 100%) !important;
+  border: 1px solid var(--cinza-200) !important;
+  border-radius: 16px !important;
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.08) !important;
+  margin-bottom: 1.5rem;
+  transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+  overflow: hidden;
+}
+
+.card:hover {
+  transform: translateY(-8px) !important;
+  box-shadow: 0 15px 35px rgba(0, 150, 225, 0.15) !important;
+  border-color: var(--azul-claro) !important;
+}
+
+.card-header {
+  background: linear-gradient(135deg, var(--cinza-700) 0%, var(--azul-principal) 100%) !important;
+  color: white !important;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.2) !important;
+  border-radius: 16px 16px 0 0 !important;
+  font-weight: 600;
+  padding: 1.2rem 1.5rem;
+}
+
+/* ============================================
+   🎯 BOTÕES - GRADIENTES E EFEITOS
+   ============================================ */
+
+.btn {
+  border-radius: 10px !important;
+  font-weight: 600 !important;
+  padding: 0.6rem 1.8rem !important;
+  transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1) !important;
+  border: none !important;
+  position: relative;
+  overflow: hidden;
+}
+
+.btn::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+  transition: left 0.7s;
+}
+
+.btn:hover::before {
+  left: 100%;
+}
+
+.btn-primary {
+  background: linear-gradient(135deg, var(--azul-principal) 0%, var(--azul-hover) 100%) !important;
+  color: white !important;
+  box-shadow: 0 4px 15px rgba(0, 150, 225, 0.3) !important;
+}
+
+.btn-primary:hover {
+  transform: translateY(-4px) !important;
+  box-shadow: 0 8px 25px rgba(0, 150, 225, 0.4) !important;
+  background: linear-gradient(135deg, var(--azul-hover) 0%, var(--azul-principal) 100%) !important;
+}
+
+.btn-success {
+  background: linear-gradient(135deg, var(--sucesso) 0%, #0da371 100%) !important;
+  color: white !important;
+  box-shadow: 0 4px 15px rgba(16, 185, 129, 0.3) !important;
+}
+
+.btn-success:hover {
+  transform: translateY(-4px) !important;
+  box-shadow: 0 8px 25px rgba(16, 185, 129, 0.4) !important;
+}
+
+.btn-warning {
+  background: linear-gradient(135deg, var(--alerta) 0%, #d97706 100%) !important;
+  color: var(--cinza-800) !important;
+  box-shadow: 0 4px 15px rgba(245, 158, 11, 0.3) !important;
+}
+
+.btn-warning:hover {
+  transform: translateY(-4px) !important;
+  box-shadow: 0 8px 25px rgba(245, 158, 11, 0.4) !important;
+}
+
+.btn-danger {
+  background: linear-gradient(135deg, var(--perigo) 0%, #dc2626 100%) !important;
+  color: white !important;
+  box-shadow: 0 4px 15px rgba(239, 68, 68, 0.3) !important;
+}
+
+.btn-danger:hover {
+  transform: translateY(-4px) !important;
+  box-shadow: 0 8px 25px rgba(239, 68, 68, 0.4) !important;
+}
+
+.btn-secondary {
+  background: linear-gradient(135deg, var(--cinza-500) 0%, var(--cinza-600) 100%) !important;
+  color: white !important;
+  box-shadow: 0 4px 15px rgba(107, 114, 128, 0.3) !important;
+}
+
+.btn-secondary:hover {
+  transform: translateY(-4px) !important;
+  box-shadow: 0 8px 25px rgba(107, 114, 128, 0.4) !important;
+}
+/* ============================================
+   🎯 EFEITOS DE INTERAÇÃO MELHORADOS
+   ============================================ */
+
+/* 1️⃣ EFEITO DE CLIQUE NOS BOTÕES */
+.btn-primary:active, 
+.btn-success:active, 
+.btn-info:active,
+.btn-secondary:active {
+    transform: scale(0.95) !important;
+    transition: transform 0.1s ease !important;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2) !important;
+}
+
+/* 2️⃣ EFEITO DE "PULSO" PARA BOTÕES IMPORTANTES */
+@keyframes pulse {
+    0% {
+        box-shadow: 0 0 0 0 rgba(0, 150, 225, 0.7);
+    }
+    70% {
+        box-shadow: 0 0 0 10px rgba(0, 150, 225, 0);
+    }
+    100% {
+        box-shadow: 0 0 0 0 rgba(0, 150, 225, 0);
+    }
+}
+
+/* Botão de ação principal - efeito sutil */
+.btn-primary.pulse {
+    animation: pulse 2s infinite !important;
+}
+
+/* 3️⃣ EFEITO DE LEVANTAR CARD AO PASSAR MOUSE */
+.card:hover {
+    transform: translateY(-5px) !important;
+    box-shadow: 0 10px 20px rgba(0, 0, 0, 0.15) !important;
+    transition: all 0.3s ease !important;
+}
+
+/* 4️⃣ EFEITO DE CLIQUE NOS CARDS */
+.card:active {
+    transform: translateY(-2px) scale(0.99) !important;
+    transition: transform 0.1s ease !important;
+}
+
+/* 5️⃣ EFEITO NOS ITENS DA SIDEBAR */
+.list-group-item-action:hover {
+    transform: translateX(5px) !important;
+    transition: transform 0.2s ease !important;
+}
+
+.list-group-item-action:active {
+    transform: translateX(2px) scale(0.98) !important;
+    transition: transform 0.1s ease !important;
+}
+
+/* 6️⃣ EFEITO NAS LINHAS DA TABELA */
+.table tbody tr:hover {
+    background-color: rgba(0, 150, 225, 0.05) !important;
+    transform: scale(1.005) !important;
+    transition: all 0.2s ease !important;
+}
+
+/* 7️⃣ EFEITO NOS LINKS */
+a:not(.btn):hover {
+    transform: translateY(-1px) !important;
+    transition: transform 0.2s ease !important;
+}
+
+/* 8️⃣ EFEITO NOS ÍCONES */
+.fas:hover, .fab:hover {
+    transform: scale(1.2) !important;
+    transition: transform 0.2s ease !important;
+}
+
+/* 9️⃣ FEEDBACK VISUAL PARA FORMULÁRIOS */
+.form-control:focus {
+    transform: scale(1.02) !important;
+    transition: transform 0.2s ease !important;
+    box-shadow: 0 0 0 3px rgba(0, 150, 225, 0.2) !important;
+}
+
+/* 🔟 EFEITO DE "SUCESSO" AO SALVAR */
+@keyframes successFlash {
+    0%, 100% {
+        background-color: transparent;
+    }
+    50% {
+        background-color: rgba(40, 167, 69, 0.1);
+    }
+}
+
+.success-feedback {
+    animation: successFlash 1s ease 2 !important;
+}
+
+/* ============================================
+   📱 OTIMIZAÇÃO PARA MOBILE
+   ============================================ */
+
+/* Dispositivos touch - efeitos mais suaves */
+@media (max-width: 768px) {
+    .card:hover {
+        transform: translateY(-3px) !important;
+    }
+    
+    .btn-primary:active,
+    .btn-success:active {
+        transform: scale(0.97) !important;
+    }
+    
+    /* Remove transform em hover para mobile (só toque) */
+    .table tbody tr:hover {
+        transform: none !important;
+    }
+}
+/* ============================================
+   📱 SIDEBAR RESPONSIVA - VISÍVEL APENAS NO DESKTOP
+   ============================================ */
+
+/* 🎨 CONTAINER DA SIDEBAR (div.list-group) */
+.list-group {
+  background: linear-gradient(180deg, var(--cinza-100) 0%, white 100%) !important;
+  border-right: 1px solid var(--cinza-200) !important;
+  box-shadow: 2px 0 15px rgba(0, 0, 0, 0.05) !important;
+  padding: 25px 15px !important;
+  min-height: calc(100vh - 70px);
+  border-radius: 0 !important;
+  
+  /* NO DESKTOP: sempre visível */
+  display: block !important;
+}
+
+/* 🎯 BOTÕES DA SIDEBAR - MESMO EFEITO DA NAVBAR */
+.list-group .list-group-item {
+  /* GRADIENTE IGUAL À NAVBAR: Cinza escuro → Azul */
+  background: linear-gradient(135deg, var(--cinza-700) 0%, var(--azul-principal) 100%) !important;
+  
+  border: none !important;
+  color: white !important;
+  border-radius: 10px !important;
+  margin: 8px 0 !important;
+  padding: 16px 20px !important;
+  font-weight: 600;
+  font-size: 1.05rem;
+  display: flex !important;
+  align-items: center !important;
+  gap: 15px !important;
+  transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275) !important;
+  cursor: pointer;
+  position: relative;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.15) !important;
+}
+
+/* ✨ ÍCONES DA SIDEBAR */
+.list-group .list-group-item i {
+  font-size: 1.3rem;
+  width: 35px;
+  height: 35px;
+  text-align: center;
+  line-height: 35px;
+  transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275) !important;
+  color: white !important;
+  background: rgba(255, 255, 255, 0.15);
+  border-radius: 8px;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+/* 🎀 HOVER - ELEVAÇÃO E BRILHO */
+.list-group .list-group-item:hover {
+  background: linear-gradient(135deg, var(--cinza-800) 0%, var(--azul-hover) 100%) !important;
+  color: white !important;
+  
+  /* ELEVAÇÃO 3D */
+  transform: translateX(8px) translateY(-5px) !important;
+  
+  /* SOMBRAS */
+  box-shadow: 
+    0 10px 25px rgba(0, 150, 225, 0.35),
+    0 5px 15px rgba(0, 0, 0, 0.2),
+    inset 0 1px 0 rgba(255, 255, 255, 0.3) !important;
+  
+  border: 1px solid rgba(255, 255, 255, 0.3) !important;
+  border-left: 4px solid var(--azul-claro) !important;
+  
+  z-index: 100 !important;
+}
+
+/* ✨ ÍCONES NO HOVER */
+.list-group .list-group-item:hover i {
+  background: rgba(255, 255, 255, 0.25);
+  border-color: rgba(255, 255, 255, 0.4);
+  transform: scale(1.15) rotate(5deg) !important;
+  box-shadow: 0 0 20px rgba(255, 255, 255, 0.4) !important;
+}
+
+/* ✅ ESTADO ATIVO */
+.list-group .list-group-item.active {
+  background: linear-gradient(135deg, var(--azul-principal) 0%, var(--azul-claro) 100%) !important;
+  color: white !important;
+  font-weight: 700;
+  box-shadow: 
+    0 12px 30px rgba(0, 150, 225, 0.5),
+    inset 0 2px 10px rgba(255, 255, 255, 0.4) !important;
+  transform: translateX(6px) !important;
+  border: 1px solid rgba(255, 255, 255, 0.4) !important;
+  border-left: 5px solid white !important;
+}
+
+.list-group .list-group-item.active i {
+  background: rgba(255, 255, 255, 0.3);
+  transform: scale(1.2) !important;
+  box-shadow: 0 0 15px rgba(255, 255, 255, 0.5) !important;
+}
+
+/* 🎯 EFEITO DE CLIQUE */
+.list-group .list-group-item:active {
+  transform: translateX(8px) translateY(-1px) !important;
+  box-shadow: 0 5px 20px rgba(0, 150, 225, 0.3) !important;
+  transition: all 0.15s !important;
+}
+
+/* ✨ EFEITO DE BRILHO EXTERNO */
+.list-group .list-group-item:hover::after {
+  content: '';
+  position: absolute;
+  top: -2px;
+  left: -2px;
+  right: -2px;
+  bottom: -2px;
+  background: linear-gradient(45deg, 
+    var(--azul-claro), 
+    rgba(255, 255, 255, 0.3), 
+    var(--azul-claro));
+  border-radius: 12px;
+  z-index: -1;
+  opacity: 0.4;
+  filter: blur(6px);
+  animation: glowPulse 1.5s infinite alternate;
+}
+
+@keyframes glowPulse {
+  from { opacity: 0.3; }
+  to { opacity: 0.6; }
+}
+
+/* ============================================
+   📱 MOBILE: SIDEBAR ESCONDIDA POR PADRÃO
+   ============================================ */
+
+@media (max-width: 768px) {
+  /* 🚨 NO MOBILE: Sidebar INVISÍVEL por padrão */
+  .list-group {
+    display: none !important;  /* ← IMPORTANTE: escondida! */
+    position: fixed !important;
+    top: 70px !important; /* Abaixo da navbar */
+    left: 0 !important;
+    width: 85% !important; /* Ocupa 85% da tela */
+    height: calc(100vh - 70px) !important;
+    z-index: 1000 !important;
+    background: linear-gradient(180deg, var(--cinza-800) 0%, var(--cinza-700) 100%) !important;
+    border-right: none !important;
+    box-shadow: 5px 0 25px rgba(0, 0, 0, 0.3) !important;
+    padding: 20px 15px !important;
+    overflow-y: auto !important;
+    
+    /* Animação de entrada */
+    animation: slideInLeftMobile 0.3s ease-out !important;
+  }
+  
+  @keyframes slideInLeftMobile {
+    from {
+      transform: translateX(-100%);
+      opacity: 0;
+    }
+    to {
+      transform: translateX(0);
+      opacity: 1;
+    }
+  }
+  
+  /* ✅ QUANDO A SIDEBAR ESTÁ ABERTA (classe 'mobile-open') */
+  .list-group.mobile-open {
+    display: block !important; /* ← Aparece quando tem esta classe! */
+  }
+  
+  /* 🎯 BOTÕES NO MOBILE */
+  .list-group .list-group-item {
+    margin: 10px 0 !important;
+    padding: 18px 20px !important;
+    font-size: 1.1rem;
+    border-radius: 12px !important;
+    background: linear-gradient(135deg, var(--azul-principal) 0%, var(--azul-hover) 100%) !important;
+  }
+  
+  .list-group .list-group-item:hover {
+    transform: translateX(5px) translateY(-3px) !important;
+    box-shadow: 0 8px 20px rgba(0, 150, 225, 0.4) !important;
+  }
+  
+  .list-group .list-group-item:active {
+    transform: translateX(5px) translateY(-1px) !important;
+  }
+  
+  /* ✨ OVERLAY ESCURO QUANDO SIDEBAR ABERTA */
+  .sidebar-overlay {
+    position: fixed;
+    top: 70px;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0, 0, 0, 0.5);
+    z-index: 999;
+    display: none;
+  }
+  
+  .sidebar-overlay.mobile-open {
+    display: block;
+  }
+  
+  /* 📱 BOTÃO SANDUÍCHE MAIOR NO MOBILE */
+  .navbar-toggler {
+    padding: 10px 12px !important;
+  }
+  
+  .navbar-toggler-icon {
+    width: 28px !important;
+    height: 28px !important;
+  }
+}
+
+/* ============================================
+   💻 DESKTOP: SIDEBAR SEMPRE VISÍVEL
+   ============================================ */
+
+@media (min-width: 769px) {
+  .list-group {
+    display: block !important; /* Sempre visível no desktop */
+  }
+  
+  /* Esconder overlay no desktop */
+  .sidebar-overlay {
+    display: none !important;
+  }
+}
+/* ============================================
+   🏷️ BADGES - GRADIENTES
+   ============================================ */
+
+.badge {
+  padding: 0.4rem 1rem;
+  border-radius: 20px;
+  font-weight: 600;
+  font-size: 0.85rem;
+  border: none !important;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.badge.bg-primary {
+  background: linear-gradient(135deg, var(--azul-principal) 0%, var(--azul-hover) 100%) !important;
+  color: white !important;
+}
+
+.badge.bg-success {
+  background: linear-gradient(135deg, var(--sucesso) 0%, #0da371 100%) !important;
+  color: white !important;
+}
+
+.badge.bg-warning {
+  background: linear-gradient(135deg, var(--alerta) 0%, #d97706 100%) !important;
+  color: var(--cinza-800) !important;
+}
+
+.badge.bg-danger {
+  background: linear-gradient(135deg, var(--perigo) 0%, #dc2626 100%) !important;
+  color: white !important;
+}
+
+/* ============================================
+   📝 FORMULÁRIOS - ESTILO MODERNO
+   ============================================ */
+
+.form-control, .form-select {
+  background: linear-gradient(135deg, white 0%, var(--cinza-50) 100%) !important;
+  border: 2px solid var(--cinza-300) !important;
+  border-radius: 10px;
+  padding: 0.75rem 1rem;
+  transition: all 0.3s;
+  color: var(--cinza-800) !important;
+}
+
+.form-control:focus, .form-select:focus {
+  background: white !important;
+  border-color: var(--azul-principal) !important;
+  box-shadow: 0 0 0 4px rgba(0, 150, 225, 0.15) !important;
+  transform: translateY(-2px);
+}
+
+/* ============================================
+   🎨 TABELAS - GRADIENTES SUAVES
+   ============================================ */
+
+.table {
+  background: white !important;
+  border-radius: 12px;
+  overflow: hidden;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08) !important;
+}
+
+.table th {
+  background: linear-gradient(135deg, var(--cinza-100) 0%, var(--cinza-200) 100%) !important;
+  color: var(--cinza-800) !important;
+  font-weight: 700;
+  padding: 1.2rem;
+  border-bottom: 3px solid var(--cinza-300) !important;
+}
+
+.table td {
+  padding: 1rem 1.2rem;
+  border-bottom: 1px solid var(--cinza-200) !important;
+  color: var(--cinza-700) !important;
+}
+
+.table-hover tbody tr:hover {
+  background: linear-gradient(135deg, var(--cinza-50) 0%, white 100%) !important;
+  transform: scale(1.005);
+  transition: all 0.2s;
+}
+
+/* ============================================
+   🔗 LINKS - CONTRASTE PERFEITO
+   ============================================ */
+
+a {
+  color: var(--azul-principal) !important;
+  text-decoration: none;
+  font-weight: 500;
+  transition: all 0.2s;
+  position: relative;
+}
+
+a:hover {
+  color: var(--azul-hover) !important;
+  text-decoration: none;
+}
+
+a:hover::after {
+  content: '';
+  position: absolute;
+  bottom: -2px;
+  left: 0;
+  width: 100%;
+  height: 2px;
+  background: linear-gradient(90deg, var(--azul-principal), var(--azul-claro));
+  border-radius: 2px;
+}
+
+/* ============================================
+   ✨ EFEITOS GLOBAIS E POLIMENTOS
+   ============================================ */
+
+/* ANIMAÇÃO DE ENTRADA SUAVE */
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.fade-in {
+  animation: fadeInUp 0.5s ease-out;
+}
+
+/* SOMBRA SUAVE EM ELEMENTOS FLUTUANTES */
+.floating {
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1) !important;
+  transition: all 0.3s !important;
+}
+
+.floating:hover {
+  box-shadow: 0 15px 40px rgba(0, 0, 0, 0.15) !important;
+}
+
+/* EFEITO DE FOCO ACESSÍVEL */
+*:focus {
+  outline: 3px solid var(--azul-claro) !important;
+  outline-offset: 2px;
+  border-radius: 4px;
+}
+
+/* TRANSITIONS SUAVES */
+.btn,
+.card,
+.list-group-item,
+.nav-link {
+  transition: all 0.3s ease !important;
+}
+
+/* ============================================
+   🎯 UTILITÁRIOS DE ESPAÇAMENTO
+   ============================================ */
+
+.shadow-soft {
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.08) !important;
+}
+
+.shadow-medium {
+  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.12) !important;
+}
+
+.shadow-strong {
+  box-shadow: 0 12px 35px rgba(0, 0, 0, 0.15) !important;
+}
+
+/* GRADIENTE TEXT */
+.text-gradient {
+  background: linear-gradient(90deg, var(--azul-principal), var(--cinza-700));
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+/* ============================================
+   📱 RESPONSIVIDADE GERAL
+   ============================================ */
+
+@media (max-width: 768px) {
+  .navbar {
+    padding: 0.6rem 1rem;
+  }
+  
+  .navbar-brand {
+    font-size: 1.4rem;
+  }
+  
+  .card {
+    border-radius: 12px !important;
+  }
+  
+  .btn {
+    padding: 0.5rem 1.5rem !important;
+  }
+  
+  h1 {
+    font-size: 1.8rem;
+  }
+}
+
+/* ============================================
+   🌈 CUSTOM SCROLLBAR
+   ============================================ */
+
+::-webkit-scrollbar {
+  width: 10px;
+}
+
+::-webkit-scrollbar-track {
+  background: linear-gradient(180deg, var(--cinza-100) 0%, var(--cinza-200) 100%);
+  border-radius: 10px;
+}
+
+::-webkit-scrollbar-thumb {
+  background: linear-gradient(180deg, var(--azul-principal) 0%, var(--azul-hover) 100%);
+  border-radius: 10px;
+  border: 2px solid var(--cinza-100);
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: linear-gradient(180deg, var(--azul-hover) 0%, var(--azul-principal) 100%);
+}
+/* ============================================
+   🎭 ANIMAÇÕES SMOOTH DE ENTRADA (FADE-IN)
+   ============================================ */
+
+/* 1️⃣ Animação principal fade-in */
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* 2️⃣ Animação para cards com delay */
+@keyframes fadeInUp {
+    from {
+        opacity: 0;
+        transform: translateY(30px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* 3️⃣ Animação para sidebar */
+@keyframes slideInLeft {
+    from {
+        opacity: 0;
+        transform: translateX(-20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateX(0);
+    }
+}
+
+/* 4️⃣ Animação para navbar */
+@keyframes slideInDown {
+    from {
+        opacity: 0;
+        transform: translateY(-20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* ============================================
+   🎯 APLICAÇÃO DAS ANIMAÇÕES
+   ============================================ */
+
+/* 📱 Navbar - Animação ao carregar */
+.navbar {
+    animation: slideInDown 0.6s ease-out !important;
+    animation-fill-mode: both !important;
+}
+
+/* 📊 Sidebar - Animação suave */
+.list-group {
+    animation: slideInLeft 0.7s ease-out !important;
+    animation-fill-mode: both !important;
+    animation-delay: 0.1s !important;
+}
+
+/* 🎴 Cards - Animação com delay crescente */
+.card {
+    animation: fadeInUp 0.8s ease-out !important;
+    animation-fill-mode: both !important;
+}
+
+/* Atraso progressivo para cards em linha */
+.row .card:nth-child(1) { animation-delay: 0.1s !important; }
+.row .card:nth-child(2) { animation-delay: 0.2s !important; }
+.row .card:nth-child(3) { animation-delay: 0.3s !important; }
+.row .card:nth-child(4) { animation-delay: 0.4s !important; }
+
+/* 📋 Tabelas - Entrada suave */
+.table {
+    animation: fadeIn 0.9s ease-out !important;
+    animation-fill-mode: both !important;
+    animation-delay: 0.2s !important;
+}
+
+/* 📝 Formulários */
+form {
+    animation: fadeIn 0.8s ease-out !important;
+    animation-fill-mode: both !important;
+    animation-delay: 0.1s !important;
+}
+
+/* 🎫 Botões principais */
+.btn-primary, .btn-success, .btn-info {
+    animation: fadeIn 0.6s ease-out !important;
+    animation-fill-mode: both !important;
+    animation-delay: 0.3s !important;
+}
+
+/* 🏷️ Títulos */
+h1, h2, h3, h4, h5, h6 {
+    animation: fadeIn 0.7s ease-out !important;
+    animation-fill-mode: both !important;
+}
+
+/* 📄 Parágrafos e textos */
+p, li, td, th {
+    animation: fadeIn 0.9s ease-out !important;
+    animation-fill-mode: both !important;
+    animation-delay: 0.1s !important;
+}
+
+/* 🔔 Alertas e mensagens */
+.alert {
+    animation: fadeIn 0.5s ease-out !important;
+    animation-fill-mode: both !important;
+}
+
+/* ============================================
+   📱 RESPONSIVIDADE DAS ANIMAÇÕES
+   ============================================ */
+
+/* Dispositivos móveis - animações mais rápidas */
+@media (max-width: 768px) {
+    .navbar {
+        animation-duration: 0.4s !important;
+    }
+    
+    .list-group {
+        animation-duration: 0.5s !important;
+    }
+    
+    .card {
+        animation-duration: 0.6s !important;
+    }
+}
+
+/* ============================================
+   ⚡ MELHORIAS DE PERFORMANCE
+   ============================================ */
+
+/* Otimização para hardware */
+.card, .navbar, .list-group {
+    will-change: transform, opacity;
+    backface-visibility: hidden;
+}
+
+/* Previne flashes durante o carregamento */
+body {
+    opacity: 0;
+    animation: fadeIn 0.3s ease-out forwards !important;
+}
+/* ============================================
+   🔔 SISTEMA DE NOTIFICAÇÕES INTELIGENTES
+   ============================================ */
+
+/* Container das notificações - POSIÇÃO DINÂMICA */
+.notification-container {
+    position: fixed;
+    top: 80px; /* Começa no topo */
+    right: 20px;
+    z-index: 99999;
+    max-width: 350px;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    
+    /* Transição suave para mover */
+    transition: all 0.3s ease;
+    
+    /* Limitar altura */
+    max-height: calc(100vh - 100px);
+    overflow-y: auto;
+    overflow-x: hidden;
+    
+    /* Fundo sutil */
+    background: rgba(255, 255, 255, 0.05);
+    backdrop-filter: blur(3px);
+    border-radius: 10px;
+    padding: 5px;
+    border: 1px solid rgba(0, 0, 0, 0.05);
+}
+
+/* Classe para quando estiver no rodapé */
+.notification-container.bottom {
+    top: auto;
+    bottom: 20px;
+}
+
+/* Scrollbar personalizada */
+.notification-container::-webkit-scrollbar {
+    width: 6px;
+}
+
+.notification-container::-webkit-scrollbar-track {
+    background: rgba(0, 0, 0, 0.05);
+    border-radius: 3px;
+}
+
+.notification-container::-webkit-scrollbar-thumb {
+    background: rgba(0, 150, 225, 0.3);
+    border-radius: 3px;
+}
+
+.notification-container::-webkit-scrollbar-thumb:hover {
+    background: rgba(0, 150, 225, 0.5);
+}
+
+/* Notificação individual */
+.notification {
+    background: linear-gradient(135deg, #ffffff, #f8f9fa);
+    border-left: 5px solid var(--azul-principal);
+    border-radius: 8px;
+    padding: 15px;
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.15);
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    transform: translateX(400px);
+    opacity: 0;
+    animation: slideInRight 0.5s ease forwards;
+    
+    /* Tamanho consistente */
+    min-height: 80px;
+    max-height: 150px;
+    overflow: hidden;
+}
+
+/* Animação de entrada */
+@keyframes slideInRight {
+    from {
+        transform: translateX(400px);
+        opacity: 0;
+    }
+    to {
+        transform: translateX(0);
+        opacity: 1;
+    }
+}
+
+/* Animação de saída */
+@keyframes slideOutRight {
+    from {
+        transform: translateX(0);
+        opacity: 1;
+    }
+    to {
+        transform: translateX(400px);
+        opacity: 0;
+    }
+}
+
+.notification.hiding {
+    animation: slideOutRight 0.5s ease forwards;
+}
+
+/* Tipos de notificações */
+.notification.success {
+    border-left-color: var(--sucesso);
+    background: linear-gradient(135deg, #f0fff4, #ffffff);
+}
+
+.notification.error {
+    border-left-color: var(--perigo);
+    background: linear-gradient(135deg, #fff5f5, #ffffff);
+}
+
+.notification.warning {
+    border-left-color: var(--alerta);
+    background: linear-gradient(135deg, #fffdf0, #ffffff);
+}
+
+.notification.info {
+    border-left-color: var(--azul-principal);
+    background: linear-gradient(135deg, #f0f8ff, #ffffff);
+}
+
+/* Ícone da notificação */
+.notification-icon {
+    font-size: 24px;
+    flex-shrink: 0;
+    width: 40px;
+    height: 40px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50%;
+    background: var(--azul-principal);
+    color: white;
+}
+
+.notification.success .notification-icon {
+    background: var(--sucesso);
+}
+
+.notification.error .notification-icon {
+    background: var(--perigo);
+}
+
+.notification.warning .notification-icon {
+    background: var(--alerta);
+    color: var(--cinza-800);
+}
+
+.notification.info .notification-icon {
+    background: var(--azul-principal);
+}
+
+/* Conteúdo da notificação */
+.notification-content {
+    flex: 1;
+}
+
+.notification-title {
+    font-weight: 600;
+    margin-bottom: 5px;
+    color: #212529;
+    font-size: 16px;
+}
+
+.notification-message {
+    color: #6c757d;
+    font-size: 14px;
+    margin: 0;
+}
+
+/* Botão de fechar */
+.notification-close {
+    background: none;
+    border: none;
+    color: #6c757d;
+    cursor: pointer;
+    font-size: 18px;
+    padding: 0;
+    width: 24px;
+    height: 24px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50%;
+    transition: all 0.2s ease;
+    flex-shrink: 0;
+}
+
+.notification-close:hover {
+    background-color: rgba(0, 0, 0, 0.1);
+    color: #dc3545;
+    transform: rotate(90deg);
+}
+
+/* Barra de progresso (opcional) */
+.notification-progress {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    height: 3px;
+    background: var(--azul-principal);
+    border-radius: 0 0 0 8px;
+    animation: progressBar 5s linear forwards;
+}
+
+@keyframes progressBar {
+    from {
+        width: 100%;
+    }
+    to {
+        width: 0%;
+    }
+}
+
+.notification.success .notification-progress {
+    background: var(--sucesso);
+}
+
+.notification.error .notification-progress {
+    background: var(--perigo);
+}
+
+/* Responsividade */
+@media (max-width: 768px) {
+    .notification-container {
+        position: fixed;
+        bottom: 10px !important; /* Em mobile, sempre no rodapé */
+        top: auto !important;
+        right: 10px;
+        left: 10px;
+        max-width: none;
+        max-height: calc(100vh - 20px);
+    }
+    
+    .notification {
+        min-height: 70px;
+        max-height: 120px;
+    }
+}
+
+/* 🚨 REMOVER QUALQUER BORDA PONTILHADA OU OUTLINE */
+.notification:focus,
+.notification:active,
+.notification:hover {
+    outline: none !important;
+    border: none !important;
+    border-left: 5px solid #0096E1 !important;
+}
+/* ============================================
+   🚨 GARANTIR VISIBILIDADE DAS NOTIFICAÇÕES
+   ============================================ */
+
+/* FORÇA VISIBILIDADE COMPLETA */
+.notification {
+    visibility: visible !important;
+    opacity: 1 !important;
+    display: flex !important;
+    background: white !important;
+}
+
+/* REMOVE COMPORTAMENTOS PROBLEMÁTICOS DO FOCO */
+.notification:focus,
+.notification:active,
+.notification:hover,
+.notification *:focus,
+.notification *:active {
+    outline: none !important;
+    border: none !important;
+    box-shadow: none !important;
+}
+
+/* GARANTE QUE O CONTAINER SEJA VISÍVEL */
+#notification-system-container,
+.notification-container {
+    visibility: visible !important;
+    opacity: 1 !important;
+    display: flex !important;
+}
+/* ============================================
+   🎭 ANIMAÇÕES SMOOTH DE ENTRADA - COMPLETO
+   ============================================ */
+
+/* 1️⃣ ANIMAÇÃO PRINCIPAL: FADE IN (aparecer suave) */
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        visibility: hidden;
+    }
+    to {
+        opacity: 1;
+        visibility: visible;
+    }
+}
+
+/* 2️⃣ ANIMAÇÃO: SLIDE IN FROM BOTTOM (subir suave) */
+@keyframes slideInUp {
+    from {
+        opacity: 0;
+        transform: translateY(30px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* 3️⃣ ANIMAÇÃO: SLIDE IN FROM LEFT (entrada lateral) */
+@keyframes slideInLeft {
+    from {
+        opacity: 0;
+        transform: translateX(-30px);
+    }
+    to {
+        opacity: 1;
+        transform: translateX(0);
+    }
+}
+
+/* 4️⃣ ANIMAÇÃO: ZOOM IN (crescer suave) */
+@keyframes zoomIn {
+    from {
+        opacity: 0;
+        transform: scale(0.9);
+    }
+    to {
+        opacity: 1;
+        transform: scale(1);
+    }
+}
+
+/* 5️⃣ ANIMAÇÃO: ROTAÇÃO SUAVE */
+@keyframes rotateIn {
+    from {
+        opacity: 0;
+        transform: rotate(-10deg) scale(0.8);
+    }
+    to {
+        opacity: 1;
+        transform: rotate(0) scale(1);
+    }
+}
+
+/* ============================================
+   🎯 CLASSES DE ANIMAÇÃO PARA USAR NAS PÁGINAS
+   ============================================ */
+
+/* 🕒 ANIMAÇÃO BÁSICA PARA TODO O CONTEÚDO */
+.animate-content {
+    animation: fadeIn 0.8s ease-out both !important;
+}
+
+/* 🎴 CARDS - ENTRADA COM ELEVAÇÃO */
+.animate-card {
+    animation: slideInUp 0.6s ease-out both !important;
+}
+
+/* 📱 SIDEBAR - ENTRADA LATERAL */
+.animate-sidebar {
+    animation: slideInLeft 0.7s ease-out both !important;
+}
+
+/* 📊 TABELAS - ZOOM SUAVE */
+.animate-table {
+    animation: zoomIn 0.8s ease-out both !important;
+}
+
+/* 🎨 BOTÕES - ROTAÇÃO SUAVE */
+.animate-button {
+    animation: rotateIn 0.5s ease-out both !important;
+}
+
+/* ============================================
+   ⏳ ATRASOS PROGRESSIVOS PARA EFEITO CASCATA
+   ============================================ */
+
+/* DELAY PARA MULTIPLOS ELEMENTOS */
+.delay-1 { animation-delay: 0.1s !important; }
+.delay-2 { animation-delay: 0.2s !important; }
+.delay-3 { animation-delay: 0.3s !important; }
+.delay-4 { animation-delay: 0.4s !important; }
+.delay-5 { animation-delay: 0.5s !important; }
+.delay-6 { animation-delay: 0.6s !important; }
+
+/* DURAÇÕES DIFERENTES */
+.duration-fast { animation-duration: 0.3s !important; }
+.duration-normal { animation-duration: 0.6s !important; }
+.duration-slow { animation-duration: 1s !important; }
+
+/* ============================================
+   🚀 APLICAÇÃO AUTOMÁTICA DAS ANIMAÇÕES
+   ============================================ */
+
+/* 📱 NAVBAR - ANIMAÇÃO AO CARREGAR */
+.navbar {
+    animation: slideInUp 0.5s ease-out 0.1s both !important;
+}
+
+/* 📊 SIDEBAR - ANIMAÇÃO LATERAL */
+.list-group {
+    animation: slideInLeft 0.6s ease-out 0.2s both !important;
+}
+
+/* 🎴 CARDS - ANIMAÇÃO COM ATRASO */
+.card {
+    animation: fadeIn 0.7s ease-out both !important;
+}
+
+/* ATRASO PROGRESSIVO PARA CARDS EM LINHA */
+.row > .col-md-4:nth-child(1) .card { animation-delay: 0.1s !important; }
+.row > .col-md-4:nth-child(2) .card { animation-delay: 0.2s !important; }
+.row > .col-md-4:nth-child(3) .card { animation-delay: 0.3s !important; }
+
+/* 📋 TABELAS */
+.table {
+    animation: zoomIn 0.8s ease-out 0.3s both !important;
+}
+
+/* 🎫 BOTÕES PRINCIPAIS */
+.btn-primary, .btn-success {
+    animation: fadeIn 0.6s ease-out 0.4s both !important;
+}
+
+/* 🏷️ TÍTULOS */
+h1 { animation: slideInUp 0.7s ease-out 0.1s both !important; }
+h2 { animation: slideInUp 0.7s ease-out 0.2s both !important; }
+h3 { animation: slideInUp 0.7s ease-out 0.3s both !important; }
+
+/* 📄 CONTEÚDO DE TEXTO */
+.container > p, .container > ul, .container > ol {
+    animation: fadeIn 0.8s ease-out 0.4s both !important;
+}
+
+/* ============================================
+   🎭 EFEITO DE "PÁGINA CARREGANDO"
+   ============================================ */
+
+/* FADE OUT DO LOADER */
+@keyframes fadeOutLoader {
+    from { opacity: 1; }
+    to { opacity: 0; visibility: hidden; }
+}
+
+/* APLICAR ANIMAÇÃO AO BODY PARA EVITAR FLASH */
+body.loaded * {
+    animation-duration: 0.8s !important;
+    animation-fill-mode: both !important;
+}
+
+/* ============================================
+   📱 RESPONSIVIDADE DAS ANIMAÇÕES
+   ============================================ */
+
+/* MOBILE - ANIMAÇÕES MAIS RÁPIDAS */
+@media (max-width: 768px) {
+    .navbar {
+        animation-duration: 0.4s !important;
+    }
+    
+    .list-group {
+        animation-duration: 0.5s !important;
+    }
+    
+    .card {
+        animation-duration: 0.6s !important;
+    }
+    
+    /* MENOS ATRASO EM MOBILE */
+    .delay-1, .delay-2, .delay-3 {
+        animation-delay: 0.1s !important;
+    }
+}
+
+/* ============================================
+   ⚡ OTIMIZAÇÃO DE PERFORMANCE
+   ============================================ */
+
+/* ACELERAÇÃO POR HARDWARE */
+.animate-content,
+.animate-card,
+.animate-sidebar,
+.navbar,
+.list-group,
+.card {
+    will-change: transform, opacity;
+    backface-visibility: hidden;
+    -webkit-font-smoothing: antialiased;
+}
+
+/* PREVINE FLICKERING */
+body {
+    opacity: 0;
+    animation: fadeIn 0.3s ease-out 0.1s forwards !important;
+}
+
+/* ============================================
+   🎮 CONTROLE DE ANIMAÇÕES COM CLASSES
+   ============================================ */
+
+/* PAUSAR ANIMAÇÕES */
+.no-animation,
+.no-animation * {
+    animation: none !important;
+}
+
+/* ANIMAÇÃO CONTÍNUA (PARA LOADING) */
+@keyframes pulse {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.5; }
+}
+
+.pulse {
+    animation: pulse 2s infinite ease-in-out !important;
+}
+
+/* ============================================
+   ✨ EFEITOS ESPECIAIS
+   ============================================ */
+
+/* BRILHO SUAVE */
+@keyframes gentleGlow {
+    0%, 100% { box-shadow: 0 5px 15px rgba(0, 150, 225, 0.1); }
+    50% { box-shadow: 0 5px 20px rgba(0, 150, 225, 0.2); }
+}
+
+.glow {
+    animation: gentleGlow 3s infinite ease-in-out !important;
+}
+
+/* FLUTUAÇÃO SUAVE */
+@keyframes gentleFloat {
+    0%, 100% { transform: translateY(0); }
+    50% { transform: translateY(-5px); }
+}
+
+.float {
+    animation: gentleFloat 4s infinite ease-in-out !important;
+}
+/* ============================================
+   📱 SIDEBAR MOBILE - COMPORTAMENTO
+   ============================================ */
+
+/* Overlay para mobile */
+.sidebar-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0, 0, 0, 0.5);
+    z-index: 998;
+    display: none;
+}
+
+.sidebar-overlay.mobile-open {
+    display: block;
+    animation: fadeInOverlay 0.3s ease;
+}
+
+@keyframes fadeInOverlay {
+    from { opacity: 0; }
+    to { opacity: 1; }
+}
+
+/* Sidebar no mobile */
+@media (max-width: 768px) {
+    /* Sidebar escondida por padrão */
+    .sidebar-column {
+        display: none !important;
+        position: fixed !important;
+        top: 70px !important;
+        left: 0 !important;
+        width: 280px !important;
+        height: calc(100vh - 70px) !important;
+        z-index: 999 !important;
+        background: linear-gradient(180deg, var(--cinza-800) 0%, var(--cinza-700) 100%) !important;
+        box-shadow: 5px 0 25px rgba(0, 0, 0, 0.3) !important;
+        padding: 20px 15px !important;
+        overflow-y: auto !important;
+        animation: slideInLeftMobile 0.3s ease-out !important;
+    }
+    
+    /* Quando aberta no mobile */
+    .sidebar-column.mobile-open {
+        display: block !important;
+    }
+    
+    @keyframes slideInLeftMobile {
+        from {
+            transform: translateX(-100%);
+            opacity: 0;
+        }
+        to {
+            transform: translateX(0);
+            opacity: 1;
+        }
+    }
+    
+    /* Conteúdo ocupa 100% no mobile */
+    .content-column {
+        width: 100% !important;
+        max-width: 100% !important;
+        flex: 0 0 100% !important;
+    }
+    
+    /* Botões maiores para touch */
+    .list-group .list-group-item {
+        padding: 16px 20px !important;
+        font-size: 1.1rem !important;
+        margin: 8px 0 !important;
+        min-height: 55px;
+        display: flex !important;
+        align-items: center !important;
+    }
+}
+
+/* Desktop: sidebar sempre visível */
+@media (min-width: 769px) {
+    .sidebar-column {
+        display: block !important;
+    }
+    
+    .sidebar-overlay {
+        display: none !important;
+    }
+}

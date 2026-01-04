@@ -1,0 +1,622 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <%- include('partials/head'); %>
+    <title>Sistema Escolar - Solicitações de Cadastro</title>
+    
+    <style>
+        /* Estilos específicos para a página de admin */
+        .solicitacao-card {
+            transition: all 0.3s ease;
+            border-left: 4px solid #6c757d;
+        }
+        
+        .solicitacao-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+        }
+        
+        .solicitacao-card.pendente {
+            border-left-color: #ffc107;
+        }
+        
+        .solicitacao-card.aprovada {
+            border-left-color: #28a745;
+        }
+        
+        .solicitacao-card.rejeitada {
+            border-left-color: #dc3545;
+        }
+        
+        .badge-status {
+            font-size: 0.85rem;
+            padding: 5px 10px;
+            border-radius: 20px;
+        }
+        
+        .filter-buttons .btn {
+            margin-right: 5px;
+            margin-bottom: 5px;
+        }
+        
+        .empty-state {
+            text-align: center;
+            padding: 40px 20px;
+            color: #6c757d;
+        }
+        
+        .empty-state i {
+            font-size: 48px;
+            margin-bottom: 20px;
+            opacity: 0.5;
+        }
+        
+        .modal-lg {
+            max-width: 700px;
+        }
+    </style>
+</head>
+<body>
+    <!-- Navbar -->
+    <%- include('partials/navbar'); %>
+
+    <div class="container-fluid">
+        <div class="row">
+            <!-- Sidebar -->
+            <%- include('partials/sidebar'); %>
+
+            <!-- Conteúdo Principal -->
+            <main class="col-md-9 ms-sm-auto col-lg-10 px-md-4">
+                <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
+                    <h1 class="h2">
+                        <i class="bi bi-person-plus-fill text-primary me-2"></i>
+                        Solicitações de Cadastro
+                    </h1>
+                    <div class="btn-toolbar mb-2 mb-md-0">
+                        <button class="btn btn-sm btn-outline-secondary" onclick="location.reload()">
+                            <i class="bi bi-arrow-clockwise"></i> Atualizar
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Filtros -->
+                <div class="card mb-4">
+                    <div class="card-body">
+                        <h5 class="card-title">
+                            <i class="bi bi-funnel-fill text-primary me-2"></i>
+                            Filtros
+                        </h5>
+                        <div class="filter-buttons">
+                            <button class="btn btn-warning btn-sm" onclick="filtrarSolicitacoes('pendente')">
+                                <i class="bi bi-clock"></i> Pendentes
+                                <span id="badge-pendente" class="badge bg-dark">0</span>
+                            </button>
+                            <button class="btn btn-success btn-sm" onclick="filtrarSolicitacoes('aprovada')">
+                                <i class="bi bi-check-circle"></i> Aprovadas
+                                <span id="badge-aprovada" class="badge bg-dark">0</span>
+                            </button>
+                            <button class="btn btn-danger btn-sm" onclick="filtrarSolicitacoes('rejeitada')">
+                                <i class="bi bi-x-circle"></i> Rejeitadas
+                                <span id="badge-rejeitada" class="badge bg-dark">0</span>
+                            </button>
+                            <button class="btn btn-primary btn-sm" onclick="filtrarSolicitacoes('todas')">
+                                <i class="bi bi-list-ul"></i> Todas
+                                <span id="badge-todas" class="badge bg-dark">0</span>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Lista de Solicitações -->
+                <div class="row" id="solicitacoes-container">
+                    <!-- As solicitações serão carregadas aqui via JavaScript -->
+                    <div class="col-12">
+                        <div class="empty-state">
+                            <i class="bi bi-person-plus text-muted"></i>
+                            <h4>Nenhuma solicitação encontrada</h4>
+                            <p>Quando houver solicitações de cadastro, elas aparecerão aqui.</p>
+                        </div>
+                    </div>
+                </div>
+            </main>
+        </div>
+    </div>
+
+    <!-- Modal de Detalhes da Solicitação -->
+    <div class="modal fade" id="modalDetalhes" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">
+                        <i class="bi bi-person-badge me-2"></i>
+                        Detalhes da Solicitação
+                    </h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Fechar"></button>
+                </div>
+                <div class="modal-body" id="modalDetalhesContent">
+                    <!-- Conteúdo será preenchido via JavaScript -->
+                </div>
+                <div class="modal-footer" id="modalDetalhesFooter">
+                    <!-- Botões serão preenchidos via JavaScript -->
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal de Aprovar Solicitação -->
+    <div class="modal fade" id="modalAprovar" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">
+                        <i class="bi bi-check-circle-fill text-success me-2"></i>
+                        Aprovar Solicitação
+                    </h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Fechar"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="formAprovarSolicitacao">
+                        <input type="hidden" id="solicitacaoId">
+                        
+                        <div class="mb-3">
+                            <label for="tipoUsuario" class="form-label">
+                                <i class="bi bi-person-badge me-1"></i>
+                                Tipo de Usuário
+                            </label>
+                            <select class="form-select" id="tipoUsuario" required>
+                                <option value="">Selecione o tipo...</option>
+                                <option value="admin">Administrador</option>
+                                <option value="supervisor">Supervisor</option>
+                                <option value="diretor">Diretor</option>
+                                <option value="usuario" selected>Usuário Padrão</option>
+                            </select>
+                            <div class="form-text">
+                                <i class="bi bi-info-circle"></i> 
+                                O usuário receberá permissões de acordo com o tipo selecionado
+                            </div>
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label class="form-label">
+                                <i class="bi bi-key-fill me-1"></i>
+                                Senha Temporária
+                            </label>
+                            <div class="input-group">
+                                <input type="text" class="form-control" id="senhaTemporaria" readonly value="gerar123">
+                                <button class="btn btn-outline-secondary" type="button" onclick="gerarSenha()">
+                                    <i class="bi bi-arrow-repeat"></i> Gerar Nova
+                                </button>
+                            </div>
+                            <div class="form-text">
+                                <i class="bi bi-exclamation-triangle-fill text-warning"></i>
+                                Esta senha será enviada por e-mail ao usuário
+                            </div>
+                        </div>
+                        
+                        <div class="alert alert-info">
+                            <i class="bi bi-envelope-fill me-2"></i>
+                            <strong>Modo Simulação Ativo</strong><br>
+                            Um e-mail será simulado para: <span id="emailDestino" class="fw-bold">exemplo@escola.com</span>
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+                        <i class="bi bi-x-circle me-1"></i> Cancelar
+                    </button>
+                    <button type="button" class="btn btn-success" onclick="aprovarSolicitacao()">
+                        <i class="bi bi-check-circle me-1"></i> Confirmar Aprovação
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Scripts -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="/socket.io/socket.io.js"></script>
+    
+    <script>
+        // Socket.io para atualizações em tempo real
+        const socket = io();
+        
+        // Variáveis globais
+        let todasSolicitacoes = [];
+        let filtroAtual = 'todas';
+        
+        // Função para carregar solicitações
+        async function carregarSolicitacoes() {
+            try {
+                const response = await fetch('/admin/solicitacoes/dados');
+                if (!response.ok) throw new Error('Erro ao carregar dados');
+                
+                const data = await response.json();
+                todasSolicitacoes = data.solicitacoes;
+                
+                atualizarContadores();
+                exibirSolicitacoes();
+                
+            } catch (error) {
+                console.error('Erro:', error);
+                mostrarMensagem('Erro ao carregar solicitações', 'danger');
+            }
+        }
+        
+        // Função para atualizar contadores
+        function atualizarContadores() {
+            const pendentes = todasSolicitacoes.filter(s => s.status === 'pendente').length;
+            const aprovadas = todasSolicitacoes.filter(s => s.status === 'aprovada').length;
+            const rejeitadas = todasSolicitacoes.filter(s => s.status === 'rejeitada').length;
+            
+            document.getElementById('badge-pendente').textContent = pendentes;
+            document.getElementById('badge-aprovada').textContent = aprovadas;
+            document.getElementById('badge-rejeitada').textContent = rejeitadas;
+            document.getElementById('badge-todas').textContent = todasSolicitacoes.length;
+        }
+        
+        // Função para exibir solicitações filtradas
+        function exibirSolicitacoes() {
+            const container = document.getElementById('solicitacoes-container');
+            
+            // Filtrar solicitações
+            let solicitacoesFiltradas = todasSolicitacoes;
+            if (filtroAtual !== 'todas') {
+                solicitacoesFiltradas = todasSolicitacoes.filter(s => s.status === filtroAtual);
+            }
+            
+            // Se não houver solicitações
+            if (solicitacoesFiltradas.length === 0) {
+                container.innerHTML = `
+                    <div class="col-12">
+                        <div class="empty-state">
+                            <i class="bi bi-person-plus text-muted"></i>
+                            <h4>Nenhuma solicitação encontrada</h4>
+                            <p>Não há solicitações com status "${filtroAtual}" no momento.</p>
+                        </div>
+                    </div>
+                `;
+                return;
+            }
+            
+            // Gerar HTML das solicitações
+            container.innerHTML = solicitacoesFiltradas.map(solicitacao => {
+                const dataFormatada = new Date(solicitacao.dataSolicitacao).toLocaleDateString('pt-BR', {
+                    day: '2-digit',
+                    month: '2-digit',
+                    year: 'numeric',
+                    hour: '2-digit',
+                    minute: '2-digit'
+                });
+                
+                let badgeClass = 'bg-secondary';
+                if (solicitacao.status === 'pendente') badgeClass = 'bg-warning text-dark';
+                if (solicitacao.status === 'aprovada') badgeClass = 'bg-success';
+                if (solicitacao.status === 'rejeitada') badgeClass = 'bg-danger';
+                
+                return `
+                    <div class="col-md-6 col-lg-4 mb-4">
+                        <div class="card solicitacao-card ${solicitacao.status} h-100">
+                            <div class="card-body">
+                                <div class="d-flex justify-content-between align-items-start mb-3">
+                                    <h5 class="card-title mb-0">
+                                        <i class="bi bi-person-circle me-2"></i>
+                                        ${solicitacao.nome}
+                                    </h5>
+                                    <span class="badge ${badgeClass} badge-status">${solicitacao.status}</span>
+                                </div>
+                                
+                                <p class="card-text">
+                                    <i class="bi bi-envelope me-1"></i>
+                                    <strong>E-mail:</strong> ${solicitacao.email}
+                                </p>
+                                
+                                <p class="card-text">
+                                    <i class="bi bi-telephone me-1"></i>
+                                    <strong>Telefone:</strong> ${solicitacao.telefone || 'Não informado'}
+                                </p>
+                                
+                                <p class="card-text">
+                                    <i class="bi bi-building me-1"></i>
+                                    <strong>Escola:</strong> ${solicitacao.escola}
+                                </p>
+                                
+                                <p class="card-text">
+                                    <i class="bi bi-calendar me-1"></i>
+                                    <small class="text-muted">Solicitado em: ${dataFormatada}</small>
+                                </p>
+                                
+                                <div class="mt-3">
+                                    <button class="btn btn-sm btn-outline-primary" onclick="verDetalhes('${solicitacao._id}')">
+                                        <i class="bi bi-eye me-1"></i> Detalhes
+                                    </button>
+                                    
+                                    ${solicitacao.status === 'pendente' ? `
+                                        <button class="btn btn-sm btn-outline-success" onclick="abrirModalAprovar('${solicitacao._id}')">
+                                            <i class="bi bi-check-lg me-1"></i> Aprovar
+                                        </button>
+                                        <button class="btn btn-sm btn-outline-danger" onclick="rejeitarSolicitacao('${solicitacao._id}')">
+                                            <i class="bi bi-x-lg me-1"></i> Rejeitar
+                                        </button>
+                                    ` : ''}
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+        }
+        
+        // Função para filtrar solicitações
+        function filtrarSolicitacoes(status) {
+            filtroAtual = status;
+            exibirSolicitacoes();
+        }
+        
+        // Função para ver detalhes da solicitação
+        function verDetalhes(solicitacaoId) {
+            const solicitacao = todasSolicitacoes.find(s => s._id === solicitacaoId);
+            if (!solicitacao) return;
+            
+            const dataFormatada = new Date(solicitacao.dataSolicitacao).toLocaleDateString('pt-BR', {
+                weekday: 'long',
+                day: '2-digit',
+                month: 'long',
+                year: 'numeric',
+                hour: '2-digit',
+                minute: '2-digit'
+            });
+            
+            let statusBadge = '';
+            if (solicitacao.status === 'pendente') statusBadge = '<span class="badge bg-warning text-dark">PENDENTE</span>';
+            if (solicitacao.status === 'aprovada') statusBadge = '<span class="badge bg-success">APROVADA</span>';
+            if (solicitacao.status === 'rejeitada') statusBadge = '<span class="badge bg-danger">REJEITADA</span>';
+            
+            // Preencher modal de detalhes
+            document.getElementById('modalDetalhesContent').innerHTML = `
+                <div class="row">
+                    <div class="col-md-6">
+                        <h6><i class="bi bi-person-badge me-2"></i>Dados Pessoais</h6>
+                        <ul class="list-group list-group-flush mb-3">
+                            <li class="list-group-item d-flex justify-content-between">
+                                <span>Nome Completo:</span>
+                                <strong>${solicitacao.nome}</strong>
+                            </li>
+                            <li class="list-group-item d-flex justify-content-between">
+                                <span>E-mail:</span>
+                                <strong>${solicitacao.email}</strong>
+                            </li>
+                            <li class="list-group-item d-flex justify-content-between">
+                                <span>Telefone:</span>
+                                <strong>${solicitacao.telefone || 'Não informado'}</strong>
+                            </li>
+                            <li class="list-group-item d-flex justify-content-between">
+                                <span>CPF:</span>
+                                <strong>${solicitacao.cpf || 'Não informado'}</strong>
+                            </li>
+                        </ul>
+                    </div>
+                    
+                    <div class="col-md-6">
+                        <h6><i class="bi bi-building me-2"></i>Dados Profissionais</h6>
+                        <ul class="list-group list-group-flush mb-3">
+                            <li class="list-group-item d-flex justify-content-between">
+                                <span>Escola/Unidade:</span>
+                                <strong>${solicitacao.escola}</strong>
+                            </li>
+                            <li class="list-group-item d-flex justify-content-between">
+                                <span>Cargo/Função:</span>
+                                <strong>${solicitacao.cargo || 'Não informado'}</strong>
+                            </li>
+                            <li class="list-group-item d-flex justify-content-between">
+                                <span>Matrícula SIAPE:</span>
+                                <strong>${solicitacao.matricula || 'Não informado'}</strong>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+                
+                <div class="row mt-3">
+                    <div class="col-12">
+                        <h6><i class="bi bi-info-circle me-2"></i>Informações Adicionais</h6>
+                        <div class="card">
+                            <div class="card-body">
+                                <p class="card-text">${solicitacao.mensagem || 'Nenhuma mensagem adicional.'}</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="row mt-3">
+                    <div class="col-md-6">
+                        <p><i class="bi bi-calendar me-2"></i><strong>Solicitado em:</strong> ${dataFormatada}</p>
+                    </div>
+                    <div class="col-md-6">
+                        <p><i class="bi bi-tag me-2"></i><strong>Status:</strong> ${statusBadge}</p>
+                    </div>
+                </div>
+            `;
+            
+            // Botões do modal
+            let botoes = '';
+            if (solicitacao.status === 'pendente') {
+                botoes = `
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+                        <i class="bi bi-x-circle me-1"></i> Fechar
+                    </button>
+                    <button type="button" class="btn btn-success" onclick="abrirModalAprovar('${solicitacao._id}')">
+                        <i class="bi bi-check-circle me-1"></i> Aprovar
+                    </button>
+                    <button type="button" class="btn btn-danger" onclick="rejeitarSolicitacao('${solicitacao._id}')">
+                        <i class="bi bi-x-circle me-1"></i> Rejeitar
+                    </button>
+                `;
+            } else {
+                botoes = `
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+                        <i class="bi bi-x-circle me-1"></i> Fechar
+                    </button>
+                `;
+            }
+            
+            document.getElementById('modalDetalhesFooter').innerHTML = botoes;
+            
+            // Mostrar modal
+            const modal = new bootstrap.Modal(document.getElementById('modalDetalhes'));
+            modal.show();
+        }
+        
+        // Função para abrir modal de aprovação
+        function abrirModalAprovar(solicitacaoId) {
+            const solicitacao = todasSolicitacoes.find(s => s._id === solicitacaoId);
+            if (!solicitacao) return;
+            
+            document.getElementById('solicitacaoId').value = solicitacaoId;
+            document.getElementById('emailDestino').textContent = solicitacao.email;
+            
+            // Gerar senha aleatória inicial
+            gerarSenha();
+            
+            const modal = new bootstrap.Modal(document.getElementById('modalAprovar'));
+            modal.show();
+        }
+        
+        // Função para gerar senha aleatória
+        function gerarSenha() {
+            const caracteres = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
+            let senha = '';
+            for (let i = 0; i < 8; i++) {
+                senha += caracteres.charAt(Math.floor(Math.random() * caracteres.length));
+            }
+            document.getElementById('senhaTemporaria').value = senha;
+        }
+        
+        // Função para aprovar solicitação
+        async function aprovarSolicitacao() {
+            const solicitacaoId = document.getElementById('solicitacaoId').value;
+            const tipoUsuario = document.getElementById('tipoUsuario').value;
+            const senhaTemporaria = document.getElementById('senhaTemporaria').value;
+            
+            if (!tipoUsuario) {
+                mostrarMensagem('Selecione o tipo de usuário', 'warning');
+                return;
+            }
+            
+            try {
+                const response = await fetch('/admin/solicitacoes/aprovar', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        solicitacaoId,
+                        tipoUsuario,
+                        senhaTemporaria
+                    })
+                });
+                
+                const data = await response.json();
+                
+                if (data.success) {
+                    mostrarMensagem('Solicitação aprovada com sucesso!', 'success');
+                    
+                    // Fechar modal
+                    const modal = bootstrap.Modal.getInstance(document.getElementById('modalAprovar'));
+                    modal.hide();
+                    
+                    // Recarregar solicitações
+                    setTimeout(() => {
+                        carregarSolicitacoes();
+                        // Emitir notificação para atualizar badge
+                        socket.emit('notificacao-atualizada');
+                    }, 1000);
+                    
+                } else {
+                    mostrarMensagem(data.message || 'Erro ao aprovar solicitação', 'danger');
+                }
+                
+            } catch (error) {
+                console.error('Erro:', error);
+                mostrarMensagem('Erro ao aprovar solicitação', 'danger');
+            }
+        }
+        
+        // Função para rejeitar solicitação
+        async function rejeitarSolicitacao(solicitacaoId) {
+            if (!confirm('Tem certeza que deseja REJEITAR esta solicitação?')) {
+                return;
+            }
+            
+            try {
+                const response = await fetch('/admin/solicitacoes/rejeitar', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ solicitacaoId })
+                });
+                
+                const data = await response.json();
+                
+                if (data.success) {
+                    mostrarMensagem('Solicitação rejeitada', 'info');
+                    carregarSolicitacoes();
+                    socket.emit('notificacao-atualizada');
+                } else {
+                    mostrarMensagem(data.message || 'Erro ao rejeitar solicitação', 'danger');
+                }
+                
+            } catch (error) {
+                console.error('Erro:', error);
+                mostrarMensagem('Erro ao rejeitar solicitação', 'danger');
+            }
+        }
+        
+        // Função para mostrar mensagens
+        function mostrarMensagem(texto, tipo) {
+            // Remover mensagens anteriores
+            const mensagensAntigas = document.querySelectorAll('.alert-toast');
+            mensagensAntigas.forEach(msg => msg.remove());
+            
+            // Criar nova mensagem
+            const toast = document.createElement('div');
+            toast.className = `alert alert-${tipo} alert-toast position-fixed`;
+            toast.style.cssText = `
+                top: 20px;
+                right: 20px;
+                z-index: 9999;
+                min-width: 300px;
+                box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+            `;
+            toast.innerHTML = `
+                <div class="d-flex align-items-center">
+                    <i class="bi ${tipo === 'success' ? 'bi-check-circle-fill' : tipo === 'danger' ? 'bi-exclamation-triangle-fill' : 'bi-info-circle-fill'} me-2"></i>
+                    <div>${texto}</div>
+                    <button type="button" class="btn-close ms-auto" onclick="this.parentElement.parentElement.remove()"></button>
+                </div>
+            `;
+            
+            document.body.appendChild(toast);
+            
+            // Remover automaticamente após 5 segundos
+            setTimeout(() => {
+                if (toast.parentElement) {
+                    toast.remove();
+                }
+            }, 5000);
+        }
+        
+        // Carregar solicitações quando a página carregar
+        document.addEventListener('DOMContentLoaded', carregarSolicitacoes);
+        
+        // Configurar Socket.io para atualizações em tempo real
+        socket.on('nova-solicitacao', () => {
+            carregarSolicitacoes();
+            mostrarMensagem('Nova solicitação de cadastro recebida!', 'info');
+        });
+        
+        socket.on('solicitacao-atualizada', () => {
+            carregarSolicitacoes();
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,366 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <%- include('partials/head', {title: 'Solicitar Cadastro - Sistema de Demandas Escolares'}) %>
+    <style>
+        /* ESTILOS ESPECÍFICOS PARA A PÁGINA DE SOLICITAÇÃO */
+        .solicitacao-container {
+            min-height: calc(100vh - 76px);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 2rem 1rem;
+            background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);
+        }
+        
+        .solicitacao-card {
+            background: white;
+            border-radius: 16px;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+            padding: 2.5rem;
+            width: 100%;
+            max-width: 600px;
+            border: 1px solid #e2e8f0;
+        }
+        
+        .solicitacao-header {
+            text-align: center;
+            margin-bottom: 2rem;
+            padding-bottom: 1.5rem;
+            border-bottom: 2px solid #f1f5f9;
+        }
+        
+        .solicitacao-icon {
+            width: 80px;
+            height: 80px;
+            background: linear-gradient(135deg, #0096E1, #0077cc);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 1.5rem;
+            color: white;
+            font-size: 2rem;
+            box-shadow: 0 4px 15px rgba(0, 150, 225, 0.3);
+        }
+        
+        .solicitacao-title {
+            color: #1a202c;
+            font-weight: 700;
+            margin-bottom: 0.5rem;
+        }
+        
+        .solicitacao-subtitle {
+            color: #4a5568;
+            font-size: 1rem;
+            margin-bottom: 0;
+        }
+        
+        .form-label {
+            font-weight: 600;
+            color: #2d3748;
+            margin-bottom: 0.5rem;
+        }
+        
+        .form-control, .form-select {
+            border: 2px solid #e2e8f0;
+            border-radius: 8px;
+            padding: 0.75rem 1rem;
+            font-size: 1rem;
+            transition: all 0.3s;
+        }
+        
+        .form-control:focus, .form-select:focus {
+            border-color: #0096E1;
+            box-shadow: 0 0 0 3px rgba(0, 150, 225, 0.1);
+        }
+        
+        .required-asterisk {
+            color: #e53e3e;
+            margin-left: 2px;
+        }
+        
+        .form-text {
+            font-size: 0.85rem;
+            color: #718096;
+        }
+        
+        .btn-solicitar {
+            background: linear-gradient(135deg, #0096E1, #0077cc);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            padding: 1rem 2rem;
+            font-weight: 600;
+            font-size: 1.1rem;
+            width: 100%;
+            transition: all 0.3s;
+            box-shadow: 0 4px 15px rgba(0, 150, 225, 0.3);
+        }
+        
+        .btn-solicitar:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(0, 150, 225, 0.4);
+        }
+        
+        .btn-voltar {
+            color: #0096E1;
+            text-decoration: none;
+            font-weight: 500;
+            display: inline-flex;
+            align-items: center;
+            margin-top: 1.5rem;
+        }
+        
+        .btn-voltar:hover {
+            color: #0077cc;
+            text-decoration: underline;
+        }
+        
+        .info-box {
+            background: linear-gradient(135deg, #f7fafc, #edf2f7);
+            border-left: 4px solid #0096E1;
+            padding: 1.25rem;
+            border-radius: 8px;
+            margin-top: 2rem;
+        }
+        
+        .info-box h6 {
+            color: #2d3748;
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+        }
+        
+        .info-box p {
+            color: #4a5568;
+            margin-bottom: 0.5rem;
+            font-size: 0.95rem;
+        }
+        
+        /* Responsividade */
+        @media (max-width: 768px) {
+            .solicitacao-card {
+                padding: 1.5rem;
+            }
+            
+            .solicitacao-icon {
+                width: 60px;
+                height: 60px;
+                font-size: 1.5rem;
+            }
+        }
+        
+        /* Animação de sucesso */
+        @keyframes successPulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+            100% { transform: scale(1); }
+        }
+        
+        .success-message {
+            animation: successPulse 2s ease infinite;
+        }
+    </style>
+</head>
+<body>
+    <!-- NAVBAR -->
+    <%- include('partials/navbar') %>
+    
+    <div class="solicitacao-container">
+        <div class="solicitacao-card">
+            <!-- Cabeçalho -->
+            <div class="solicitacao-header">
+                <div class="solicitacao-icon">
+                    <i class="fas fa-user-plus"></i>
+                </div>
+                <h1 class="solicitacao-title">Solicitar Acesso ao Sistema</h1>
+                <p class="solicitacao-subtitle">
+                    Preencha o formulário abaixo para solicitar acesso ao Sistema de Demandas Escolares
+                </p>
+            </div>
+            
+            <!-- Mensagens -->
+            <% if (mensagemSucesso) { %>
+                <div class="alert alert-success success-message" role="alert">
+                    <div class="d-flex align-items-center">
+                        <i class="fas fa-check-circle me-2"></i>
+                        <div>
+                            <h5 class="alert-heading mb-1">Solicitação enviada com sucesso!</h5>
+                            <p class="mb-0"><%= mensagemSucesso %></p>
+                        </div>
+                    </div>
+                </div>
+            <% } %>
+            
+            <% if (mensagemErro) { %>
+                <div class="alert alert-danger" role="alert">
+                    <div class="d-flex align-items-center">
+                        <i class="fas fa-exclamation-circle me-2"></i>
+                        <div>
+                            <h5 class="alert-heading mb-1">Erro ao enviar solicitação</h5>
+                            <p class="mb-0"><%= mensagemErro %></p>
+                        </div>
+                    </div>
+                </div>
+            <% } %>
+            
+            <!-- Formulário -->
+            <form id="formSolicitacaoCadastro" method="POST" action="/solicitar-cadastro">
+                <div class="row g-3">
+                    <!-- Nome Completo -->
+                    <div class="col-12">
+                        <label for="nomeCompleto" class="form-label">
+                            Nome Completo <span class="required-asterisk">*</span>
+                        </label>
+                        <input type="text" class="form-control" id="nomeCompleto" name="nomeCompleto" 
+                               placeholder="Digite seu nome completo" required
+                               value="<%= dadosForm && dadosForm.nomeCompleto ? dadosForm.nomeCompleto : '' %>">
+                        <div class="form-text">Seu nome completo como consta no documento oficial</div>
+                    </div>
+                    
+                    <!-- E-mail -->
+                    <div class="col-12">
+                        <label for="email" class="form-label">
+                            E-mail Institucional <span class="required-asterisk">*</span>
+                        </label>
+                        <input type="email" class="form-control" id="email" name="email" 
+                               placeholder="seu.email@escola.gov.br" required
+                               value="<%= dadosForm && dadosForm.email ? dadosForm.email : '' %>">
+                        <div class="form-text">Utilize seu e-mail institucional da Secretaria de Educação</div>
+                    </div>
+                    
+                    <!-- Função -->
+                    <div class="col-md-6">
+                        <label for="funcao" class="form-label">
+                            Função <span class="required-asterisk">*</span>
+                        </label>
+                        <select class="form-select" id="funcao" name="funcao" required>
+                            <option value="" <%= !dadosForm || !dadosForm.funcao ? 'selected' : '' %>>Selecione sua função</option>
+                            <option value="Supervisor(a)" <%= dadosForm && dadosForm.funcao === 'Supervisor(a)' ? 'selected' : '' %>>Supervisor(a)</option>
+                            <option value="Diretor(a)" <%= dadosForm && dadosForm.funcao === 'Diretor(a)' ? 'selected' : '' %>>Diretor(a)</option>
+                            <option value="Casf" <%= dadosForm && dadosForm.funcao === 'Casf' ? 'selected' : '' %>>CASF</option>
+                            <option value="ASE" <%= dadosForm && dadosForm.funcao === 'ASE' ? 'selected' : '' %>>ASE</option>
+                            <option value="Coordenador(a) Pedagógico(a)" <%= dadosForm && dadosForm.funcao === 'Coordenador(a) Pedagógico(a)' ? 'selected' : '' %>>Coordenador(a) Pedagógico(a)</option>
+                            <option value="Pedagogo(a)" <%= dadosForm && dadosForm.funcao === 'Pedagogo(a)' ? 'selected' : '' %>>Pedagogo(a)</option>
+                            <option value="Outro" <%= dadosForm && dadosForm.funcao === 'Outro' ? 'selected' : '' %>>Outro</option>
+                        </select>
+                    </div>
+                    
+                    <!-- Departamento -->
+                    <div class="col-md-6">
+                        <label for="departamento" class="form-label">
+                            Departamento <span class="required-asterisk">*</span>
+                        </label>
+                        <input type="text" class="form-control" id="departamento" name="departamento" 
+                               placeholder="Ex: Pedagógico, Secretaria, etc." required
+                               value="<%= dadosForm && dadosForm.departamento ? dadosForm.departamento : '' %>">
+                    </div>
+                    
+                    <!-- Escola -->
+                    <div class="col-12">
+                        <label for="escola" class="form-label">
+                            Escola/Unidade <span class="required-asterisk">*</span>
+                        </label>
+                        <input type="text" class="form-control" id="escola" name="escola" 
+                               placeholder="Nome da escola ou unidade" required
+                               value="<%= dadosForm && dadosForm.escola ? dadosForm.escola : '' %>">
+                        <div class="form-text">Informe o nome completo da escola onde atua</div>
+                    </div>
+                </div>
+                
+                <!-- Botão de Envio -->
+                <div class="mt-4">
+                    <button type="submit" class="btn-solicitar">
+                        <i class="fas fa-paper-plane me-2"></i>Enviar Solicitação de Acesso
+                    </button>
+                </div>
+            </form>
+            
+            <!-- Informações do Processo -->
+            <div class="info-box">
+                <h6><i class="fas fa-info-circle me-2"></i>Como funciona o processo:</h6>
+                <p>1. Você preenche este formulário e envia a solicitação</p>
+                <p>2. O administrador do sistema recebe um e-mail com sua solicitação</p>
+                <p>3. O administrador analisa e aprova seu cadastro</p>
+                <p>4. Você receberá um e-mail com instruções para acessar o sistema</p>
+                <p>5. No primeiro acesso, você deverá criar uma nova senha</p>
+                <p class="mb-0"><strong>Prazo de análise:</strong> Até 3 dias úteis</p>
+            </div>
+            
+            <!-- Link para voltar -->
+            <div class="text-center">
+                <a href="/login" class="btn-voltar">
+                    <i class="fas fa-arrow-left me-2"></i>Voltar para a página de login
+                </a>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Scripts -->
+    <%- include('partials/scripts') %>
+    
+    <script>
+        // Validação do formulário
+        document.getElementById('formSolicitacaoCadastro').addEventListener('submit', function(e) {
+            const nome = document.getElementById('nomeCompleto').value.trim();
+            const email = document.getElementById('email').value.trim();
+            const funcao = document.getElementById('funcao').value;
+            const departamento = document.getElementById('departamento').value.trim();
+            const escola = document.getElementById('escola').value.trim();
+            
+            // Validações básicas
+            if (!nome || nome.length < 5) {
+                e.preventDefault();
+                alert('Por favor, insira seu nome completo (mínimo 5 caracteres)');
+                document.getElementById('nomeCompleto').focus();
+                return;
+            }
+            
+            const emailRegex = /^\S+@\S+\.\S+$/;
+            if (!emailRegex.test(email)) {
+                e.preventDefault();
+                alert('Por favor, insira um e-mail válido');
+                document.getElementById('email').focus();
+                return;
+            }
+            
+            if (!funcao) {
+                e.preventDefault();
+                alert('Por favor, selecione sua função');
+                document.getElementById('funcao').focus();
+                return;
+            }
+            
+            if (!departamento) {
+                e.preventDefault();
+                alert('Por favor, informe o departamento');
+                document.getElementById('departamento').focus();
+                return;
+            }
+            
+            if (!escola) {
+                e.preventDefault();
+                alert('Por favor, informe a escola/unidade');
+                document.getElementById('escola').focus();
+                return;
+            }
+            
+            // Se tudo válido, mostra loading
+            const btn = this.querySelector('button[type="submit"]');
+            btn.innerHTML = '<i class="fas fa-spinner fa-spin me-2"></i>Enviando...';
+            btn.disabled = true;
+        });
+        
+        // Efeito de foco nos campos
+        document.querySelectorAll('.form-control, .form-select').forEach(input => {
+            input.addEventListener('focus', function() {
+                this.parentElement.classList.add('focused');
+            });
+            
+            input.addEventListener('blur', function() {
+                this.parentElement.classList.remove('focused');
+            });
+        });
+    </script>
+</body>
+</html>

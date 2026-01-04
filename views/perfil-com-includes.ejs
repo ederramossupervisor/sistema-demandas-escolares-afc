@@ -1,0 +1,1134 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <%- include('partials/head', {title: 'Meu Perfil - Sistema de Demandas'}) %>
+    
+    <!-- CSS específico para perfil -->
+    <style>
+    /* ANIMAÇÃO SUAVE */
+    @keyframes fadeIn {
+        from {
+            opacity: 0;
+            transform: translateY(10px);
+        }
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+    
+    /* APENAS O CONTEÚDO DO PERFIL ANIMA */
+    main {
+        animation: fadeIn 0.6s ease-out;
+    }
+    
+    /* CARD DO PERFIL - DESIGN BONITO */
+    .profile-card {
+        background: white;
+        border-radius: 15px;
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.08);
+        overflow: hidden;
+        margin-bottom: 30px;
+        border: 1px solid #eef2f7;
+    }
+    
+    .profile-header {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        padding: 40px 30px;
+        position: relative;
+    }
+    
+    .profile-avatar {
+        width: 120px;
+        height: 120px;
+        background: rgba(255, 255, 255, 0.2);
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin: 0 auto 20px;
+        border: 4px solid rgba(255, 255, 255, 0.3);
+        font-size: 48px;
+        color: white;
+        box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+    }
+    
+    .profile-name {
+        font-size: 24px;
+        font-weight: 700;
+        margin-bottom: 5px;
+    }
+    
+    .profile-role {
+        opacity: 0.9;
+        font-size: 16px;
+    }
+    
+    .profile-body {
+        padding: 30px;
+    }
+    
+    /* NÃO ESTILIZE .container-fluid, .row, .col-* */
+    /* Deixe o Bootstrap cuidar do layout grid */
+    
+    /* SEU CSS ESPECÍFICO (mantenha o que já tem abaixo) */
+    .section-title {
+        color: #333;
+        font-weight: 600;
+        margin-bottom: 20px;
+        padding-bottom: 10px;
+        border-bottom: 2px solid #f0f4f8;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+    }
+    
+    .section-title i {
+        color: #667eea;
+    }
+    
+    .info-item {
+        display: flex;
+        margin-bottom: 15px;
+        padding: 10px 0;
+        border-bottom: 1px solid #f5f7fa;
+    }
+    
+    /* ... mantenha todo o resto do seu CSS bonito ... */
+    /* ==================== */
+/* RESPONSIVIDADE MOBILE - MEU PERFIL */
+/* ==================== */
+@media (max-width: 768px) {
+    /* CONTAINER PRINCIPAL */
+    .container-fluid {
+        padding-left: 10px !important;
+        padding-right: 10px !important;
+    }
+    
+    /* CABEÇALHO DA PÁGINA */
+    .h2 {
+        font-size: 1.5rem !important;
+    }
+    
+    /* CARD DO PERFIL - AJUSTES */
+    .profile-card {
+        border-radius: 12px !important;
+        margin-bottom: 20px !important;
+    }
+    
+    .profile-header {
+        padding: 30px 20px !important;
+        text-align: center !important;
+    }
+    
+    .profile-avatar {
+        width: 100px !important;
+        height: 100px !important;
+        font-size: 40px !important;
+        margin-bottom: 15px !important;
+    }
+    
+    .profile-name {
+        font-size: 1.3rem !important;
+    }
+    
+    .profile-role {
+        font-size: 14px !important;
+    }
+    
+    .profile-body {
+        padding: 20px 15px !important;
+    }
+    /* ==================== */
+/* ABAS DE NAVEGAÇÃO - MOBILE FRIENDLY */
+/* ==================== */
+#profileTab.nav-tabs {
+    flex-wrap: nowrap !important;
+    overflow-x: auto !important;
+    overflow-y: hidden !important;
+    -webkit-overflow-scrolling: touch !important;
+    white-space: nowrap !important;
+    padding-bottom: 5px !important;
+    border-bottom: 2px solid #dee2e6 !important;
+}
+
+#profileTab .nav-item {
+    flex: 0 0 auto !important;
+}
+
+#profileTab .nav-link {
+    padding: 12px 16px !important;
+    font-size: 14px !important;
+    min-width: 80px !important;
+    text-align: center !important;
+    border-radius: 8px 8px 0 0 !important;
+    margin: 0 2px !important;
+}
+
+#profileTab .nav-link i {
+    display: block !important;
+    margin: 0 auto 5px auto !important;
+    font-size: 16px !important;
+}
+
+#profileTab .nav-link span {
+    display: block !important;
+    font-size: 12px !important;
+}
+    
+    /* ==================== */
+    /* CONTEÚDO DAS ABAS - MOBILE */
+    /* ==================== */
+    
+    /* ABA 1: INFORMAÇÕES - 1 COLUNA */
+    #info .row {
+        flex-direction: column !important;
+    }
+    
+    #info .col-md-8,
+    #info .col-md-4 {
+        width: 100% !important;
+        margin-bottom: 25px !important;
+    }
+    
+    .section-title {
+        font-size: 1.1rem !important;
+        padding-bottom: 8px !important;
+        margin-bottom: 15px !important;
+    }
+    
+    .info-item {
+        flex-direction: column !important;
+        padding: 12px 0 !important;
+        margin-bottom: 12px !important;
+    }
+    
+    .info-label {
+        font-weight: 600 !important;
+        margin-bottom: 5px !important;
+        color: #495057 !important;
+        font-size: 14px !important;
+    }
+    
+    .info-value {
+        font-size: 15px !important;
+        color: #212529 !important;
+    }
+    
+    /* BADGES DE ESCOLA */
+    .school-badge {
+        display: inline-block !important;
+        margin: 4px !important;
+        padding: 6px 10px !important;
+        font-size: 12px !important;
+    }
+    
+    /* CARDS DE ESTATÍSTICAS */
+    .stats-card {
+        padding: 15px !important;
+        text-align: center !important;
+    }
+    
+    .stats-number {
+        font-size: 1.5rem !important;
+        font-weight: bold !important;
+    }
+    
+    .stats-label {
+        font-size: 12px !important;
+        color: #6c757d !important;
+    }
+    
+    /* LISTA DE PERMISSÕES */
+    .list-group-item {
+        padding: 10px 15px !important;
+        font-size: 13px !important;
+    }
+    
+    /* ==================== */
+    /* ABA 2: EDITAR PERFIL - FORMULÁRIO MOBILE */
+    /* ==================== */
+    #edit .row {
+        margin-left: -8px !important;
+        margin-right: -8px !important;
+    }
+    
+    #edit .col-md-6,
+    #edit .col-12 {
+        width: 100% !important;
+        padding-left: 8px !important;
+        padding-right: 8px !important;
+        margin-bottom: 15px !important;
+    }
+    
+    /* LABELS MAIORES */
+    .form-label {
+        font-size: 15px !important;
+        font-weight: 600 !important;
+        margin-bottom: 8px !important;
+    }
+    
+    /* INPUTS MAIORES */
+    .form-control,
+    .form-select {
+        padding: 16px 15px !important;
+        font-size: 16px !important;
+        min-height: 52px;
+        border-radius: 10px !important;
+    }
+    
+    /* ÁREA DE CHECKBOX DE ESCOLAS */
+    .form-control[style*="height: 150px"] {
+        height: 180px !important; /* Mais alto para mobile */
+        padding: 15px !important;
+    }
+    
+    .form-check {
+        margin-bottom: 10px !important;
+        padding-left: 30px !important; /* Espaço para checkbox maior */
+    }
+    
+    .form-check-input {
+        width: 20px !important;
+        height: 20px !important;
+        margin-left: -30px !important; /* Alinhamento correto */
+        margin-top: 0.3em !important;
+    }
+    
+    .form-check-label {
+        font-size: 14px !important;
+        line-height: 1.4 !important;
+        padding-left: 8px !important;
+    }
+    
+    /* BOTÕES DO FORMULÁRIO */
+    #edit .btn {
+        padding: 16px 20px !important;
+        font-size: 16px !important;
+        min-height: 50px;
+        width: 100% !important;
+        margin-bottom: 10px !important;
+    }
+    
+    #edit .btn-outline-secondary {
+        margin-left: 0 !important;
+    }
+    
+    /* ==================== */
+    /* ABA 3: ALTERAR SENHA - MOBILE */
+    /* ==================== */
+    #password .row {
+        flex-direction: column !important;
+    }
+    
+    #password .col-md-8,
+    #password .col-md-4 {
+        width: 100% !important;
+        margin-bottom: 20px !important;
+    }
+    
+    /* CARD DE DICAS */
+    .card.border-info {
+        margin-top: 20px !important;
+    }
+    
+    /* ==================== */
+    /* ABA 4: ATIVIDADES - MOBILE */
+    /* ==================== */
+    .activity-item {
+        padding: 15px 0 !important;
+        border-bottom: 1px solid #e9ecef !important;
+    }
+    
+    .activity-icon {
+        width: 40px !important;
+        height: 40px !important;
+        font-size: 18px !important;
+        margin-right: 15px !important;
+    }
+    
+    .activity-item h6 {
+        font-size: 14px !important;
+        margin-bottom: 5px !important;
+    }
+    
+    .activity-item p {
+        font-size: 13px !important;
+        margin-bottom: 5px !important;
+    }
+    
+    /* ==================== */
+    /* CARDS EXTRAS - 1 COLUNA */
+    /* ==================== */
+    .row.mt-4 {
+        margin-top: 20px !important;
+    }
+    
+    .row.mt-4 .col-md-4 {
+        width: 100% !important;
+        margin-bottom: 15px !important;
+    }
+    
+    /* CARDS MENORES */
+    .card.h-100 {
+        min-height: auto !important;
+    }
+    
+    .display-4 {
+        font-size: 2.5rem !important;
+    }
+    
+    /* SWITCHES MAIORES */
+    .form-switch .form-check-input {
+        width: 3em !important;
+        height: 1.5em !important;
+        margin-left: -3.5em !important;
+    }
+    
+    /* ==================== */
+    /* BOTÕES GERAIS */
+    /* ==================== */
+    main .btn, .profile-body .btn, .tab-content .btn {
+        padding: 14px 18px !important;
+        font-size: 15px !important;
+        min-height: 48px;
+    }
+    
+    .btn-sm {
+        padding: 10px 15px !important;
+        min-height: 40px;
+    }
+    
+    /* REMOVER HOVER EFFECTS EM TOUCH */
+    .btn:hover,
+    .nav-link:hover {
+        transform: none !important;
+    }
+    
+    /* FEEDBACK DE TOQUE */
+    .btn:active,
+    .nav-link:active {
+        transform: scale(0.98) !important;
+    }
+    
+    /* ALERTAS */
+    .alert {
+        padding: 15px !important;
+        font-size: 14px !important;
+        margin-bottom: 15px !important;
+    }
+}
+
+/* ==================== */
+/* CELULARES MUITO PEQUENOS (375px) */
+/* ==================== */
+@media (max-width: 375px) {
+    .profile-header {
+        padding: 25px 15px !important;
+    }
+    
+    .profile-avatar {
+        width: 90px !important;
+        height: 90px !important;
+        font-size: 36px !important;
+    }
+    
+    /* CORREÇÃO: Apenas abas do perfil (NÃO afeta navbar) */
+    #profileTab .nav-link {
+        padding: 10px 12px !important;
+        font-size: 13px !important;
+        min-width: 70px !important;
+    }
+    
+    .form-control,
+    .form-select {
+        padding: 14px 12px !important;
+        min-height: 48px;
+    }
+    
+    .btn {
+        padding: 12px 16px !important;
+        font-size: 14px !important;
+        min-height: 44px;
+    }
+    
+    /* TEXTO MENOR PARA CABEÇALHOS */
+    .h2 {
+        font-size: 1.3rem !important;
+    }
+    
+    .section-title {
+        font-size: 1rem !important;
+    }
+    
+    /* CHECKBOXES AINDA MAIORES */
+    .form-check-input {
+        width: 22px !important;
+        height: 22px !important;
+    }
+}
+
+/* ==================== */
+/* MELHORIAS DE ACESSIBILIDADE */
+/* ==================== */
+/* Foco visual melhorado para formulários */
+.form-control:focus,
+.form-select:focus {
+    border-color: #667eea !important;
+    box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.15) !important;
+}
+
+/* Checkboxes com melhor contraste */
+.form-check-input:checked {
+    background-color: #667eea !important;
+    border-color: #667eea !important;
+}
+
+/* Abas ativas mais visíveis */
+.nav-link.active {
+    font-weight: 600 !important;
+    border-bottom-width: 3px !important;
+}
+
+/* Espaçamento entre elementos para toque fácil */
+.info-item,
+.activity-item,
+.list-group-item {
+    padding: 12px 0 !important;
+}
+
+/* Garantir que textos não sejam muito pequenos */
+.small, small {
+    font-size: 12px !important;
+}
+
+/* Indicador visual para campos obrigatórios */
+.form-label[for*="editNome"],
+.form-label[for*="currentPassword"],
+.form-label[for*="newPassword"] {
+    position: relative;
+}
+
+.form-label[for*="editNome"]::after,
+.form-label[for*="currentPassword"]::after,
+.form-label[for*="newPassword"]::after {
+    content: " *";
+    color: #dc3545;
+    font-weight: bold;
+}
+
+/* Melhor contraste para estatísticas */
+.stats-card {
+    background: #f8f9fa;
+    border-radius: 10px;
+    transition: transform 0.2s;
+}
+
+.stats-card:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+}
+/* ==================== */
+/* CORREÇÃO PARA MENU MOBILE - PERFIL */
+/* ==================== */
+
+/* Garantir que o menu mobile tenha tamanho igual às outras páginas */
+@media (max-width: 992px) {
+    /* Apenas os links do menu mobile da navbar */
+    .navbar-collapse .navbar-nav .nav-link {
+        font-size: 0.95rem !important;
+        padding: 0.5rem 1rem !important;
+    }
+    
+    /* Tamanho do logo */
+    .navbar-brand {
+        font-size: 1.1rem !important;
+    }
+}
+</style>
+</head>
+<body>
+    <!-- Incluir navbar -->
+    <%- include('partials/navbar') %>
+    
+    <div class="container-fluid mt-4">
+    <div class="row">
+        <!-- Sidebar Unificada - Visível apenas no desktop -->
+        <div class="col-md-3 d-none d-md-block">
+            <div class="card border-0 shadow-sm mb-4">
+                <div class="card-body p-3">
+                    <%- include('partials/sidebar', { 
+                        currentPage: 'perfil', 
+                        user: user,
+                        escolas: escolas || []
+                    }); %>
+                </div>
+            </div>
+        </div>
+                
+                <!-- Conteúdo principal (9 colunas) -->
+                <main class="col-md-9">
+                <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
+                    <h1 class="h2">
+                        <i class="fas fa-user-circle me-2"></i>Meu Perfil
+                    </h1>
+                    <div class="btn-toolbar mb-2 mb-md-0">
+                        <button class="btn btn-sm btn-outline-secondary" onclick="window.print()">
+                            <i class="bi bi-printer me-1"></i>Imprimir
+                        </button>
+                    </div>
+                </div>
+                
+                <!-- Alertas -->
+                <% if (success) { %>
+                    <div class="alert alert-success alert-dismissible fade show" role="alert">
+                        <i class="bi bi-check-circle-fill me-2"></i>
+                        <%= success %>
+                        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                    </div>
+                <% } %>
+                
+                <% if (error) { %>
+                    <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                        <i class="bi bi-exclamation-triangle-fill me-2"></i>
+                        <%= error %>
+                        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                    </div>
+                <% } %>
+                
+                <!-- Card principal do perfil -->
+                <div class="profile-card">
+                    <div class="profile-header">
+                        <div class="profile-avatar">
+                            <i class="bi bi-person-fill"></i>
+                        </div>
+                        <h2 class="profile-name"><%= user.nome %></h2>
+                        <p class="profile-role">
+                            <span class="badge-role"><%= user.tipo %></span>
+                            <span class="badge-status ms-2">● ATIVO</span>
+                        </p>
+                    </div>
+                    
+                    <div class="profile-body">
+                        <!-- Abas de navegação -->
+                        <ul class="nav nav-tabs" id="profileTab" role="tablist">
+                            <li class="nav-item" role="presentation">
+                                <button class="nav-link active" id="info-tab" data-bs-toggle="tab" data-bs-target="#info" type="button">
+                                    <i class="bi bi-info-circle me-1"></i>Informações
+                                </button>
+                            </li>
+                            <li class="nav-item" role="presentation">
+                                <button class="nav-link" id="edit-tab" data-bs-toggle="tab" data-bs-target="#edit" type="button">
+                                    <i class="bi bi-pencil-square me-1"></i>Editar Perfil
+                                </button>
+                            </li>
+                            <li class="nav-item" role="presentation">
+                                <button class="nav-link" id="password-tab" data-bs-toggle="tab" data-bs-target="#password" type="button">
+                                    <i class="bi bi-key me-1"></i>Alterar Senha
+                                </button>
+                            </li>
+                            <li class="nav-item" role="presentation">
+                                <button class="nav-link" id="activity-tab" data-bs-toggle="tab" data-bs-target="#activity" type="button">
+                                    <i class="bi bi-clock-history me-1"></i>Atividades
+                                </button>
+                            </li>
+                        </ul>
+                        
+                        <!-- Conteúdo das abas -->
+                        <div class="tab-content" id="profileTabContent">
+                            
+                            <!-- ABA 1: Informações do perfil -->
+                            <div class="tab-pane fade show active" id="info" role="tabpanel">
+                                <div class="row">
+                                    <div class="col-md-8">
+                                        <h4 class="section-title">
+                                            <i class="bi bi-person-badge"></i>Dados Pessoais
+                                        </h4>
+                                        
+                                        <div class="info-item">
+                                            <div class="info-label">
+                                                <i class="bi bi-person"></i>Nome Completo:
+                                            </div>
+                                            <div class="info-value"><%= user.nome %></div>
+                                        </div>
+                                        
+                                        <div class="info-item">
+                                            <div class="info-label">
+                                                <i class="bi bi-envelope"></i>E-mail:
+                                            </div>
+                                            <div class="info-value"><%= user.email %></div>
+                                        </div>
+                                        
+                                        <div class="info-item">
+                                            <div class="info-label">
+                                                <i class="bi bi-shield-check"></i>Tipo de Usuário:
+                                            </div>
+                                            <div class="info-value">
+                                                <span class="badge-role"><%= user.tipo %></span>
+                                            </div>
+                                        </div>
+                                        
+                                        <div class="info-item">
+                                            <div class="info-label">
+                                                <i class="bi bi-building"></i>Departamento:
+                                            </div>
+                                            <div class="info-value"><%= user.departamento || 'Não informado' %></div>
+                                        </div>
+                                        
+                                        <div class="info-item">
+                                            <div class="info-label">
+                                                <i class="bi bi-calendar-check"></i>Membro desde:
+                                            </div>
+                                            <div class="info-value">15 de Outubro, 2024</div>
+                                        </div>
+                                        
+                                        <h4 class="section-title mt-4">
+                                            <i class="bi bi-building"></i>Escolas Vinculadas
+                                        </h4>
+                                        
+                                        <div class="mb-3">
+                                            <% if (user.escolas && user.escolas.length > 0) { %>
+                                                <% user.escolas.slice(0, 8).forEach(escola => { %>
+                                                    <span class="school-badge"><%= escola %></span>
+                                                <% }) %>
+                                                <% if (user.escolas.length > 8) { %>
+                                                    <span class="school-badge">+<%= user.escolas.length - 8 %> mais</span>
+                                                <% } %>
+                                            <% } else { %>
+                                                <p class="text-muted">Nenhuma escola vinculada</p>
+                                            <% } %>
+                                        </div>
+                                    </div>
+                                    
+                                    <div class="col-md-4">
+                                        <!-- Estatísticas -->
+                                        <h4 class="section-title">
+                                            <i class="bi bi-graph-up"></i>Estatísticas
+                                        </h4>
+                                        
+                                        <div class="row">
+                                            <div class="col-6 mb-3">
+                                                <div class="stats-card">
+                                                    <div class="stats-number"><%= totalDemandas || 0 %></div>
+                                                    <div class="stats-label">Demandas</div>
+                                                </div>
+                                            </div>
+                                            <div class="col-6 mb-3">
+                                                <div class="stats-card">
+                                                    <div class="stats-number"><%= demandasPendentes || 0 %></div>
+                                                    <div class="stats-label">Pendentes</div>
+                                                </div>
+                                            </div>
+                                            <div class="col-6 mb-3">
+                                                <div class="stats-card">
+                                                    <div class="stats-number"><%= demandasConcluidas || 0 %></div>
+                                                    <div class="stats-label">Concluídas</div>
+                                                </div>
+                                            </div>
+                                            <div class="col-6 mb-3">
+                                                <div class="stats-card">
+                                                    <div class="stats-number"><%= user.escolas ? user.escolas.length : 0 %></div>
+                                                    <div class="stats-label">Escolas</div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        
+                                        <!-- Permissões -->
+                                        <h4 class="section-title">
+                                            <i class="bi bi-shield-lock"></i>Permissões
+                                        </h4>
+                                        
+                                        <div class="list-group list-group-flush">
+                                            <% const permissoes = {
+                                                'administrador': ['Criar demandas', 'Editar todas demandas', 'Excluir demandas', 'Gerenciar usuários', 'Relatórios completos'],
+                                                'supervisor': ['Criar demandas', 'Editar demandas das suas escolas', 'Visualizar relatórios'],
+                                                'gestao': ['Visualizar todas demandas', 'Gerar relatórios'],
+                                                'comum': ['Criar demandas', 'Visualizar próprias demandas']
+                                            } %>
+                                            
+                                            <% const userPerms = permissoes[user.tipo] || permissoes.comum; %>
+                                            <% userPerms.forEach(permissao => { %>
+                                                <div class="list-group-item d-flex align-items-center">
+                                                    <i class="bi bi-check-circle-fill text-success me-2"></i>
+                                                    <span><%= permissao %></span>
+                                                </div>
+                                            <% }) %>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <!-- ABA 2: Editar perfil -->
+                            <div class="tab-pane fade" id="edit" role="tabpanel">
+                                <h4 class="section-title">
+                                    <i class="bi bi-pencil-square"></i>Editar Informações do Perfil
+                                </h4>
+                                
+                                <form id="editProfileForm">
+                                    <div class="row">
+                                        <div class="col-md-6 mb-3">
+                                            <label for="editNome" class="form-label">Nome Completo</label>
+                                            <input type="text" class="form-control" id="editNome" 
+                                                   value="<%= user.nome %>" required>
+                                        </div>
+                                        
+                                        <div class="col-md-6 mb-3">
+                                            <label for="editEmail" class="form-label">E-mail</label>
+                                            <input type="email" class="form-control" id="editEmail" 
+                                                   value="<%= user.email %>" required disabled>
+                                            <small class="text-muted">O e-mail não pode ser alterado</small>
+                                        </div>
+                                        
+                                        <div class="col-md-6 mb-3">
+                                            <label for="editDepartamento" class="form-label">Departamento</label>
+                                            <select class="form-select" id="editDepartamento">
+                                                <option value="Pedagogico" <%= user.departamento === 'Pedagogico' ? 'selected' : '' %>>Pedagógico</option>
+                                                <option value="Administrativo" <%= user.departamento === 'Administrativo' ? 'selected' : '' %>>Administrativo</option>
+                                                <option value="Manutencao" <%= user.departamento === 'Manutencao' ? 'selected' : '' %>>Manutenção</option>
+                                                <option value="RecursosHumanos" <%= user.departamento === 'RecursosHumanos' ? 'selected' : '' %>>Recursos Humanos</option>
+                                                <option value="Alimentacao" <%= user.departamento === 'Alimentacao' ? 'selected' : '' %>>Alimentação</option>
+                                                <option value="Transporte" <%= user.departamento === 'Transporte' ? 'selected' : '' %>>Transporte</option>
+                                                <option value="Outros" <%= user.departamento === 'Outros' ? 'selected' : '' %>>Outros</option>
+                                            </select>
+                                        </div>
+                                        
+                                        <div class="col-md-6 mb-3">
+                                            <label for="editTelefone" class="form-label">Telefone</label>
+                                            <input type="tel" class="form-control" id="editTelefone" 
+                                                   placeholder="(27) 99999-9999">
+                                        </div>
+                                        
+                                        <div class="col-12 mb-3">
+                                            <label class="form-label">Escolas (selecione as escolas sob sua responsabilidade)</label>
+                                            <div class="form-control" style="height: 150px; overflow-y: auto;">
+                                                <% escolas.forEach((escola, index) => { %>
+                                                    <div class="form-check">
+                                                        <input class="form-check-input" type="checkbox" 
+                                                               id="escola<%= index %>" 
+                                                               value="<%= escola %>"
+                                                               <%= user.escolas && user.escolas.includes(escola) ? 'checked' : '' %>>
+                                                        <label class="form-check-label" for="escola<%= index %>">
+                                                            <%= escola %>
+                                                        </label>
+                                                    </div>
+                                                <% }) %>
+                                            </div>
+                                        </div>
+                                        
+                                        <div class="col-12">
+                                            <button type="submit" class="btn btn-primary">
+                                                <i class="bi bi-check-circle me-1"></i>Salvar Alterações
+                                            </button>
+                                            <button type="reset" class="btn btn-outline-secondary ms-2">
+                                                <i class="bi bi-x-circle me-1"></i>Cancelar
+                                            </button>
+                                        </div>
+                                    </div>
+                                </form>
+                            </div>
+                            
+                            <!-- ABA 3: Alterar senha -->
+                            <div class="tab-pane fade" id="password" role="tabpanel">
+                                <h4 class="section-title">
+                                    <i class="bi bi-key"></i>Alterar Senha
+                                </h4>
+                                
+                                <div class="row">
+                                    <div class="col-md-8">
+                                        <form id="changePasswordForm">
+                                            <div class="mb-3">
+                                                <label for="currentPassword" class="form-label">Senha Atual</label>
+                                                <input type="password" class="form-control" id="currentPassword" required>
+                                            </div>
+                                            
+                                            <div class="mb-3">
+                                                <label for="newPassword" class="form-label">Nova Senha</label>
+                                                <input type="password" class="form-control" id="newPassword" required>
+                                                <div class="form-text">
+                                                    A senha deve ter pelo menos 8 caracteres, incluindo letras e números.
+                                                </div>
+                                            </div>
+                                            
+                                            <div class="mb-3">
+                                                <label for="confirmPassword" class="form-label">Confirmar Nova Senha</label>
+                                                <input type="password" class="form-control" id="confirmPassword" required>
+                                            </div>
+                                            
+                                            <div class="alert alert-info">
+                                                <i class="bi bi-info-circle me-2"></i>
+                                                <strong>Dica de segurança:</strong> Use uma senha forte e única. Recomendamos trocar a senha a cada 90 dias.
+                                            </div>
+                                            
+                                            <button type="submit" class="btn btn-primary">
+                                                <i class="bi bi-lock me-1"></i>Alterar Senha
+                                            </button>
+                                        </form>
+                                    </div>
+                                    
+                                    <div class="col-md-4">
+                                        <div class="card border-info">
+                                            <div class="card-header bg-info text-white">
+                                                <i class="bi bi-shield-check me-1"></i>Dicas de Segurança
+                                            </div>
+                                            <div class="card-body">
+                                                <ul class="list-unstyled mb-0">
+                                                    <li class="mb-2">
+                                                        <i class="bi bi-check text-success me-2"></i>
+                                                        Use senhas longas
+                                                    </li>
+                                                    <li class="mb-2">
+                                                        <i class="bi bi-check text-success me-2"></i>
+                                                        Misture letras e números
+                                                    </li>
+                                                    <li class="mb-2">
+                                                        <i class="bi bi-check text-success me-2"></i>
+                                                        Evite informações pessoais
+                                                    </li>
+                                                    <li class="mb-2">
+                                                        <i class="bi bi-check text-success me-2"></i>
+                                                        Não reuse senhas antigas
+                                                    </li>
+                                                    <li>
+                                                        <i class="bi bi-check text-success me-2"></i>
+                                                        Ative autenticação em 2 fatores
+                                                    </li>
+                                                </ul>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <!-- ABA 4: Atividades recentes -->
+                            <div class="tab-pane fade" id="activity" role="tabpanel">
+                                <h4 class="section-title">
+                                    <i class="bi bi-clock-history"></i>Atividades Recentes
+                                </h4>
+                                
+                                <div class="activity-list">
+                                    <!-- Exemplo de atividades -->
+                                    <div class="activity-item">
+                                        <div class="activity-icon">
+                                            <i class="bi bi-plus-circle"></i>
+                                        </div>
+                                        <div class="flex-grow-1">
+                                            <h6 class="mb-1">Nova demanda criada</h6>
+                                            <p class="mb-0 text-muted">"Manutenção de computadores" na escola CEEFMTI Afonso Cláudio</p>
+                                            <small class="text-muted">Hoje, 10:30</small>
+                                        </div>
+                                    </div>
+                                    
+                                    <div class="activity-item">
+                                        <div class="activity-icon">
+                                            <i class="bi bi-check-circle"></i>
+                                        </div>
+                                        <div class="flex-grow-1">
+                                            <h6 class="mb-1">Demanda concluída</h6>
+                                            <p class="mb-0 text-muted">"Reposição de materiais" na escola EEEFM Domingos Perim</p>
+                                            <small class="text-muted">Ontem, 15:45</small>
+                                        </div>
+                                    </div>
+                                    
+                                    <div class="activity-item">
+                                        <div class="activity-icon">
+                                            <i class="bi bi-pencil"></i>
+                                        </div>
+                                        <div class="flex-grow-1">
+                                            <h6 class="mb-1">Perfil atualizado</h6>
+                                            <p class="mb-0 text-muted">Você alterou suas informações de contato</p>
+                                            <small class="text-muted">2 dias atrás</small>
+                                        </div>
+                                    </div>
+                                    
+                                    <div class="activity-item">
+                                        <div class="activity-icon">
+                                            <i class="bi bi-download"></i>
+                                        </div>
+                                        <div class="flex-grow-1">
+                                            <h6 class="mb-1">Relatório gerado</h6>
+                                            <p class="mb-0 text-muted">Relatório mensal de demandas (Outubro/2024)</p>
+                                            <small class="text-muted">3 dias atrás</small>
+                                        </div>
+                                    </div>
+                                    
+                                    <div class="activity-item">
+                                        <div class="activity-icon">
+                                            <i class="bi bi-person-plus"></i>
+                                        </div>
+                                        <div class="flex-grow-1">
+                                            <h6 class="mb-1">Novo usuário cadastrado</h6>
+                                            <p class="mb-0 text-muted">Você cadastrou um novo supervisor</p>
+                                            <small class="text-muted">1 semana atrás</small>
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                <div class="text-center mt-4">
+                                    <button class="btn btn-outline-secondary">
+                                        <i class="bi bi-clock-history me-1"></i>Carregar mais atividades
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Cards extras -->
+                <div class="row mt-4">
+                    <div class="col-md-4 mb-3">
+                        <div class="card h-100">
+                            <div class="card-body text-center">
+                                <i class="bi bi-qr-code display-4 text-primary mb-3"></i>
+                                <h5>Código de Acesso Rápido</h5>
+                                <p class="text-muted">Use este QR Code para acessar rapidamente pelo celular</p>
+                                <div id="qrcode" class="mb-3"></div>
+                                <button class="btn btn-outline-primary btn-sm">
+                                    <i class="bi bi-download me-1"></i>Baixar QR Code
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="col-md-4 mb-3">
+                        <div class="card h-100">
+                            <div class="card-body">
+                                <h5 class="card-title">
+                                    <i class="bi bi-bell me-2"></i>Notificações
+                                </h5>
+                                <div class="list-group list-group-flush">
+                                    <div class="list-group-item">
+                                        <small class="text-muted">Email:</small>
+                                        <div class="form-check form-switch">
+                                            <input class="form-check-input" type="checkbox" checked>
+                                            <label class="form-check-label">Ativo</label>
+                                        </div>
+                                    </div>
+                                    <div class="list-group-item">
+                                        <small class="text-muted">Push:</small>
+                                        <div class="form-check form-switch">
+                                            <input class="form-check-input" type="checkbox" checked>
+                                            <label class="form-check-label">Ativo</label>
+                                        </div>
+                                    </div>
+                                    <div class="list-group-item">
+                                        <small class="text-muted">SMS:</small>
+                                        <div class="form-check form-switch">
+                                            <input class="form-check-input" type="checkbox">
+                                            <label class="form-check-label">Inativo</label>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="col-md-4 mb-3">
+                        <div class="card h-100">
+                            <div class="card-body text-center">
+                                <i class="bi bi-shield-check display-4 text-success mb-3"></i>
+                                <h5>Conta Verificada</h5>
+                                <p class="text-muted">Sua conta está verificada e ativa no sistema</p>
+                                <div class="mb-3">
+                                    <span class="badge bg-success">
+                                        <i class="bi bi-check-circle me-1"></i>VERIFICADO
+                                    </span>
+                                </div>
+                                <button class="btn btn-outline-success btn-sm">
+                                    <i class="bi bi-shield-lock me-1"></i>Configurar 2FA
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </main>
+        </div>
+    </div>
+    
+    <!-- Incluir footer -->
+    <%- include('partials/footer') %>
+    
+    <!-- Incluir scripts -->
+    <%- include('partials/scripts') %>
+    
+    <!-- Scripts específicos para perfil -->
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            console.log('Página de perfil carregada!');
+            
+            // Ativar tooltips do Bootstrap
+            var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'));
+            var tooltipList = tooltipTriggerList.map(function (tooltipTriggerEl) {
+                return new bootstrap.Tooltip(tooltipTriggerEl);
+            });
+            
+            // Formulário de edição de perfil
+            const editForm = document.getElementById('editProfileForm');
+            if (editForm) {
+                editForm.addEventListener('submit', function(e) {
+                    e.preventDefault();
+                    
+                    // Aqui você implementaria a lógica de atualização
+                    alert('Funcionalidade de edição será implementada na próxima versão!');
+                    console.log('Dados do formulário:', {
+                        nome: document.getElementById('editNome').value,
+                        departamento: document.getElementById('editDepartamento').value
+                    });
+                });
+            }
+            
+            // Formulário de alteração de senha
+            const passwordForm = document.getElementById('changePasswordForm');
+            if (passwordForm) {
+                passwordForm.addEventListener('submit', function(e) {
+                    e.preventDefault();
+                    
+                    const currentPass = document.getElementById('currentPassword').value;
+                    const newPass = document.getElementById('newPassword').value;
+                    const confirmPass = document.getElementById('confirmPassword').value;
+                    
+                    // Validações básicas
+                    if (newPass.length < 8) {
+                        alert('A nova senha deve ter pelo menos 8 caracteres!');
+                        return;
+                    }
+                    
+                    if (newPass !== confirmPass) {
+                        alert('As senhas não coincidem!');
+                        return;
+                    }
+                    
+                    // Simulação de alteração
+                    alert('Senha alterada com sucesso (simulação)!');
+                    passwordForm.reset();
+                });
+            }
+            
+            // Inicializar abas
+            const profileTab = new bootstrap.Tab(document.querySelector('#info-tab'));
+            
+            // Gerar QR Code simples (simulação)
+            const qrContainer = document.getElementById('qrcode');
+            if (qrContainer) {
+                qrContainer.innerHTML = `
+                    <div style="background: #f8f9fa; padding: 10px; display: inline-block;">
+                        <div style="font-family: monospace; text-align: center;">
+                            ██████████████<br>
+                            ██∙∙∙∙∙∙∙∙∙∙██<br>
+                            ██∙██████∙∙██<br>
+                            ██∙██████∙∙██<br>
+                            ██∙∙∙∙∙∙∙∙∙∙██<br>
+                            ██████████████<br>
+                            <small>Perfil: <%= user.nome %></small>
+                        </div>
+                    </div>
+                `;
+            }
+            
+            // Animar entrada
+            const container = document.querySelector('.profile-container');
+            container.style.animation = 'fadeIn 0.6s ease-out';
+        });
+    </script>
+</body>
+</html>

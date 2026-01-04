@@ -1,0 +1,314 @@
+[
+  {
+    "_id": "69568c739ae737fc00797f3e",
+    "titulo": "Primeira demanda de teste",
+    "descricao": "Apenas testando.",
+    "escola": "EEEFM Elvira Barros",
+    "departamento": "Secretaria",
+    "prioridade": "Média",
+    "status": "concluida",
+    "criadoPor": {
+      "id": "6954bbcc581460ef4feb5996",
+      "nome": "Admin Sistema",
+      "email": "admin@escola.gov.br"
+    },
+    "responsavel": null,
+    "criadoEm": "2026-01-01T15:02:11.471Z",
+    "atualizadoEm": "2026-01-02T05:16:54.604Z",
+    "prazo": "2026-01-03T00:00:00.000Z",
+    "historico": [
+      {
+        "data": "2026-01-01T15:02:11.471Z",
+        "usuario": {
+          "id": "6954bbcc581460ef4feb5996",
+          "nome": "Admin Sistema",
+          "email": "admin@escola.gov.br"
+        },
+        "acao": "Criação",
+        "detalhes": "Demanda criada no sistema",
+        "alteracoes": {
+          "titulo": "Primeira demanda de teste",
+          "escola": "EEEFM Elvira Barros",
+          "departamento": "Secretaria",
+          "prioridade": "Média",
+          "status": "pendente"
+        },
+        "_id": "69568c739ae737fc00797f3f"
+      }
+    ],
+    "__v": 0
+  },
+  {
+    "_id": "6956f2f19ae737fc0079823c",
+    "titulo": "\"Teste após correção\"",
+    "descricao": "Testando modificações",
+    "escola": "EEEFM Fioravante Caliman",
+    "departamento": "Pedagogico",
+    "prioridade": "Baixa",
+    "status": "cancelada",
+    "criadoPor": {
+      "id": "6954bbcc581460ef4feb5996",
+      "nome": "Admin Sistema",
+      "email": "admin@escola.gov.br"
+    },
+    "responsavel": null,
+    "criadoEm": "2026-01-01T22:19:29.676Z",
+    "atualizadoEm": "2026-01-02T06:36:13.180Z",
+    "prazo": "2026-01-12T00:00:00.000Z",
+    "historico": [
+      {
+        "data": "2026-01-01T22:19:29.676Z",
+        "usuario": {
+          "id": "6954bbcc581460ef4feb5996",
+          "nome": "Admin Sistema",
+          "email": "admin@escola.gov.br"
+        },
+        "acao": "Criação",
+        "detalhes": "Demanda criada no sistema",
+        "alteracoes": {
+          "titulo": "\"Teste após correção\"",
+          "escola": "EEEFM Fioravante Caliman",
+          "departamento": "Secretaria",
+          "prioridade": "Média",
+          "status": "pendente"
+        },
+        "_id": "6956f2f19ae737fc0079823d"
+      }
+    ],
+    "__v": 0
+  },
+  {
+    "_id": "69576789ef7609c7c39bed7d",
+    "titulo": "testando push",
+    "descricao": "Testando push",
+    "escola": "EEEFM José Cupertino",
+    "departamento": "Secretaria",
+    "prioridade": "Urgente",
+    "status": "em_andamento",
+    "criadoPor": {
+      "id": "6954bbcc581460ef4feb5996",
+      "nome": "Admin Sistema",
+      "email": "admin@escola.gov.br"
+    },
+    "responsavel": null,
+    "criadoEm": "2026-01-02T06:36:57.098Z",
+    "atualizadoEm": "2026-01-02T06:37:23.757Z",
+    "prazo": "2026-01-04T00:00:00.000Z",
+    "historico": [
+      {
+        "data": "2026-01-02T06:36:57.098Z",
+        "usuario": {
+          "id": "6954bbcc581460ef4feb5996",
+          "nome": "Admin Sistema",
+          "email": "admin@escola.gov.br"
+        },
+        "acao": "Criação",
+        "detalhes": "Demanda criada no sistema",
+        "alteracoes": {
+          "titulo": "testando push",
+          "escola": "EEEFM José Cupertino",
+          "departamento": "Secretaria",
+          "prioridade": "Urgente",
+          "status": "pendente"
+        },
+        "_id": "69576789ef7609c7c39bed7e"
+      }
+    ],
+    "__v": 0
+  },
+  {
+    "_id": "695769d7ff2631b7d1567b15",
+    "titulo": "Teste Prazo Próximo",
+    "descricao": "Testando agendador automático",
+    "escola": "EEEFM Gisela Salloker Fayet",
+    "departamento": "Secretaria",
+    "prioridade": "Média",
+    "status": "pendente",
+    "criadoPor": {
+      "id": "6954bbcc581460ef4feb5996",
+      "nome": "Admin Sistema",
+      "email": "admin@escola.gov.br"
+    },
+    "responsavel": null,
+    "criadoEm": "2026-01-02T06:46:47.689Z",
+    "atualizadoEm": "2026-01-02T06:46:47.689Z",
+    "prazo": "2026-01-03T00:00:00.000Z",
+    "historico": [
+      {
+        "data": "2026-01-02T06:46:47.689Z",
+        "usuario": {
+          "id": "6954bbcc581460ef4feb5996",
+          "nome": "Admin Sistema",
+          "email": "admin@escola.gov.br"
+        },
+        "acao": "Criação",
+        "detalhes": "Demanda criada no sistema",
+        "alteracoes": {
+          "titulo": "Teste Prazo Próximo",
+          "escola": "EEEFM Gisela Salloker Fayet",
+          "departamento": "Secretaria",
+          "prioridade": "Média",
+          "status": "pendente"
+        },
+        "_id": "695769d7ff2631b7d1567b16"
+      }
+    ],
+    "__v": 0
+  },
+  {
+    "_id": "6957dcb77c0dc77b5b64c064",
+    "titulo": "Demanda de Teste - Agendador",
+    "descricao": "Esta é uma demanda de teste criada para verificar o agendador automático.",
+    "escola": "EEEFM Domingos Perim",
+    "departamento": "Secretaria",
+    "prioridade": "Média",
+    "status": "pendente",
+    "criadoPor": {
+      "id": "6954bbcc581460ef4feb5996",
+      "nome": "Admin Sistema",
+      "email": "admin@escola.gov.br"
+    },
+    "responsavel": null,
+    "criadoEm": "2026-01-02T14:56:55.671Z",
+    "atualizadoEm": "2026-01-02T14:56:55.671Z",
+    "prazo": "2026-01-03T00:00:00.000Z",
+    "historico": [
+      {
+        "data": "2026-01-02T14:56:55.671Z",
+        "usuario": {
+          "id": "6954bbcc581460ef4feb5996",
+          "nome": "Admin Sistema",
+          "email": "admin@escola.gov.br"
+        },
+        "acao": "Criação",
+        "detalhes": "Demanda criada no sistema",
+        "alteracoes": {
+          "titulo": "Demanda de Teste - Agendador",
+          "escola": "EEEFM Domingos Perim",
+          "departamento": "Secretaria",
+          "prioridade": "Média",
+          "status": "pendente"
+        },
+        "_id": "6957dcb77c0dc77b5b64c065"
+      }
+    ],
+    "__v": 0
+  },
+  {
+    "_id": "6957dce07c0dc77b5b64c06b",
+    "titulo": "Demanda de Teste - Agendador",
+    "descricao": "Esta é uma demanda de teste criada para verificar o agendador automático.",
+    "escola": "EEEFM Domingos Perim",
+    "departamento": "Secretaria",
+    "prioridade": "Média",
+    "status": "pendente",
+    "criadoPor": {
+      "id": "6954bbcc581460ef4feb5996",
+      "nome": "Admin Sistema",
+      "email": "admin@escola.gov.br"
+    },
+    "responsavel": null,
+    "criadoEm": "2026-01-02T14:57:36.312Z",
+    "atualizadoEm": "2026-01-02T14:57:36.312Z",
+    "prazo": "2026-01-03T00:00:00.000Z",
+    "historico": [
+      {
+        "data": "2026-01-02T14:57:36.312Z",
+        "usuario": {
+          "id": "6954bbcc581460ef4feb5996",
+          "nome": "Admin Sistema",
+          "email": "admin@escola.gov.br"
+        },
+        "acao": "Criação",
+        "detalhes": "Demanda criada no sistema",
+        "alteracoes": {
+          "titulo": "Demanda de Teste - Agendador",
+          "escola": "EEEFM Domingos Perim",
+          "departamento": "Secretaria",
+          "prioridade": "Média",
+          "status": "pendente"
+        },
+        "_id": "6957dce07c0dc77b5b64c06c"
+      }
+    ],
+    "__v": 0
+  },
+  {
+    "_id": "6957ddcb7c0dc77b5b64c075",
+    "titulo": "Demanda de Teste - Agendador",
+    "descricao": "Esta é uma demanda de teste criada para verificar o agendador automático.",
+    "escola": "EEEFM Domingos Perim",
+    "departamento": "Secretaria",
+    "prioridade": "Média",
+    "status": "em_andamento",
+    "criadoPor": {
+      "id": "6954bbcc581460ef4feb5996",
+      "nome": "Admin Sistema",
+      "email": "admin@escola.gov.br"
+    },
+    "responsavel": null,
+    "criadoEm": "2026-01-02T15:01:31.496Z",
+    "atualizadoEm": "2026-01-02T15:59:35.789Z",
+    "prazo": "2026-01-03T00:00:00.000Z",
+    "historico": [
+      {
+        "data": "2026-01-02T15:01:31.496Z",
+        "usuario": {
+          "id": "6954bbcc581460ef4feb5996",
+          "nome": "Admin Sistema",
+          "email": "admin@escola.gov.br"
+        },
+        "acao": "Criação",
+        "detalhes": "Demanda criada no sistema",
+        "alteracoes": {
+          "titulo": "Demanda de Teste - Agendador",
+          "escola": "EEEFM Domingos Perim",
+          "departamento": "Secretaria",
+          "prioridade": "Média",
+          "status": "pendente"
+        },
+        "_id": "6957ddcb7c0dc77b5b64c076"
+      }
+    ],
+    "__v": 0
+  },
+  {
+    "_id": "6957eb3bf0b63f5ca6df3da7",
+    "titulo": "\"Teste após correção\"",
+    "descricao": "teste",
+    "escola": "EEEFM Fazenda Camporês",
+    "departamento": "Pedagogico",
+    "prioridade": "Média",
+    "status": "pendente",
+    "criadoPor": {
+      "id": "6954bbcc581460ef4feb5996",
+      "nome": "Admin Sistema",
+      "email": "admin@escola.gov.br"
+    },
+    "responsavel": null,
+    "criadoEm": "2026-01-02T15:58:51.454Z",
+    "atualizadoEm": "2026-01-02T15:58:51.454Z",
+    "prazo": "2026-01-03T00:00:00.000Z",
+    "historico": [
+      {
+        "data": "2026-01-02T15:58:51.454Z",
+        "usuario": {
+          "id": "6954bbcc581460ef4feb5996",
+          "nome": "Admin Sistema",
+          "email": "admin@escola.gov.br"
+        },
+        "acao": "Criação",
+        "detalhes": "Demanda criada no sistema",
+        "alteracoes": {
+          "titulo": "\"Teste após correção\"",
+          "escola": "EEEFM Fazenda Camporês",
+          "departamento": "Pedagogico",
+          "prioridade": "Média",
+          "status": "pendente"
+        },
+        "_id": "6957eb3bf0b63f5ca6df3da8"
+      }
+    ],
+    "__v": 0
+  }
+]

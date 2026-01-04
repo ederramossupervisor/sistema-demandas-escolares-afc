@@ -1,0 +1,47 @@
+[
+  {
+    "_id": "hAfcVRxMj6WfsG8A1at4krOPzWaEQ6yX",
+    "expires": "2026-01-04T01:34:03.182Z",
+    "session": "{\"cookie\":{\"originalMaxAge\":86400000,\"expires\":\"2026-01-04T01:34:03.182Z\",\"secure\":false,\"httpOnly\":true,\"path\":\"/\"}}"
+  },
+  {
+    "_id": "2dryIZOt29zx6ltkunznUYX_35Necdh3",
+    "expires": "2026-01-04T01:34:03.035Z",
+    "session": "{\"cookie\":{\"originalMaxAge\":86400000,\"expires\":\"2026-01-04T01:34:03.035Z\",\"secure\":false,\"httpOnly\":true,\"path\":\"/\"},\"mensagem\":{\"tipo\":\"warning\",\"texto\":\"Faça login para acessar o sistema.\"}}"
+  },
+  {
+    "_id": "fApnZ31T9tf_Ykflwasu6OUlaPv0eSrl",
+    "expires": "2026-01-05T00:39:24.643Z",
+    "session": "{\"cookie\":{\"originalMaxAge\":86399996,\"expires\":\"2026-01-04T22:59:22.782Z\",\"secure\":false,\"httpOnly\":true,\"path\":\"/\"},\"userId\":\"6954bbcc581460ef4feb5996\",\"userEmail\":\"admin@escola.gov.br\",\"userName\":\"Admin Sistema\",\"userType\":\"administrador\",\"primeiroAcesso\":false,\"obrigarAlteracaoSenha\":false}"
+  },
+  {
+    "_id": "I_loJd_Y8v0JfmR--HDE47TyhNEQT2Ui",
+    "expires": "2026-01-04T01:34:02.899Z",
+    "session": "{\"cookie\":{\"originalMaxAge\":86400000,\"expires\":\"2026-01-04T01:34:02.899Z\",\"secure\":false,\"httpOnly\":true,\"path\":\"/\"},\"mensagem\":{\"tipo\":\"warning\",\"texto\":\"Faça login para acessar o sistema.\"}}"
+  },
+  {
+    "_id": "KcObm-X7NsUgzlCcuwFQcX_P0C6NkDKg",
+    "expires": "2026-01-04T01:34:03.443Z",
+    "session": "{\"cookie\":{\"originalMaxAge\":86400000,\"expires\":\"2026-01-04T01:34:03.443Z\",\"secure\":false,\"httpOnly\":true,\"path\":\"/\"},\"mensagem\":{\"tipo\":\"warning\",\"texto\":\"Faça login para acessar o sistema.\"}}"
+  },
+  {
+    "_id": "axSXqytXB49KzUXRi01gBWPAoz-0qUlP",
+    "expires": "2026-01-04T01:34:11.496Z",
+    "session": "{\"cookie\":{\"originalMaxAge\":86400000,\"expires\":\"2026-01-04T01:34:11.496Z\",\"secure\":false,\"httpOnly\":true,\"path\":\"/\"},\"mensagem\":{\"tipo\":\"warning\",\"texto\":\"Faça login para acessar o sistema.\"}}"
+  },
+  {
+    "_id": "zqkm0xpxLeVtLYCwwXS6AGKvkZhFWrrb",
+    "expires": "2026-01-04T01:35:32.502Z",
+    "session": "{\"cookie\":{\"originalMaxAge\":86400000,\"expires\":\"2026-01-04T01:35:32.502Z\",\"secure\":false,\"httpOnly\":true,\"path\":\"/\"},\"mensagem\":{\"tipo\":\"warning\",\"texto\":\"Faça login para acessar o sistema.\"}}"
+  },
+  {
+    "_id": "GXGuober-prE82n5iYy1jNrKANVM2FwA",
+    "expires": "2026-01-04T01:35:34.772Z",
+    "session": "{\"cookie\":{\"originalMaxAge\":86400000,\"expires\":\"2026-01-04T01:35:34.772Z\",\"secure\":false,\"httpOnly\":true,\"path\":\"/\"},\"mensagem\":{\"tipo\":\"warning\",\"texto\":\"Faça login para acessar o sistema.\"}}"
+  },
+  {
+    "_id": "EcmWkH_aNCdLkRHFey1oL1sj0RPfnYo2",
+    "expires": "2026-01-04T01:35:49.319Z",
+    "session": "{\"cookie\":{\"originalMaxAge\":86400000,\"expires\":\"2026-01-04T01:35:49.319Z\",\"secure\":false,\"httpOnly\":true,\"path\":\"/\"},\"mensagem\":{\"tipo\":\"warning\",\"texto\":\"Faça login para acessar o sistema.\"}}"
+  }
+]

@@ -1,0 +1,238 @@
+[
+  {
+    "_id": "6953e141acc2383d6c01918b",
+    "nome": "Eder Ramos Supervisor",
+    "email": "supervisor@escola.gov.br",
+    "senha": "SenhaAdmin123",
+    "tipo": "administrador",
+    "escolas": [
+      "CEEFMTI Afonso Cláudio",
+      "CEEFMTI Elisa Paiva",
+      "EEEFM Domingos Perim",
+      "EEEFM Fazenda Emílio Schroeder",
+      "EEEFM Álvaro Castelo",
+      "EEEFM Alto Rio Possmoser",
+      "EEEFM Elvira Barros",
+      "EEEFM Fazenda Camporês",
+      "EEEFM Fioravante Caliman",
+      "EEEFM Frederico Boldt",
+      "EEEFM Gisela Salloker Fayet",
+      "EEEFM Graça Aranha",
+      "EEEFM Joaquim Caetano de Paiva",
+      "EEEFM José Cupertino",
+      "EEEFM José Giestas",
+      "EEEFM José Roberto Christo",
+      "EEEFM Leogildo Severiano de Souza",
+      "EEEFM Luiz Jouffroy",
+      "EEEFM Marlene Brandão",
+      "EEEFM Maria de Abreu Alvim",
+      "EEEFM Pedra Azul",
+      "EEEFM Ponto do Alto",
+      "EEEFM Prof. Hermann Berger",
+      "EEEFM Profª Aldy Soares Merçon Vargas",
+      "EEEFM São Jorge",
+      "EEEFM São Luís",
+      "EEEFM Teófilo Paulino",
+      "EEEM Francisco Guilherme",
+      "EEEM Mata Fria",
+      "EEEM Sobreiro"
+    ],
+    "ativo": true,
+    "__v": 0,
+    "dataCriacao": "2025-12-31T04:06:46.593Z",
+    "departamento": "",
+    "permissoes": {
+      "atribuirDemandas": false,
+      "criarDemandas": true,
+      "editarDemandas": false,
+      "excluirDemandas": false,
+      "gerarRelatorios": false,
+      "verTodasDemandas": false
+    },
+    "telefone": "",
+    "ultimoAcesso": "2025-12-31T04:08:09.803Z"
+  },
+  {
+    "_id": "6954bbcc581460ef4feb5996",
+    "nome": "Admin Sistema",
+    "email": "admin@escola.gov.br",
+    "senha": "$2a$10$ExiLxGhkSCaveNNcxeLxQ.uQrrn4a152EIjkJpTcEHKjFyYSCNOz2",
+    "tipo": "administrador",
+    "escolas": [
+      "CEEFMTI Afonso Cláudio",
+      "CEEFMTI Elisa Paiva"
+    ],
+    "departamento": "Supervisão",
+    "telefone": "",
+    "ativo": true,
+    "permissoes": {
+      "criarDemandas": true,
+      "editarDemandas": true,
+      "excluirDemandas": true,
+      "verTodasDemandas": true,
+      "atribuirDemandas": true,
+      "gerarRelatorios": true
+    },
+    "dataCriacao": "2025-12-31T05:59:40.530Z",
+    "__v": 2,
+    "ultimoAcesso": "2026-01-02T23:49:55.852Z",
+    "atualizadoEm": "2026-01-03T23:02:32.784Z",
+    "contaAtiva": true,
+    "criadoEm": "2026-01-03T02:11:17.773Z",
+    "dataCadastro": "2026-01-03T02:11:17.773Z",
+    "dataUltimaAlteracaoSenha": "2026-01-03T04:37:13.853Z",
+    "obrigarAlteracaoSenha": false,
+    "primeiroAcesso": false,
+    "senhasAnteriores": [
+      {
+        "hash": "$2b$10$RYHjGgtWoiB76Weuh8TxUubvYYznBkUj6uWfx6xfRyJdYwzsiIvbS",
+        "alteradaEm": "2026-01-03T04:37:13.798Z",
+        "_id": "69589cf9674d9019035346b5"
+      }
+    ],
+    "tokens": []
+  },
+  {
+    "_id": "6954bc19581460ef4feb59ae",
+    "nome": "Maria Silva",
+    "email": "maria.supervisor@escola.gov.br",
+    "senha": "Supervisor123",
+    "tipo": "supervisor",
+    "escolas": [
+      "CEEFMTI Afonso Cláudio",
+      "EEEFM Domingos Perim"
+    ],
+    "departamento": "Supervisão",
+    "telefone": "",
+    "ativo": true,
+    "permissoes": {
+      "criarDemandas": true,
+      "editarDemandas": true,
+      "excluirDemandas": true,
+      "verTodasDemandas": true,
+      "atribuirDemandas": true,
+      "gerarRelatorios": true
+    },
+    "dataCriacao": "2025-12-31T06:00:57.696Z",
+    "__v": 0
+  },
+  {
+    "_id": "6954bc21581460ef4feb59b1",
+    "nome": "Carlos Santos",
+    "email": "carlos.diretor@escola.gov.br",
+    "senha": "Diretor123",
+    "tipo": "diretor",
+    "escolas": [
+      "EEEFM Álvaro Castelo"
+    ],
+    "departamento": "Gestão",
+    "telefone": "",
+    "ativo": true,
+    "permissoes": {
+      "criarDemandas": false,
+      "editarDemandas": true,
+      "excluirDemandas": false,
+      "verTodasDemandas": true,
+      "atribuirDemandas": false,
+      "gerarRelatorios": false
+    },
+    "dataCriacao": "2025-12-31T06:01:05.609Z",
+    "__v": 0,
+    "ultimoAcesso": "2025-12-31T06:21:20.996Z"
+  },
+  {
+    "_id": "6954bc2a581460ef4feb59b4",
+    "nome": "Ana Pedagoga",
+    "email": "ana.usuario@escola.gov.br",
+    "senha": "Usuario123",
+    "tipo": "usuario",
+    "escolas": [
+      "EEEFM Pedra Azul"
+    ],
+    "departamento": "Pedagógico",
+    "telefone": "",
+    "ativo": true,
+    "permissoes": {
+      "criarDemandas": true,
+      "editarDemandas": false,
+      "excluirDemandas": false,
+      "verTodasDemandas": false,
+      "atribuirDemandas": false,
+      "gerarRelatorios": false
+    },
+    "dataCriacao": "2025-12-31T06:01:14.118Z",
+    "__v": 0
+  },
+  {
+    "_id": "6954c5be11417204518a3a01",
+    "nome": "Julia Caroline Locatelli de Souza",
+    "email": "lou_locatelli@hotmail.com",
+    "senha": "julia123",
+    "tipo": "usuario",
+    "escolas": [
+      "EEEFM Frederico Boldt"
+    ],
+    "departamento": "Secretaria",
+    "telefone": "",
+    "ativo": true,
+    "permissoes": {
+      "criarDemandas": true,
+      "editarDemandas": false,
+      "excluirDemandas": false,
+      "verTodasDemandas": false,
+      "atribuirDemandas": false,
+      "gerarRelatorios": false
+    },
+    "dataCriacao": "2025-12-31T06:42:06.232Z",
+    "__v": 0
+  },
+  {
+    "_id": "6954c6da11417204518a3a1c",
+    "nome": "Usuario teste",
+    "email": "testejoao@teste.com",
+    "senha": "senhateste",
+    "tipo": "usuario",
+    "escolas": [
+      "EEEFM Fazenda Emílio Schroeder"
+    ],
+    "departamento": "Pedagógico",
+    "telefone": "",
+    "ativo": true,
+    "permissoes": {
+      "criarDemandas": true,
+      "editarDemandas": false,
+      "excluirDemandas": false,
+      "verTodasDemandas": false,
+      "atribuirDemandas": false,
+      "gerarRelatorios": false
+    },
+    "dataCriacao": "2025-12-31T06:46:50.081Z",
+    "__v": 0
+  },
+  {
+    "_id": "69587501e7fdfafdfdee432b",
+    "nome": "Teste Simples",
+    "email": "teste123@escola.gov.br",
+    "senha": "$2a$10$QV1MnLtr0oPV9ZFTlw81JOipfsPnfgXKA9GF7aArX8ZD5MtgfZGt6",
+    "tipo": "comum",
+    "departamento": null,
+    "escolas": [
+      "EEEFM Domingos Perim"
+    ],
+    "solicitacaoOrigem": null,
+    "senhaTemporaria": null,
+    "dataAprovacao": null,
+    "aprovadoPor": null,
+    "ativo": true,
+    "primeiroAcesso": false,
+    "contaAtiva": true,
+    "obrigarAlteracaoSenha": false,
+    "senhasAnteriores": [],
+    "tokens": [],
+    "criadoEm": "2026-01-03T01:46:41.660Z",
+    "atualizadoEm": "2026-01-03T01:46:41.664Z",
+    "dataCadastro": "2026-01-03T01:46:41.661Z",
+    "dataUltimaAlteracaoSenha": "2026-01-03T01:46:41.661Z",
+    "__v": 0
+  }
+]

@@ -1,8 +1,8 @@
-// src/middleware/auth.js
+// src/middleware/auth.js - PARA API/REST (MANTIDO)
 const jwt = require('jsonwebtoken');
 const { User } = require('../models/User');
 
-// Middleware para verificar token JWT
+// Middleware para verificar token JWT (API)
 const auth = async (req, res, next) => {
     try {
         // Obter token do header
