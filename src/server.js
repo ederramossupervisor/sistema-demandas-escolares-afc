@@ -2183,7 +2183,7 @@ app.post('/api/auth/login', async (req, res) => {
         // Buscar usuário no banco
         const User = UserModule.User;
         const escolasLista = UserModule.escolasLista;
-        const usuario = await User.findOne({ email, ativo: true });
+        const usuario = await UserModule.User.findOne({ email, ativo: true });
         
         if (!usuario) {
             return res.status(401).json({
@@ -2248,7 +2248,7 @@ app.post('/login', async (req, res) => {
         // Buscar usuário no banco
         const User = UserModule.User;
         const escolasLista = UserModule.escolasLista;
-        const usuario = await User.findOne({ email, ativo: true });
+        const usuario = await UserModule.User.findOne({ email, ativo: true });
         
         if (!usuario) {
             console.log('❌ Usuário não encontrado:', email);
@@ -2780,7 +2780,7 @@ app.post('/solicitar-cadastro', async (req, res) => {
         }
         
         // Verificar se já existe usuário com este email
-        const usuarioExistente = await User.findOne({
+        const usuarioExistente = await UserModule.User.findOne({
             email: email.toLowerCase().trim()
         });
         
@@ -3256,6 +3256,8 @@ app.post('/admin/solicitacoes/aprovar', async (req, res) => {
         const saltRounds = 10;
         const hashedPassword = await bcrypt.hash(senhaTemporaria, saltRounds);
         
+        
+
         // Criar novo usuário (COM CAMPOS CORRETOS DO MODELO USER)
         const novoUsuario = new User({
             nome: solicitacao.nomeCompleto || solicitacao.nome, // Use o campo correto da solicitação
