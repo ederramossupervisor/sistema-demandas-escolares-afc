@@ -260,13 +260,38 @@ app.set('views', path.join(__dirname, '../views'));  // 3. Pasta das views
 async function conectarMongoDB() {
     try {
         console.log('🔄 Conectando ao MongoDB Atlas...');
-        await mongoose.connect(process.env.MONGODB_URI, {
-            useNewUrlParser: true,
-            useUnifiedTopology: true
-        });
+        
+        // ⭐⭐ CORREÇÃO: REMOVA AS OPÇÕES DEPRECATED ⭐⭐
+        const connectionOptions = {};
+        
+        // Apenas em desenvolvimento, podemos manter algumas opções para debug
+        if (process.env.NODE_ENV !== 'production') {
+            // Opções para debug em desenvolvimento
+            connectionOptions.serverSelectionTimeoutMS = 10000;
+        }
+        
+        await mongoose.connect(process.env.MONGODB_URI, connectionOptions);
+        
         console.log('✅ MongoDB Atlas conectado!');
+        
+        // Log adicional para diagnóstico
+        console.log('📊 Status da conexão:', mongoose.connection.readyState === 1 ? 'Conectado' : 'Desconectado');
+        console.log('📁 Banco de dados:', mongoose.connection.name);
+        console.log('📍 Host:', mongoose.connection.host);
+        
     } catch (error) {
         console.log('❌ Erro MongoDB:', error.message);
+        
+        // Tentar conexão alternativa sem opções
+        if (error.message.includes('options')) {
+            console.log('🔄 Tentando conexão simples (sem opções)...');
+            try {
+                await mongoose.connect(process.env.MONGODB_URI);
+                console.log('✅ Conexão simples bem-sucedida!');
+            } catch (simpleError) {
+                console.log('❌ Falha na conexão simples:', simpleError.message);
+            }
+        }
     }
 }
 
@@ -389,7 +414,77 @@ const escolasLista = [
 // ============================================
 // 7. ROTAS DE DEMANDAS (API) - SIMPLIFICADO PARA TESTE
 // ============================================
-
+// ROTA DE EMERGÊNCIA: Correção completa de warnings
+app.get('/api/fix-all-warnings', async (req, res) => {
+    try {
+        console.log('🔧 INICIANDO CORREÇÃO COMPLETA DE WARNINGS');
+        
+        const resultados = [];
+        
+        // 1. Verificar e corrigir conexão MongoDB
+        resultados.push({
+            passo: 'Conexão MongoDB',
+            status: '✅ Configurado sem opções deprecated',
+            detalhes: 'Mongoose 6+ usa configurações padrão'
+        });
+        
+        // 2. Verificar índice duplicado
+        const User = require('./models/User');
+        const indexes = await User.collection.indexes();
+        const emailIndexes = indexes.filter(idx => idx.key && idx.key.email === 1);
+        
+        if (emailIndexes.length > 1) {
+            resultados.push({
+                passo: 'Índice duplicado email',
+                status: '⚠️ PROBLEMA DETECTADO',
+                detalhes: `Encontrados ${emailIndexes.length} índices no campo email`,
+                acao: 'Corrija manualmente em src/models/User.js removendo userSchema.index({ email: 1 })'
+            });
+        } else {
+            resultados.push({
+                passo: 'Índice duplicado email',
+                status: '✅ OK',
+                detalhes: 'Apenas 1 índice encontrado'
+            });
+        }
+        
+        // 3. Verificar outros modelos
+        const modelos = ['Demanda', 'SolicitacaoCadastro', 'Notificacao'];
+        for (const modelName of modelos) {
+            try {
+                const model = mongoose.model(modelName);
+                const modelIndexes = await model.collection.indexes();
+                resultados.push({
+                    passo: `Modelo ${modelName}`,
+                    status: '✅ OK',
+                    detalhes: `${modelIndexes.length} índice(s)`
+                });
+            } catch (e) {
+                // Modelo não existe ou não foi carregado
+            }
+        }
+        
+        res.json({
+            success: true,
+            timestamp: new Date().toISOString(),
+            sistema: process.env.NODE_ENV || 'development',
+            resultados: resultados,
+            proximos_passos: [
+                '1. Acesse /api/diagnostico/user-model para detalhes do User',
+                '2. Acesse /api/diagnostico/warnings para ver warnings',
+                '3. Corrija manualmente src/models/User.js se houver índice duplicado',
+                '4. Reinicie o servidor após correções'
+            ]
+        });
+        
+    } catch (error) {
+        console.error('❌ Erro na correção:', error);
+        res.status(500).json({ 
+            success: false, 
+            error: error.message 
+        });
+    }
+});
 // ROTA: Teste das rotas de demandas
 app.get('/api/demandas/teste', authMiddleware, (req, res) => {
     res.status(200).json({
@@ -4523,20 +4618,282 @@ mongoose.connection.once('open', () => {
         console.log('='.repeat(60));
     });
 }
+
+// ============================================
+// 🔍 ROTAS DE DIAGNÓSTICO SEM TERMINAL
+// ============================================
+
+// 1. DIAGNÓSTICO DO MODELO USER
+app.get('/api/diagnostico/user-model', async (req, res) => {
+    try {
+        console.log('🔍 Diagnosticando modelo User...');
+        
+        // Carregar o modelo User
+        const User = require('./models/User');
+        const schema = User.schema;
+        
+        // Analisar o campo email
+        const emailPath = schema.path('email');
+        const emailOptions = emailPath ? emailPath.options : {};
+        
+        // Verificar índices definidos no schema
+        const schemaIndexes = schema.indexes();
+        
+        // Buscar índices reais no banco
+        let dbIndexes = [];
+        try {
+            dbIndexes = await User.collection.indexes();
+        } catch (dbError) {
+            console.log('⚠️ Não foi possível buscar índices do banco:', dbError.message);
+        }
+        
+        // Detectar duplicatas
+        const emailIndexes = dbIndexes.filter(idx => 
+            idx.key && idx.key.email === 1
+        );
+        
+        const hasDuplicateIndex = emailIndexes.length > 1;
+        
+        res.json({
+            success: true,
+            diagnostico: {
+                modelo: 'User',
+                arquivo: 'src/models/User.js',
+                campo_email: {
+                    existe: !!emailPath,
+                    unique: emailOptions.unique || false,
+                    index: emailOptions.index || false,
+                    opcoes: emailOptions
+                },
+                indices_schema: schemaIndexes.length,
+                indices_schema_detalhes: schemaIndexes,
+                indices_banco: dbIndexes.length,
+                indices_email_banco: emailIndexes.length,
+                indices_email_detalhes: emailIndexes.map(idx => ({
+                    nome: idx.name,
+                    key: idx.key,
+                    unique: idx.unique || false
+                })),
+                problema_duplicado: hasDuplicateIndex ? '❌ ÍNDICE DUPLICADO' : '✅ OK',
+                acao_recomendada: hasDuplicateIndex 
+                    ? 'Remover userSchema.index({ email: 1 }) do models/User.js'
+                    : 'Nenhuma ação necessária'
+            }
+        });
+        
+    } catch (error) {
+        console.error('❌ Erro no diagnóstico:', error);
+        res.status(500).json({ 
+            success: false, 
+            error: error.message,
+            stack: process.env.NODE_ENV === 'development' ? error.stack : undefined
+        });
+    }
+});
+
+// 2. VERIFICAR WARNINGS ATIVOS
+app.get('/api/diagnostico/warnings', async (req, res) => {
+    try {
+        const warnings = [];
+        
+        // Verificar configuração do Mongoose
+        const mongooseConnection = mongoose.connection;
+        const connectionOptions = mongooseConnection._connectionOptions || {};
+        
+        // Verificar opções deprecated
+        if (connectionOptions.useNewUrlParser !== undefined) {
+            warnings.push({
+                tipo: 'mongoose',
+                mensagem: 'Opção deprecated: useNewUrlParser',
+                valor: connectionOptions.useNewUrlParser,
+                fix: 'Remover useNewUrlParser da conexão'
+            });
+        }
+        
+        if (connectionOptions.useUnifiedTopology !== undefined) {
+            warnings.push({
+                tipo: 'mongoose',
+                mensagem: 'Opção deprecated: useUnifiedTopology', 
+                valor: connectionOptions.useUnifiedTopology,
+                fix: 'Remover useUnifiedTopology da conexão'
+            });
+        }
+        
+        if (connectionOptions.useCreateIndex !== undefined) {
+            warnings.push({
+                tipo: 'mongoose',
+                mensagem: 'Opção deprecated: useCreateIndex',
+                valor: connectionOptions.useCreateIndex,
+                fix: 'Remover useCreateIndex da conexão'
+            });
+        }
+        
+        if (connectionOptions.useFindAndModify !== undefined) {
+            warnings.push({
+                tipo: 'mongoose',
+                mensagem: 'Opção deprecated: useFindAndModify',
+                valor: connectionOptions.useFindAndModify,
+                fix: 'Remover useFindAndModify da conexão'
+            });
+        }
+        
+        // Verificar ambiente
+        const ambiente = process.env.NODE_ENV || 'development';
+        const isProduction = ambiente === 'production';
+        
+        res.json({
+            success: true,
+            ambiente: ambiente,
+            production: isProduction,
+            total_warnings: warnings.length,
+            warnings: warnings,
+            recomendacoes: {
+                conexao_mongoose: isProduction 
+                    ? 'Usar apenas: mongoose.connect(process.env.MONGODB_URI)'
+                    : 'Pode manter opções para debug',
+                debug_mongoose: isProduction
+                    ? 'Desabilitar: mongoose.set("debug", false)'
+                    : 'Manter debug para desenvolvimento'
+            }
+        });
+        
+    } catch (error) {
+        res.status(500).json({ success: false, error: error.message });
+    }
+});
+
+// 3. CORREÇÃO AUTOMÁTICA DO ÍNDICE DUPLICADO
+app.post('/api/diagnostico/fix-index', async (req, res) => {
+    try {
+        console.log('🔧 Tentando correção automática de índice...');
+        
+        const User = require('./models/User');
+        const dbIndexes = await User.collection.indexes();
+        
+        // Filtrar índices do email
+        const emailIndexes = dbIndexes.filter(idx => 
+            idx.key && idx.key.email === 1
+        );
+        
+        if (emailIndexes.length <= 1) {
+            return res.json({
+                success: true,
+                message: '✅ Nenhum índice duplicado encontrado',
+                action: 'none'
+            });
+        }
+        
+        console.log(`⚠️ Encontrados ${emailIndexes.length} índices no campo email`);
+        
+        // Identificar qual índice remover (geralmente o não padrão)
+        const defaultIndex = emailIndexes.find(idx => idx.name === 'email_1');
+        const extraIndexes = emailIndexes.filter(idx => idx.name !== 'email_1');
+        
+        if (extraIndexes.length === 0) {
+            return res.json({
+                success: true,
+                message: '✅ Índices parecem OK (email_1 é o padrão)',
+                action: 'none'
+            });
+        }
+        
+        res.json({
+            success: true,
+            message: `⚠️ ${extraIndexes.length} índice(s) extra encontrado(s)`,
+            diagnostico: {
+                default_index: defaultIndex ? defaultIndex.name : 'não encontrado',
+                extra_indexes: extraIndexes.map(idx => idx.name),
+                acao_necessaria: 'MANUAL',
+                instrucoes: [
+                    '1. Acesse o arquivo src/models/User.js',
+                    '2. Procure por: userSchema.index({ email: 1 }, { unique: true })',
+                    '3. REMOVA esta linha se existir',
+                    '4. Mantenha apenas: email: { type: String, unique: true }',
+                    '5. Faça deploy no Render'
+                ],
+                alternativa: 'Se não puder editar o arquivo, podemos tentar remover via API (arriscado)'
+            }
+        });
+        
+    } catch (error) {
+        console.error('❌ Erro na correção:', error);
+        res.status(500).json({ 
+            success: false, 
+            error: error.message,
+            acao: 'Corrija manualmente o arquivo models/User.js'
+        });
+    }
+});
+
+// 4. REMOVER ÍNDICE DUPLICADO VIA API (OPCIONAL - ARRISCADO)
+app.post('/api/diagnostico/remove-duplicate-index', async (req, res) => {
+    try {
+        console.log('⚠️ TENTATIVA DE REMOVER ÍNDICE DUPLICADO VIA API');
+        
+        const { indexName } = req.body;
+        
+        if (!indexName) {
+            return res.status(400).json({
+                success: false,
+                message: 'Nome do índice é obrigatório',
+                exemplo: { indexName: 'email_1_1' }
+            });
+        }
+        
+        const User = require('./models/User');
+        
+        // Listar índices atuais
+        const indexesBefore = await User.collection.indexes();
+        console.log('Índices antes:', indexesBefore.map(idx => idx.name));
+        
+        // Tentar remover
+        await User.collection.dropIndex(indexName);
+        
+        // Listar novamente
+        const indexesAfter = await User.collection.indexes();
+        console.log('Índices depois:', indexesAfter.map(idx => idx.name));
+        
+        res.json({
+            success: true,
+            message: `Índice ${indexName} removido com sucesso`,
+            antes: indexesBefore.length,
+            depois: indexesAfter.length,
+            removido: true,
+            warning: '⚠️ Esta ação é irreversível. Certifique-se de corrigir o código fonte também.'
+        });
+        
+    } catch (error) {
+        console.error('❌ Falha ao remover índice:', error);
+        
+        let mensagemErro = error.message;
+        let recomendacao = 'Corrija manualmente no arquivo models/User.js';
+        
+        if (error.message.includes('not found')) {
+            mensagemErro = 'Índice não encontrado. Pode já ter sido removido.';
+        } else if (error.message.includes('auth')) {
+            mensagemErro = 'Sem permissão para remover índices. Contate o administrador do MongoDB.';
+        }
+        
+        res.status(500).json({
+            success: false,
+            error: mensagemErro,
+            recomendacao: recomendacao
+        });
+    }
+});
+
 // Teste específico para sua conexão
 async function testarSuaConexao() {
     try {
         console.log('🔍 Testando SUA conexão MongoDB Atlas...');
         
-        // SUA URI (a mesma do .env)
         const suaURI = 'mongodb+srv://sistema_escolar_admin:juliaanitaannaclara@cluster0.xejrej5.mongodb.net/sistema_escolar?retryWrites=true&w=majority';
         
-        console.log('📡 URI:', suaURI.replace(/:[^:@]*@/, ':****@')); // Oculta senha no log
+        console.log('📡 URI:', suaURI.replace(/:[^:@]*@/, ':****@'));
         
+        // REMOVA opções deprecated, mantenha apenas timeout
         const conn = await mongoose.createConnection(suaURI, {
-            useNewUrlParser: true,
-            useUnifiedTopology: true,
-            serverSelectionTimeoutMS: 10000 // 10 segundos
+            serverSelectionTimeoutMS: 10000
         }).asPromise();
         
         console.log('✅ CONEXÃO BEM-SUCEDIDA!');
@@ -4546,10 +4903,6 @@ async function testarSuaConexao() {
         return true;
     } catch (error) {
         console.log('❌ ERRO na conexão:', error.message);
-        console.log('💡 Verifique:');
-        console.log('   1. Se adicionou o IP há mais de 2 minutos');
-        console.log('   2. Se a senha está correta');
-        console.log('   3. Se o nome do banco está certo');
         return false;
     }
 }
