@@ -683,6 +683,26 @@
     
             <!-- Scripts -->
     <script>
+        // Em solicitacoes.js, adicionar:
+        router.get('/admin/solicitacoes/dados', verificarAdmin, async (req, res) => {
+            try {
+                const solicitacoes = await SolicitacaoCadastro.find({})
+                    .select('nome email telefone escola status dataSolicitacao tipo departamento')
+                    .sort({ dataSolicitacao: -1 })
+                    .lean();
+                
+                res.json({
+                    success: true,
+                    solicitacoes
+                });
+            } catch (error) {
+                console.error('Erro ao buscar dados:', error);
+                res.status(500).json({
+                    success: false,
+                    message: 'Erro interno'
+                });
+            }
+        });
         // Obter dados do servidor via atributos data
         const serverData = document.getElementById('serverData').dataset;
         const totalPendentes = parseInt(serverData.totalPendentes) || 0;

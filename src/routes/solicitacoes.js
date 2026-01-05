@@ -135,111 +135,194 @@ router.get('/admin/solicitacoes', verificarAdmin, async (req, res) => {
 });
 
 // API: Aprovar solicitação
-router.post('/admin/solicitacoes/:id/aprovar', verificarAdmin, async (req, res) => {
-    try {
-        const { id } = req.params;
-        const { tipo, departamento, escolas } = req.body;
-        
-        // Buscar solicitação
-        const solicitacao = await SolicitacaoCadastro.findById(id);
-        
-        if (!solicitacao) {
-            return res.status(404).json({
-                success: false,
-                message: 'Solicitação não encontrada'
-            });
-        }
-        
-        if (solicitacao.status !== 'pendente') {
-            return res.status(400).json({
-                success: false,
-                message: 'Solicitação já processada'
-            });
-        }
-        
-        // Verificar se email já está cadastrado
-        const usuarioExistente = await User.findOne({ email: solicitacao.email });
-        if (usuarioExistente) {
-            return res.status(400).json({
-                success: false,
-                message: 'Email já cadastrado no sistema'
-            });
-        }
-        
-        // Gerar senha temporária
-        const senhaTemporaria = senhaHelper.gerarSenhaTemporaria();
-        
-        // Criar novo usuário
-        const novoUsuario = new User({
-            nome: solicitacao.nome,
-            email: solicitacao.email,
-            senha: senhaTemporaria, // Será criptografada no pre-save
-            tipo: tipo || 'comum',
-            departamento: departamento || solicitacao.departamento,
-            escolas: escolas ? [escolas] : [solicitacao.escola],
-            ativo: true,
-            primeiroAcesso: true,
-            solicitacaoOrigem: solicitacao._id,
-            dataAprovacao: new Date(),
-            aprovadoPor: req.user._id,
-            senhaTemporaria: senhaTemporaria // Armazenar em texto claro para email
-        });
-        
-        // Salvar usuário
-        await novoUsuario.save();
-        
-        console.log('✅ Usuário criado:', novoUsuario.email);
-        
-        // Atualizar solicitação
-        solicitacao.status = 'aprovada';
-        solicitacao.processadoPor = req.user._id;
-        solicitacao.dataProcessamento = new Date();
-        solicitacao.usuarioCriado = novoUsuario._id;
-        solicitacao.notificadoUsuario = false;
-        
-        await solicitacao.save();
-        
-        // Enviar email de aprovação
-        try {
-            await emailService.enviarAprovacaoCadastro(novoUsuario, senhaTemporaria);
-            solicitacao.notificadoUsuario = true;
-            await solicitacao.save();
-        } catch (emailError) {
-            console.warn('⚠️ Email de aprovação não enviado:', emailError.message);
-            // Continua mesmo sem email
-        }
-        
-        // Criar notificação no sistema
-        if (req.io) {
-            // Notificar admin sobre sucesso
-            req.io.to(`user_${req.user._id}`).emit('notificacao', {
-                titulo: 'Solicitação Aprovada',
-                mensagem: `Usuário ${solicitacao.nome} cadastrado com sucesso`,
-                tipo: 'success',
-                data: new Date()
-            });
-        }
-        
-        res.json({
-            success: true,
-            message: 'Solicitação aprovada e usuário cadastrado com sucesso',
-            usuario: {
-                id: novoUsuario._id,
-                nome: novoUsuario.nome,
-                email: novoUsuario.email
-            }
-        });
-        
-    } catch (error) {
-        console.error('❌ Erro ao aprovar solicitação:', error);
-        res.status(500).json({
-            success: false,
-            message: 'Erro interno ao aprovar solicitação',
-            error: error.message
-        });
+router.post('/admin/solicitacoes/aprovar', verificarAdmin, async (req, res) => {
+  try {
+    console.log('=== APROVAÇÃO VIA ROTA /aprovar ===');
+    console.log('Body completo:', req.body);
+    
+    const { solicitacaoId } = req.body;
+    
+    if (!solicitacaoId) {
+      return res.status(400).json({
+        success: false,
+        message: 'ID da solicitação é obrigatório'
+      });
     }
+    
+    // Buscar solicitação COM TODOS OS CAMPOS
+    const solicitacao = await SolicitacaoCadastro.findById(solicitacaoId)
+      .select('+nome +email +senha +tipo +escola +telefone +status +departamento');
+    
+    console.log('Solicitação encontrada:', {
+      id: solicitacao?._id,
+      nome: solicitacao?.nome,
+      email: solicitacao?.email,
+      tipo: solicitacao?.tipo,
+      escola: solicitacao?.escola
+    });
+    
+    if (!solicitacao) {
+      return res.status(404).json({
+        success: false,
+        message: 'Solicitação não encontrada'
+      });
+    }
+    
+    if (solicitacao.status !== 'pendente') {
+      return res.status(400).json({
+        success: false,
+        message: 'Solicitação já processada'
+      });
+    }
+    
+    // Verificar se email já está cadastrado
+    const usuarioExistente = await User.findOne({ email: solicitacao.email });
+    if (usuarioExistente) {
+      return res.status(400).json({
+        success: false,
+        message: 'Email já cadastrado no sistema'
+      });
+    }
+    
+    // GERAR SENHA TEMPORÁRIA (se não tiver)
+    let senhaTemporaria = solicitacao.senha;
+    if (!senhaTemporaria || senhaTemporaria.length < 6) {
+      senhaTemporaria = Math.random().toString(36).slice(-8);
+    }
+    
+    console.log('Senha temporária gerada:', senhaTemporaria);
+    
+    // DETERMINAR ESCOLAS
+    let escolasArray = [];
+    const nomeUsuario = solicitacao.nome || 'Usuário';
+    
+    if (solicitacao.escola) {
+      // Verificar se é uma SRE
+      if (solicitacao.escola.startsWith('SRE ')) {
+        // Se for supervisor, array vazio
+        if (solicitacao.tipo === 'supervisor') {
+          escolasArray = [];
+        } else {
+          // Para outros tipos, usar escola padrão
+          escolasArray = ['CEEFMTI Afonso Cláudio'];
+        }
+      } else {
+        // Escola específica
+        escolasArray = [solicitacao.escola];
+      }
+    }
+    
+    console.log('Escolas atribuídas:', escolasArray);
+    
+    // Criar novo usuário
+    const novoUsuario = new User({
+      nome: nomeUsuario,
+      email: solicitacao.email,
+      senha: senhaTemporaria, // Será criptografada no pre-save
+      tipo: solicitacao.tipo === 'supervisor' ? 'supervisao' : solicitacao.tipo || 'comum',
+      departamento: solicitacao.departamento || null,
+      escolas: escolasArray,
+      ativo: true,
+      primeiroAcesso: true,
+      obrigarAlteracaoSenha: true,
+      solicitacaoOrigem: solicitacao._id,
+      dataAprovacao: new Date(),
+      aprovadoPor: req.user._id,
+      senhaTemporaria: senhaTemporaria // Armazenar em texto claro para referência
+    });
+    
+    // Salvar usuário
+    await novoUsuario.save();
+    console.log('✅ Usuário criado com ID:', novoUsuario._id);
+    
+    // Atualizar solicitação
+    solicitacao.status = 'aprovada';
+    solicitacao.processadoPor = req.user._id;
+    solicitacao.dataProcessamento = new Date();
+    solicitacao.usuarioCriado = novoUsuario._id;
+    solicitacao.notificadoUsuario = true;
+    
+    await solicitacao.save();
+    console.log('✅ Solicitação atualizada');
+    
+    // CRIAR NOTIFICAÇÃO NO BANCO DE DADOS
+    try {
+      const Notificacao = require('../models/Notificacao');
+      
+      const notificacao = new Notificacao({
+        usuarioId: novoUsuario._id,
+        tipo: 'cadastro',
+        titulo: 'Cadastro Aprovado',
+        mensagem: `Olá ${nomeUsuario}, seu cadastro foi aprovado! Use o email ${solicitacao.email} para fazer login.`,
+        dataCriacao: new Date(),
+        lida: false,
+        prioridade: 'alta'
+      });
+      
+      await notificacao.save();
+      console.log('✅ Notificação criada com ID:', notificacao._id);
+      
+    } catch (notificacaoError) {
+      console.error('⚠️ Erro ao criar notificação (continuando...):', notificacaoError.message);
+      // Não falhar o processo por causa da notificação
+    }
+    
+    // Enviar email de aprovação (simulado)
+    console.log(`
+══════════════════════════════════════════════════════════════════
+📧 E-MAIL DE BOAS-VINDAS
+══════════════════════════════════════════════════════════════════
+📨 Para: ${solicitacao.email}
+📨 De: sistema-escolar@sedu.es.gov.br
+🏷️ Assunto: Sua conta foi criada - Sistema Escolar
+══════════════════════════════════════════════════════════════════
+Olá ${nomeUsuario},
+Sua solicitação de cadastro foi APROVADA!
+📋 SEUS DADOS DE ACESSO:
+🔗 Sistema: https://sistema-demandas-escolares-afc.onrender.com/login
+📧 E-mail: ${solicitacao.email}
+🔑 Senha temporária: ${senhaTemporaria}
+⚠️ IMPORTANTE:
+1. Esta senha é TEMPORÁRIA
+2. No primeiro acesso, você será obrigado a alterá-la
+3. Não compartilhe suas credenciais
+👤 Tipo de usuário: ${solicitacao.tipo || 'comum'}
+Atenciosamente,
+Equipe do Sistema Escolar
+══════════════════════════════════════════════════════════════════
+    `);
+    
+    // Enviar notificação via Socket.io
+    if (req.io) {
+      req.io.to(`user_${novoUsuario._id}`).emit('notificacao', {
+        titulo: 'Cadastro Aprovado',
+        mensagem: `Bem-vindo, ${nomeUsuario}! Seu cadastro foi aprovado.`,
+        tipo: 'success',
+        data: new Date()
+      });
+    }
+    
+    res.json({
+      success: true,
+      message: 'Solicitação aprovada e usuário cadastrado com sucesso',
+      usuario: {
+        id: novoUsuario._id,
+        nome: nomeUsuario,
+        email: novoUsuario.email
+      }
+    });
+    
+  } catch (error) {
+    console.error('❌ ERRO CRÍTICO EM APROVAÇÃO:', error);
+    console.error('Stack:', error.stack);
+    
+    res.status(500).json({
+      success: false,
+      message: 'Erro interno ao aprovar solicitação',
+      error: process.env.NODE_ENV === 'development' ? error.message : undefined
+    });
+  }
 });
-
 // API: Rejeitar solicitação
 router.post('/admin/solicitacoes/:id/rejeitar', verificarAdmin, async (req, res) => {
     try {
