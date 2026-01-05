@@ -2669,7 +2669,27 @@ app.post('/alterar-senha', async (req, res) => {
         await usuario.save();
         
         console.log('✅ Senha alterada com sucesso para:', usuario.email);
-        
+        // Verificar se é supervisor sem escolas atribuídas
+        if (usuario.tipo === 'supervisor' && 
+            (!usuario.escolas || usuario.escolas.length === 0)) {
+            
+            console.log(`🔄 Supervisor ${usuario.email} sem escolas, redirecionando para atribuição`);
+            
+            req.session.mensagem = {
+                tipo: 'info',
+                texto: 'Agora, selecione as escolas que você irá supervisionar.'
+            };
+            
+            return res.redirect('/supervisor/atribuir-escolas');
+        }
+
+        // Se não for supervisor ou já tiver escolas, ir para dashboard
+        req.session.mensagem = {
+            tipo: 'success',
+            texto: 'Senha alterada com sucesso!'
+        };
+
+        return res.redirect('/dashboard');
         // 11. Atualizar sessão
         req.session.primeiroAcesso = false;
         req.session.obrigarAlteracaoSenha = false;
@@ -2977,14 +2997,49 @@ app.post('/solicitar-cadastro', async (req, res) => {
             });
         }
         
-        res.render('solicitar-cadastro', {
+            res.render('solicitar-cadastro', {
+                title: 'Solicitar Cadastro - Sistema de Demandas Escolares',
+                user: null,
+                escolas: escolasLista,
+                mensagemSucesso: null,
+                mensagemErro: 'Erro interno do servidor. Por favor, tente novamente.',
+                dadosForm: req.body
+            });
+        }
+        // 5. VALIDAR ESCOLA BASEADO NA FUNÇÃO (NOVO)
+console.log('🔍 Validando escola baseado na função:', funcaoNormalizada);
+
+// Para supervisor: escola deve ser SRE Afonso Cláudio
+if (funcaoNormalizada === 'Supervisor(a)') {
+    if (escola !== 'SRE Afonso Cláudio') {
+        return res.render('solicitar-cadastro', {
             title: 'Solicitar Cadastro - Sistema de Demandas Escolares',
             user: null,
             escolas: escolasLista,
             mensagemSucesso: null,
-            mensagemErro: 'Erro interno do servidor. Por favor, tente novamente.',
+            mensagemErro: 'Supervisores devem selecionar "SRE Afonso Cláudio" como local de trabalho.',
             dadosForm: req.body
         });
+    }
+        console.log('✅ Supervisor selecionou SRE Afonso Cláudio');
+    }
+
+    // Para outros usuários: validar se escola existe na lista (exceto SRE)
+    else {
+        // Remover SRE da lista para validação de outros usuários
+        const escolasValidas = escolasLista.filter(e => e !== 'SRE Afonso Cláudio');
+        
+        if (!escolasValidas.includes(escola)) {
+            return res.render('solicitar-cadastro', {
+                title: 'Solicitar Cadastro - Sistema de Demandas Escolares',
+                user: null,
+                escolas: escolasLista,
+                mensagemSucesso: null,
+                mensagemErro: 'Selecione uma escola válida da lista.',
+                dadosForm: req.body
+            });
+        }
+        console.log(`✅ ${funcaoNormalizada} selecionou escola: ${escola}`);
     }
 });
 // ============================================
@@ -3355,19 +3410,23 @@ app.post('/admin/solicitacoes/aprovar', async (req, res) => {
 
         // Criar novo usuário (COM CAMPOS CORRETOS DO MODELO USER)
         const novoUsuario = UserModule.User({
-            nome: solicitacao.nomeCompleto || solicitacao.nome, // Use o campo correto da solicitação
+            nome: solicitacao.nomeCompleto || solicitacao.nome,
             email: solicitacao.email.toLowerCase().trim(),
-            senha: senhaTemporaria, // Deixe a senha em texto puro, o pre-save vai criptografar
-            tipo: tipoMapeado || 'comum', // Garantir valor padrão
-            departamento: solicitacao.departamento, // Modelo usa 'departamento', não 'cargo'
-            escolas: solicitacao.escola ? [solicitacao.escola] : [], // Converter para array
+            senha: senhaTemporaria,
+            tipo: tipoMapeado || 'comum',
+            departamento: solicitacao.departamento,
+            
+            // ⭐⭐ MODIFICAÇÃO CRÍTICA: ESCOLAS BASEADO NO TIPO ⭐⭐
+            escolas: tipoMapeado === 'supervisor' 
+                ? [] // Supervisor: array vazio - ele vai atribuir depois
+                : [solicitacao.escola], // Outros: array com a escola informada
+            
             ativo: true,
             primeiroAcesso: true,
             solicitacaoOrigem: solicitacao._id,
             dataAprovacao: new Date(),
             aprovadoPor: user._id,
-            // Não inclua: telefone, cpf, matricula, cargo (a menos que adicione ao modelo)
-            // O campo senhasAnteriores será preenchido pelo middleware pre-save
+            // ... outros campos
         });
         
         // Salvar o usuário
@@ -4327,7 +4386,7 @@ app.get('/usuarios', authMiddleware, async (req, res) => {
     }
 });
 // ============================================
-// PÁGINA DE PERFIL (NOVA ROTA)
+// PÁGINA DE PERFIL (ATUALIZADA COM SUPERVISOR)
 // ============================================
 
 app.get('/perfil', authMiddleware, async (req, res) => {
@@ -4337,17 +4396,24 @@ app.get('/perfil', authMiddleware, async (req, res) => {
         const demandasPendentes = await Demanda.countDocuments({ status: 'pendente' });
         const demandasConcluidas = await Demanda.countDocuments({ status: 'concluida' });
         
+        // Buscar dados COMPLETOS do usuário do banco (incluindo dataConfiguracaoEscolas)
+        const usuarioCompleto = await UserModule.User.findById(req.user._id)
+            .select('nome email tipo departamento escolas dataConfiguracaoEscolas primeiroAcesso ultimoAcesso');
+        
+        // Se não encontrou, usar os dados da sessão
+        const userData = usuarioCompleto ? usuarioCompleto.toObject() : req.user;
+        
         res.render('perfil-com-includes', {
-        title: 'Meu Perfil - Sistema de Demandas',
-        user: req.user,
-        escolas: escolasLista,
-        currentPage: 'perfil',  // ⭐ ADICIONE ESTA LINHA ⭐
-        totalDemandas: totalDemandas,
-        demandasPendentes: demandasPendentes,
-        demandasConcluidas: demandasConcluidas,
-        success: null,
-        error: null
-    });
+            title: 'Meu Perfil - Sistema de Demandas',
+            user: userData,
+            escolas: escolasLista,
+            currentPage: 'perfil',
+            totalDemandas: totalDemandas,
+            demandasPendentes: demandasPendentes,
+            demandasConcluidas: demandasConcluidas,
+            success: req.session.mensagem?.texto || null,
+            error: null
+        });
     } catch (error) {
         console.error('❌ Erro na página de perfil:', error);
         res.status(500).render('error', {
@@ -4357,7 +4423,287 @@ app.get('/perfil', authMiddleware, async (req, res) => {
         });
     }
 });
+// ============================================
+// 🏫 ROTAS PARA SUPERVISOR ATRIBUIR ESCOLAS
+// ============================================
 
+// Rota: Página para supervisor atribuir escolas (primeiro acesso OU edição)
+app.get('/supervisor/atribuir-escolas', authMiddleware, async (req, res) => {
+    try {
+        const usuario = req.user;
+        const { editar } = req.query;
+        
+        // Verificar se é supervisor
+        if (usuario.tipo !== 'supervisor') {
+            console.log(`❌ Usuário ${usuario.email} (${usuario.tipo}) tentou acessar página de supervisor`);
+            return res.redirect('/dashboard');
+        }
+        
+        console.log(`🏫 Supervisor ${usuario.email} acessando página de atribuição de escolas`);
+        console.log(`   Modo edição: ${editar === 'true'}`);
+        console.log(`   Escolas atuais: ${usuario.escolas ? usuario.escolas.length : 0}`);
+        
+        // Filtrar escolas (remover SRE Afonso Cláudio da lista de opções)
+        const escolasDisponiveis = escolasLista.filter(escola => 
+            escola !== 'SRE Afonso Cláudio'
+        );
+        
+        // Determinar modo de operação
+        const modoEdicao = editar === 'true';
+        const temEscolasAtribuidas = usuario.escolas && usuario.escolas.length > 0;
+        
+        // Se não está editando e já tem escolas, redirecionar (exceto se veio do perfil)
+        if (!modoEdicao && temEscolasAtribuidas) {
+            console.log(`✅ Supervisor ${usuario.email} já tem escolas atribuídas, redirecionando...`);
+            
+            // Criar mensagem informativa
+            req.session.mensagem = {
+                tipo: 'info',
+                texto: 'Você já atribuiu escolas. Use a opção "Editar Escolas" no seu perfil para fazer alterações.'
+            };
+            
+            return res.redirect('/dashboard');
+        }
+        
+        // Preparar template com base no modo
+        const templateData = {
+            title: modoEdicao ? 'Editar Escolas Supervisionadas' : 'Atribuir Escolas - Supervisor',
+            user: usuario,
+            escolas: escolasDisponiveis,
+            mensagem: req.session.mensagem || null,
+            modoEdicao: modoEdicao,
+            temEscolasAtribuidas: temEscolasAtribuidas,
+            escolasAtuais: usuario.escolas || []
+        };
+        
+        // Limpar mensagem da sessão após usar
+        if (req.session.mensagem) {
+            delete req.session.mensagem;
+        }
+        
+        res.render('supervisor-atribuir-escolas', templateData);
+        
+    } catch (error) {
+        console.error('❌ Erro na página de atribuição de escolas:', error);
+        res.status(500).render('error', {
+            title: 'Erro',
+            message: 'Erro ao carregar página de atribuição de escolas',
+            user: req.user
+        });
+    }
+});
+
+// API: Salvar escolas do supervisor (primeiro acesso ou edição)
+app.post('/api/supervisor/atribuir-escolas', authMiddleware, async (req, res) => {
+    try {
+        const usuario = req.user;
+        const { escolas } = req.body;
+        const { modo } = req.body; // 'primeiro' ou 'edicao'
+        
+        console.log('🏫 Recebendo solicitação de atribuição de escolas:', {
+            supervisor: usuario.email,
+            quantidade: escolas ? escolas.length : 0,
+            modo: modo || 'primeiro'
+        });
+        
+        // Verificar se é supervisor
+        if (usuario.tipo !== 'supervisor') {
+            return res.status(403).json({
+                success: false,
+                message: 'Apenas supervisores podem atribuir escolas'
+            });
+        }
+        
+        // Validar entrada
+        if (!escolas || !Array.isArray(escolas) || escolas.length === 0) {
+            return res.status(400).json({
+                success: false,
+                message: 'Selecione pelo menos uma escola'
+            });
+        }
+        
+        // Validar se escolas existem na lista e não são SRE Afonso Cláudio
+        const escolasInvalidas = [];
+        const escolasValidas = [];
+        
+        escolas.forEach(escola => {
+            if (escolasLista.includes(escola) && escola !== 'SRE Afonso Cláudio') {
+                escolasValidas.push(escola);
+            } else {
+                escolasInvalidas.push(escola);
+            }
+        });
+        
+        if (escolasInvalidas.length > 0) {
+            return res.status(400).json({
+                success: false,
+                message: `Escolas inválidas: ${escolasInvalidas.join(', ')}. Selecione apenas escolas da lista.`,
+                escolasInvalidas: escolasInvalidas
+            });
+        }
+        
+        console.log(`✅ Validado ${escolasValidas.length} escola(s) para o supervisor ${usuario.email}`);
+        
+        // Preparar dados de atualização
+        const updateData = {
+            escolas: escolasValidas,
+            dataAtualizacaoEscolas: new Date()
+        };
+        
+        // Se for primeiro acesso, marcar que não precisa mais atribuir
+        if (modo === 'primeiro') {
+            updateData.primeiroAcesso = false;
+            updateData.dataConfiguracaoEscolas = new Date();
+        }
+        
+        // Atualizar usuário no banco
+        const usuarioAtualizado = await UserModule.User.findByIdAndUpdate(
+            usuario._id,
+            updateData,
+            { new: true, select: 'nome email tipo escolas dataConfiguracaoEscolas' }
+        );
+        
+        if (!usuarioAtualizado) {
+            return res.status(500).json({
+                success: false,
+                message: 'Erro ao atualizar usuário no banco de dados'
+            });
+        }
+        
+        // Atualizar dados na sessão
+        req.user.escolas = escolasValidas;
+        if (modo === 'primeiro') {
+            req.user.primeiroAcesso = false;
+            req.user.dataConfiguracaoEscolas = updateData.dataConfiguracaoEscolas;
+        }
+        
+        // Criar notificação
+        try {
+            const Notificacao = require('./models/Notificacao');
+            const notificacao = new Notificacao({
+                usuarioId: usuario._id,
+                titulo: modo === 'primeiro' ? 'Escolas Atribuídas' : 'Escolas Atualizadas',
+                mensagem: `Você ${modo === 'primeiro' ? 'atribuiu' : 'atualizou'} ${escolasValidas.length} escola(s) à sua supervisão.`,
+                tipo: 'success',
+                link: '/perfil'
+            });
+            await notificacao.save();
+            
+            // Emitir notificação via Socket.io se disponível
+            if (io && userConnections[usuario._id]) {
+                io.to(`user-${usuario._id}`).emit('new-notification', {
+                    titulo: notificacao.titulo,
+                    mensagem: notificacao.mensagem,
+                    tipo: notificacao.tipo
+                });
+            }
+        } catch (notifError) {
+            console.log('⚠️ Não foi possível criar notificação:', notifError.message);
+        }
+        
+        // Log da ação
+        console.log(`✅ Supervisor ${usuario.email} ${modo === 'primeiro' ? 'atribuiu' : 'atualizou'} ${escolasValidas.length} escola(s):`);
+        escolasValidas.forEach((escola, index) => {
+            console.log(`   ${index + 1}. ${escola}`);
+        });
+        
+        res.json({
+            success: true,
+            message: modo === 'primeiro' 
+                ? `${escolasValidas.length} escola(s) atribuída(s) com sucesso!` 
+                : `${escolasValidas.length} escola(s) atualizada(s) com sucesso!`,
+            escolas: escolasValidas,
+            quantidade: escolasValidas.length,
+            redirect: '/dashboard',
+            modo: modo
+        });
+        
+    } catch (error) {
+        console.error('❌ Erro ao atribuir escolas:', error);
+        res.status(500).json({
+            success: false,
+            message: 'Erro interno ao atribuir escolas',
+            error: process.env.NODE_ENV === 'development' ? error.message : undefined
+        });
+    }
+});
+
+// API: Obter escolas do supervisor (para edição no perfil)
+app.get('/api/supervisor/minhas-escolas', authMiddleware, async (req, res) => {
+    try {
+        const usuario = req.user;
+        
+        if (usuario.tipo !== 'supervisor') {
+            return res.status(403).json({
+                success: false,
+                message: 'Apenas para supervisores'
+            });
+        }
+        
+        // Buscar dados atualizados do banco
+        const supervisorAtualizado = await UserModule.User.findById(usuario._id)
+            .select('escolas dataConfiguracaoEscolas');
+        
+        res.json({
+            success: true,
+            escolas: supervisorAtualizado?.escolas || [],
+            dataConfiguracao: supervisorAtualizado?.dataConfiguracaoEscolas,
+            temEscolas: supervisorAtualizado?.escolas?.length > 0
+        });
+        
+    } catch (error) {
+        console.error('❌ Erro ao obter escolas do supervisor:', error);
+        res.status(500).json({
+            success: false,
+            message: 'Erro interno'
+        });
+    }
+});
+
+// API: Atualizar escolas do supervisor (edição)
+app.put('/api/supervisor/atualizar-escolas', authMiddleware, async (req, res) => {
+    try {
+        const usuario = req.user;
+        const { escolas } = req.body;
+        
+        if (usuario.tipo !== 'supervisor') {
+            return res.status(403).json({
+                success: false,
+                message: 'Apenas para supervisores'
+            });
+        }
+        
+        // Validações similares à rota POST
+        if (!escolas || !Array.isArray(escolas)) {
+            return res.status(400).json({
+                success: false,
+                message: 'Lista de escolas inválida'
+            });
+        }
+        
+        // Atualizar no banco
+        await UserModule.User.findByIdAndUpdate(usuario._id, {
+            escolas: escolas,
+            dataAtualizacaoEscolas: new Date()
+        });
+        
+        // Atualizar sessão
+        req.user.escolas = escolas;
+        
+        res.json({
+            success: true,
+            message: 'Escolas atualizadas com sucesso',
+            escolas: escolas
+        });
+        
+    } catch (error) {
+        console.error('❌ Erro ao atualizar escolas:', error);
+        res.status(500).json({
+            success: false,
+            message: 'Erro interno'
+        });
+    }
+});
 // ============================================
 // 10. ROTAS DE TESTE E ADMIN
 // ============================================

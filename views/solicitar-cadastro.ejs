@@ -160,6 +160,15 @@
         .success-message {
             animation: successPulse 2s ease infinite;
         }
+        
+        /* Estilo para campos com foco */
+        .form-group.focused .form-label {
+            color: #0096E1;
+        }
+        
+        .form-group {
+            margin-bottom: 1.5rem;
+        }
     </style>
 </head>
 <body>
@@ -208,7 +217,7 @@
             <form id="formSolicitacaoCadastro" method="POST" action="/solicitar-cadastro">
                 <div class="row g-3">
                     <!-- Nome Completo -->
-                    <div class="col-12">
+                    <div class="col-12 form-group">
                         <label for="nomeCompleto" class="form-label">
                             Nome Completo <span class="required-asterisk">*</span>
                         </label>
@@ -219,7 +228,7 @@
                     </div>
                     
                     <!-- E-mail -->
-                    <div class="col-12">
+                    <div class="col-12 form-group">
                         <label for="email" class="form-label">
                             E-mail Institucional <span class="required-asterisk">*</span>
                         </label>
@@ -230,7 +239,7 @@
                     </div>
                     
                     <!-- Função -->
-                    <div class="col-md-6">
+                    <div class="col-md-6 form-group">
                         <label for="funcao" class="form-label">
                             Função <span class="required-asterisk">*</span>
                         </label>
@@ -247,7 +256,7 @@
                     </div>
                     
                     <!-- Departamento -->
-                    <div class="col-md-6">
+                    <div class="col-md-6 form-group">
                         <label for="departamento" class="form-label">
                             Departamento <span class="required-asterisk">*</span>
                         </label>
@@ -257,14 +266,20 @@
                     </div>
                     
                     <!-- Escola -->
-                    <div class="col-12">
+                    <div class="col-12 form-group">
                         <label for="escola" class="form-label">
-                            Escola/Unidade <span class="required-asterisk">*</span>
+                            <i class="fas fa-building me-1"></i>
+                            Escola / Local de Trabalho <span class="required-asterisk">*</span>
                         </label>
-                        <input type="text" class="form-control" id="escola" name="escola" 
-                               placeholder="Nome da escola ou unidade" required
-                               value="<%= dadosForm && dadosForm.escola ? dadosForm.escola : '' %>">
-                        <div class="form-text">Informe o nome completo da escola onde atua</div>
+                        <select class="form-select" id="escola" name="escola" required>
+                            <option value="">Selecione sua escola/local de trabalho</option>
+                            <!-- As opções serão preenchidas via JavaScript -->
+                        </select>
+                        <div class="form-text">
+                            <span id="escola-info">
+                                <!-- Texto dinâmico baseado na função -->
+                            </span>
+                        </div>
                     </div>
                 </div>
                 
@@ -298,6 +313,13 @@
     
     <!-- Scripts -->
     <%- include('partials/scripts') %>
+    
+    <!-- Elemento oculto para passar dados do servidor -->
+    <div id="server-data" 
+         data-escolas='["CEEFMTI Afonso Cláudio", "CEEFMTI Elisa Paiva", "EEEFM Domingos Perim", "EEEFM Fazenda Emílio Schroeder", "EEEFM Álvaro Castelo", "EEEFM Alto Rio Possmoser", "EEEFM Elvira Barros", "EEEFM Fazenda Camporês", "EEEFM Fioravante Caliman", "EEEFM Frederico Boldt", "EEEFM Gisela Salloker Fayet", "EEEFM Graça Aranha", "EEEFM Joaquim Caetano de Paiva", "EEEFM José Cupertino", "EEEFM José Giestas", "EEEFM José Roberto Christo", "EEEFM Leogildo Severiano de Souza", "EEEFM Luiz Jouffroy", "EEEFM Marlene Brandão", "EEEFM Maria de Abreu Alvim", "EEEFM Pedra Azul", "EEEFM Ponto do Alto", "EEEFM Prof. Hermann Berger", "EEEFM Profª Aldy Soares Merçon Vargas", "EEEFM São Jorge", "EEEFM São Luís", "EEEFM Teófilo Paulino", "EEEM Francisco Guilherme", "EEEM Mata Fria", "EEEM Sobreiro"]'
+         data-escola-preenchida="<%= dadosForm && dadosForm.escola ? dadosForm.escola : '' %>"
+         style="display: none;">
+    </div>
     
     <script>
         // Validação do formulário
@@ -353,13 +375,106 @@
         
         // Efeito de foco nos campos
         document.querySelectorAll('.form-control, .form-select').forEach(input => {
-            input.addEventListener('focus', function() {
-                this.parentElement.classList.add('focused');
-            });
+            const formGroup = input.closest('.form-group');
+            if (formGroup) {
+                input.addEventListener('focus', function() {
+                    formGroup.classList.add('focused');
+                });
+                
+                input.addEventListener('blur', function() {
+                    formGroup.classList.remove('focused');
+                });
+            }
+        });
+    </script>
+    
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const funcaoSelect = document.getElementById('funcao');
+            const escolaSelect = document.getElementById('escola');
+            const escolaInfo = document.getElementById('escola-info');
+            const serverData = document.getElementById('server-data');
             
-            input.addEventListener('blur', function() {
-                this.parentElement.classList.remove('focused');
-            });
+            // Obter dados do elemento oculto
+            const escolasData = serverData.getAttribute('data-escolas');
+            const escolaPreenchida = serverData.getAttribute('data-escola-preenchida');
+            
+            // Converter string JSON para array
+            let escolas = [];
+            try {
+                escolas = JSON.parse(escolasData);
+            } catch (e) {
+                console.error('Erro ao parsear escolas:', e);
+                // Lista de fallback
+                escolas = [
+                    'CEEFMTI Afonso Cláudio', 'CEEFMTI Elisa Paiva', 'EEEFM Domingos Perim',
+                    'EEEFM Fazenda Emílio Schroeder', 'EEEFM Álvaro Castelo', 'EEEFM Alto Rio Possmoser',
+                    'EEEFM Elvira Barros', 'EEEFM Fazenda Camporês', 'EEEFM Fioravante Caliman',
+                    'EEEFM Frederico Boldt', 'EEEFM Gisela Salloker Fayet', 'EEEFM Graça Aranha',
+                    'EEEFM Joaquim Caetano de Paiva', 'EEEFM José Cupertino', 'EEEFM José Giestas',
+                    'EEEFM José Roberto Christo', 'EEEFM Leogildo Severiano de Souza',
+                    'EEEFM Luiz Jouffroy', 'EEEFM Marlene Brandão', 'EEEFM Maria de Abreu Alvim',
+                    'EEEFM Pedra Azul', 'EEEFM Ponto do Alto', 'EEEFM Prof. Hermann Berger',
+                    'EEEFM Profª Aldy Soares Merçon Vargas', 'EEEFM São Jorge', 'EEEFM São Luís',
+                    'EEEFM Teófilo Paulino', 'EEEM Francisco Guilherme', 'EEEM Mata Fria', 'EEEM Sobreiro'
+                ];
+            }
+            
+            const sreAfonsoClaudio = 'SRE Afonso Cláudio';
+            
+            // Adicionar SRE Afonso Cláudio à lista se não existir
+            if (!escolas.includes(sreAfonsoClaudio)) {
+                escolas.unshift(sreAfonsoClaudio);
+            }
+            
+            // Função para atualizar opções de escola
+            function atualizarEscolas() {
+                const funcao = funcaoSelect.value;
+                
+                // Limpar opções atuais (exceto a primeira)
+                while (escolaSelect.options.length > 1) {
+                    escolaSelect.remove(1);
+                }
+                
+                if (funcao === 'Supervisor(a)') {
+                    // Para supervisor: apenas SRE Afonso Cláudio
+                    const option = document.createElement('option');
+                    option.value = sreAfonsoClaudio;
+                    option.text = sreAfonsoClaudio;
+                    escolaSelect.appendChild(option);
+                    
+                    escolaInfo.innerHTML = '<i class="fas fa-info-circle"></i> Como supervisor, você será responsável por gerenciar múltiplas escolas. No primeiro acesso, você poderá selecionar quais escolas irá supervisionar.';
+                    
+                } else {
+                    // Para outros usuários: todas as escolas
+                    escolas.forEach(escola => {
+                        if (escola) {
+                            const option = document.createElement('option');
+                            option.value = escola;
+                            option.text = escola;
+                            escolaSelect.appendChild(option);
+                        }
+                    });
+                    
+                    escolaInfo.innerHTML = '<i class="fas fa-info-circle"></i> Selecione a escola onde você trabalha. Esta será sua escola principal no sistema.';
+                }
+                
+                // Selecionar escola pré-preenchida, se houver
+                if (escolaPreenchida && escolaPreenchida !== '') {
+                    for (let i = 0; i < escolaSelect.options.length; i++) {
+                        if (escolaSelect.options[i].value === escolaPreenchida) {
+                            escolaSelect.selectedIndex = i;
+                            break;
+                        }
+                    }
+                }
+            }
+            
+            // Atualizar ao mudar função
+            funcaoSelect.addEventListener('change', atualizarEscolas);
+            
+            // Inicializar
+            atualizarEscolas();
         });
     </script>
 </body>

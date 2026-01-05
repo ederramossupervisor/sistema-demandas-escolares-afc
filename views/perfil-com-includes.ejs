@@ -546,6 +546,86 @@
         font-size: 1.1rem !important;
     }
 }
+/* ==================== */
+/* ESTILOS PARA SEÇÃO DE SUPERVISOR */
+/* ==================== */
+
+/* Card de escolas supervisionadas */
+.card.border-info {
+    border-width: 2px !important;
+    border-color: #0dcaf0 !important;
+}
+
+.card.border-info .card-header {
+    background: linear-gradient(135deg, #0dcaf0 0%, #0d6efd 100%) !important;
+}
+
+/* Hover effect nos itens de escola */
+.hover-shadow:hover {
+    box-shadow: 0 5px 15px rgba(13, 110, 253, 0.15) !important;
+    transform: translateY(-2px) !important;
+    transition: all 0.3s ease !important;
+    border-color: #0dcaf0 !important;
+}
+
+/* Badge de contagem */
+.badge.bg-light.text-info {
+    background-color: rgba(13, 202, 240, 0.15) !important;
+    color: #0dcaf0 !important;
+    font-weight: 600 !important;
+}
+
+/* Botão de ação para supervisor */
+.btn-outline-primary {
+    border-color: #0dcaf0 !important;
+    color: #0dcaf0 !important;
+}
+
+.btn-outline-primary:hover {
+    background-color: #0dcaf0 !important;
+    color: white !important;
+}
+
+/* Ajustes para mobile */
+@media (max-width: 768px) {
+    .card.border-info .card-body {
+        padding: 1rem !important;
+    }
+    
+    #lista-escolas-perfil .col-md-6 {
+        width: 100% !important;
+        margin-bottom: 10px !important;
+    }
+    
+    .d-flex.justify-content-between {
+        flex-direction: column !important;
+        gap: 10px !important;
+    }
+    
+    .d-flex.justify-content-between > div {
+        width: 100% !important;
+        text-align: center !important;
+    }
+}
+
+/* Modal de edição */
+.modal-content {
+    border-radius: 15px !important;
+    overflow: hidden !important;
+}
+
+.modal-header {
+    padding: 1.5rem !important;
+}
+
+.modal-body {
+    padding: 2rem !important;
+}
+
+.modal-footer {
+    padding: 1.5rem !important;
+    border-top: 1px solid #dee2e6 !important;
+}
 </style>
 </head>
 <body>
@@ -733,7 +813,110 @@
                                                 </div>
                                             </div>
                                         </div>
-                                        
+                                        <!-- =============================================== -->
+                                        <!-- SEÇÃO ESPECIAL PARA SUPERVISOR (NOVO!) -->
+                                        <!-- =============================================== -->
+                                        <% if (user.tipo === 'supervisor') { %>
+                                        <div class="mt-4 mb-4">
+                                            <div class="card border-info">
+                                                <div class="card-header bg-info text-white">
+                                                    <h5 class="mb-0">
+                                                        <i class="bi bi-buildings me-2"></i>
+                                                        Escolas Supervisionadas
+                                                        <% if (user.escolas && user.escolas.length > 0) { %>
+                                                            <span class="badge bg-light text-info ms-2">
+                                                                <%= user.escolas.length %> escola(s)
+                                                            </span>
+                                                        <% } %>
+                                                    </h5>
+                                                </div>
+                                                <div class="card-body">
+                                                    <% if (user.escolas && user.escolas.length > 0) { %>
+                                                        <!-- Lista de escolas com layout bonito -->
+                                                        <div class="row" id="lista-escolas-perfil">
+                                                            <% user.escolas.forEach(function(escola) { %>
+                                                            <div class="col-md-6 mb-3">
+                                                                <div class="d-flex align-items-center p-3 border rounded bg-light hover-shadow">
+                                                                    <div class="flex-shrink-0">
+                                                                        <i class="bi bi-building text-primary fs-4 me-3"></i>
+                                                                    </div>
+                                                                    <div class="flex-grow-1">
+                                                                        <h6 class="mb-1 fw-bold">
+                                                                            <%= escola.length > 35 ? escola.substring(0, 35) + '...' : escola %>
+                                                                        </h6>
+                                                                        <small class="text-muted d-block">
+                                                                            <i class="bi bi-geo-alt me-1"></i>
+                                                                            Afonso Cláudio - ES
+                                                                        </small>
+                                                                        <small class="text-muted">
+                                                                            <i class="bi bi-calendar me-1"></i>
+                                                                            Vinculada desde: 
+                                                                            <% if (user.dataConfiguracaoEscolas) { %>
+                                                                                <%= new Date(user.dataConfiguracaoEscolas).toLocaleDateString('pt-BR') %>
+                                                                            <% } else { %>
+                                                                                Recente
+                                                                            <% } %>
+                                                                        </small>
+                                                                    </div>
+                                                                </div>
+                                                            </div>
+                                                            <% }); %>
+                                                        </div>
+                                                        
+                                                        <!-- Botões de ação -->
+                                                        <div class="mt-4 d-flex justify-content-between align-items-center">
+                                                            <div>
+                                                                <small class="text-muted">
+                                                                    <i class="bi bi-info-circle me-1"></i>
+                                                                    Você gerencia <%= user.escolas.length %> escola(s)
+                                                                </small>
+                                                            </div>
+                                                            <div>
+                                                                <button class="btn btn-outline-primary btn-sm" onclick="editarEscolasSupervisor()">
+                                                                    <i class="bi bi-pencil me-1"></i>
+                                                                    Editar Escolas
+                                                                </button>
+                                                                <a href="/supervisor/atribuir-escolas?editar=true" class="btn btn-primary btn-sm ms-2">
+                                                                    <i class="bi bi-plus-circle me-1"></i>
+                                                                    Adicionar Escola
+                                                                </a>
+                                                            </div>
+                                                        </div>
+                                                    <% } else { %>
+                                                        <!-- Supervisor SEM escolas atribuídas -->
+                                                        <div class="alert alert-warning">
+                                                            <div class="d-flex">
+                                                                <div class="flex-shrink-0">
+                                                                    <i class="bi bi-exclamation-triangle fs-3"></i>
+                                                                </div>
+                                                                <div class="flex-grow-1 ms-3">
+                                                                    <h5 class="alert-heading">Atenção, Supervisor!</h5>
+                                                                    <p class="mb-2">
+                                                                        Você ainda não atribuiu escolas à sua supervisão. 
+                                                                        É necessário selecionar as escolas que irá gerenciar.
+                                                                    </p>
+                                                                    <p class="mb-0">
+                                                                        <a href="/supervisor/atribuir-escolas" class="alert-link fw-bold">
+                                                                            <i class="bi bi-arrow-right-circle me-1"></i>
+                                                                            Clique aqui para atribuir escolas agora
+                                                                        </a>
+                                                                    </p>
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                    <% } %>
+                                                </div>
+                                                <div class="card-footer bg-transparent">
+                                                    <small class="text-muted">
+                                                        <i class="bi bi-lightbulb me-1"></i>
+                                                        Você pode editar esta lista a qualquer momento em "Meu Perfil" → "Escolas Supervisionadas"
+                                                    </small>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <% } %>
+                                        <!-- FIM DA SEÇÃO PARA SUPERVISOR -->
+                                        <!-- =============================================== -->
                                         <!-- Permissões -->
                                         <h4 class="section-title">
                                             <i class="bi bi-shield-lock"></i>Permissões
@@ -1128,6 +1311,115 @@
             // Animar entrada
             const container = document.querySelector('.profile-container');
             container.style.animation = 'fadeIn 0.6s ease-out';
+        });
+        // Função para editar escolas do supervisor
+        function editarEscolasSupervisor() {
+            // Mostrar modal de confirmação
+            const modalHTML = `
+                <div class="modal fade" id="modalEditarEscolas" tabindex="-1" aria-hidden="true">
+                    <div class="modal-dialog modal-dialog-centered">
+                        <div class="modal-content">
+                            <div class="modal-header bg-info text-white">
+                                <h5 class="modal-title">
+                                    <i class="bi bi-buildings me-2"></i>
+                                    Editar Escolas Supervisionadas
+                                </h5>
+                                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                            </div>
+                            <div class="modal-body">
+                                <p>Você será redirecionado para a página de gestão de escolas.</p>
+                                <p class="text-muted small">
+                                    <i class="bi bi-info-circle me-1"></i>
+                                    Lá você poderá adicionar ou remover escolas da sua supervisão.
+                                </p>
+                            </div>
+                            <div class="modal-footer">
+                                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+                                    <i class="bi bi-x-circle me-1"></i>
+                                    Cancelar
+                                </button>
+                                <button type="button" class="btn btn-primary" onclick="confirmarEdicaoEscolas()">
+                                    <i class="bi bi-check-circle me-1"></i>
+                                    Continuar
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            `;
+            
+            // Adicionar modal ao DOM
+            document.body.insertAdjacentHTML('beforeend', modalHTML);
+            
+            // Mostrar modal
+            const modal = new bootstrap.Modal(document.getElementById('modalEditarEscolas'));
+            modal.show();
+            
+            // Remover modal do DOM quando fechar
+            document.getElementById('modalEditarEscolas').addEventListener('hidden.bs.modal', function() {
+                this.remove();
+            });
+        }
+
+        // Função para confirmar redirecionamento
+        function confirmarEdicaoEscolas() {
+            window.location.href = '/supervisor/atribuir-escolas?editar=true';
+        }
+
+        // Função para carregar dinamicamente as escolas do supervisor
+        async function carregarEscolasSupervisor() {
+            try {
+                const response = await fetch('/api/supervisor/minhas-escolas');
+                const data = await response.json();
+                
+                if (data.success && data.escolas.length > 0) {
+                    const container = document.getElementById('lista-escolas-perfil');
+                    if (container) {
+                        // Atualizar contador
+                        document.querySelector('.badge.bg-light.text-info').textContent = 
+                            `${data.escolas.length} escola(s)`;
+                        
+                        // Atualizar lista
+                        let html = '';
+                        data.escolas.forEach(escola => {
+                            html += `
+                            <div class="col-md-6 mb-3">
+                                <div class="d-flex align-items-center p-3 border rounded bg-light">
+                                    <i class="bi bi-building text-primary fs-4 me-3"></i>
+                                    <div>
+                                        <h6 class="mb-1">${escola}</h6>
+                                        <small class="text-muted d-block">
+                                            <i class="bi bi-geo-alt me-1"></i>
+                                            Afonso Cláudio - ES
+                                        </small>
+                                    </div>
+                                </div>
+                            </div>
+                            `;
+                        });
+                        container.innerHTML = html;
+                    }
+                }
+            } catch (error) {
+                console.error('Erro ao carregar escolas:', error);
+            }
+        }
+
+        // Carregar escolas quando a aba de informações for aberta
+        document.addEventListener('DOMContentLoaded', function() {
+            // Verificar se é supervisor
+            const userTipo = '<%= user.tipo %>';
+            if (userTipo === 'supervisor') {
+                // Adicionar listener para quando a aba de informações for clicada
+                document.getElementById('info-tab')?.addEventListener('shown.bs.tab', function() {
+                    carregarEscolasSupervisor();
+                });
+                
+                // Carregar inicialmente se já estiver na aba de informações
+                if (document.getElementById('info').classList.contains('active')) {
+                    carregarEscolasSupervisor();
+                }
+            }
         });
     </script>
 </body>
