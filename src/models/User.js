@@ -34,7 +34,8 @@ const escolasLista = [
     'EEEFM Teófilo Paulino',
     'EEEM Francisco Guilherme',
     'EEEM Mata Fria',
-    'EEEM Sobreiro'
+    'EEEM Sobreiro',
+    'SRE Afonso Cláudio'
 ];
 
 const UserSchema = new mongoose.Schema({
